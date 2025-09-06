@@ -1,0 +1,1445 @@
+/* global.css */
+
+/* Variables CSS pour les couleurs et polices */
+:root {
+  /* ... vos variables existantes ... */
+  --primary-gradient-start: #6a0dad;
+  --primary-gradient-end: #00008b;
+  --secondary-blue: #007bff;
+  --accent-purple: #8a2be2;
+  --text-light: #ffffff;
+  --text-dark: #333333;
+  --card-background: rgba(255, 255, 255, 0.07);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --border-radius-lg: 15px;
+  --border-radius-md: 10px;
+  --font-family-sans: "Inter", sans-serif;
+
+  /* NOUVELLES COULEURS ULTRA-SOMBRRES ET MODERNES POUR LE DÉGRADÉ MOUVANT (avec le jaune intégré) */
+  --moving-gradient-color1: #1a1e2a; /* Bleu-gris très profond, presque noir */
+  --moving-gradient-color2: #2a3b4c; /* Bleu-gris sombre */
+  --moving-gradient-color3: #402e4a; /* Violet-bleu sombre */
+  --moving-gradient-color4: #254f6a; /* Un bleu plus sombre et muted (remplace le bleu vif) */
+  --moving-gradient-color5: #a08000; /* Un jaune/ambre sombre et doré (remplace le jaune vif) */
+
+  /* Dégradé pour le texte animé (inchangé) */
+  --text-animated-gradient: linear-gradient(
+    135deg,
+    #ff005a,
+    #00aaff,
+    #ffdd00,
+    #8a2be2,
+    #00ff7f
+  );
+
+  /* Variables pour le dégradé de bordure et couleurs spécifiques de la modale */
+  --border-gradient-start: #a365e9;
+  --border-gradient-end: #592ee9;
+}
+
+/* Styles pour html et body */
+html {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: var(--font-family-sans);
+  color: var(--text-light);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #0a0a0a; /* Couleur de fond du body inchangée et très sombre */
+}
+
+/* Styles pour le fond animé (inchangés, sauf les couleurs via variables) */
+.animated-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: calc(100vh + 200px);
+
+  background: linear-gradient(
+    -45deg,
+    var(--moving-gradient-color1),
+    var(--moving-gradient-color2),
+    var(--moving-gradient-color3),
+    var(--moving-gradient-color4),
+    var(--moving-gradient-color5) /* Utilise la 5ème couleur */
+  );
+  background-size: 400% 400%;
+  animation: userProvidedGradient 20s ease infinite; /* Durée de 20s inchangée */
+
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Keyframes pour l'animation du dégradé (inchangées) */
+@keyframes userProvidedGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Animation des keyframes pour le texte dégradé (inchangé) */
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Buttons */
+.btn {
+  padding: 15px 30px;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(
+    90deg,
+    var(--primary-gradient-start),
+    var(--primary-gradient-end)
+  );
+  color: var(--text-light);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 2px solid var(--secondary-blue);
+  color: var(--secondary-blue);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: var(--text-light);
+  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+}
+
+/* Container de base */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* main-page.css */
+
+/* Header - Hero Section */
+.hero-section {
+  background: transparent; /* Permet au dégradé du body de s'afficher */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* NOUVEAUX STYLES POUR LA NAVBAR */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  background-color: rgba(
+    13,
+    13,
+    43,
+    0.9
+  ); /* Garde le fond semi-transparent pour le glassmorphism */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+}
+
+.navbar .logo {
+  width: 100px;
+  height: auto;
+}
+
+.navbar .nav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 25px;
+}
+
+.navbar .nav-links .nav-link {
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.2em;
+  padding: 5px 0;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.navbar .nav-links .nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -3px;
+  left: 0;
+  background: linear-gradient(
+    90deg,
+    var(--primary-gradient-start),
+    var(--primary-gradient-end)
+  );
+  transition: width 0.3s ease-out;
+}
+
+.navbar .nav-links .nav-link:hover::after,
+.navbar .nav-links .nav-link.active::after {
+  width: 100%;
+}
+
+.navbar .nav-links .nav-link:hover {
+  color: var(--primary-gradient-end);
+}
+
+.navbar .nav-buttons {
+  display: flex;
+  gap: 15px;
+  padding-right: 30px; /* DÉCALAGE DES BOUTONS DU BORD DROIT */
+}
+
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 21px;
+  cursor: pointer;
+  z-index: 101;
+}
+
+.menu-toggle .bar {
+  width: 100%;
+  height: 3px;
+  background-color: var(--text-light);
+  transition: all 0.3s ease-in-out;
+}
+
+.menu-toggle.active .bar:nth-child(1) {
+  transform: translateY(9px) rotate(45deg);
+}
+
+.menu-toggle.active .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle.active .bar:nth-child(3) {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+/* Fin des NOUVEAUX STYLES POUR LA NAVBAR */
+
+.hero-content {
+  max-width: 800px;
+  margin-top: 120px;
+}
+
+.hero-content h1 {
+  font-size: 4.5em;
+  margin-bottom: 20px;
+  line-height: 1.1;
+}
+
+.hero-content p {
+  font-size: 1.2em;
+  margin-bottom: 40px;
+  opacity: 0.9;
+}
+
+.hero-buttons .btn {
+  margin: 0 10px;
+}
+
+/* Why Choose Spark Section */
+.why-choose-spark-section {
+  padding: 80px 0;
+  background: transparent; /* Permet au dégradé du body de s'afficher */
+  text-align: center;
+  overflow: hidden;
+}
+.why-choose-spark-section h2 {
+  font-size: 3em;
+  margin-bottom: 50px;
+  color: var(--text-light);
+}
+
+.why-choose-spark-section .cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.why-choose-spark-section .card {
+  background: rgba(255, 255, 255, 0.08); /* Garde le fond semi-transparent */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--border-radius-lg);
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(5px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: var(--text-light);
+}
+
+.why-choose-spark-section .card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.why-choose-spark-section .card img {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 8px rgba(0, 123, 255, 0.5));
+}
+
+.why-choose-spark-section .card h3 {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+}
+
+.why-choose-spark-section .card p {
+  font-size: 0.95em;
+  opacity: 0.8;
+}
+
+/* Choose Your Journey Section (Section vide, mais les styles de plan-card y seraient si utilisés hors modale) */
+.choose-your-journey-section {
+  padding: 80px 0;
+  text-align: center;
+  background: transparent; /* Permet au dégradé du body de s'afficher */
+  color: var(--text-light);
+  overflow: hidden;
+}
+
+.choose-your-journey-section h2 {
+  font-size: 3em;
+  margin-bottom: 50px;
+}
+
+/* Statistics Section */
+.statistics-section {
+  background: transparent; /* Permet au dégradé du body de s'afficher */
+  padding: 80px 20px;
+  text-align: center;
+  color: var(--text-light);
+  overflow: hidden;
+}
+
+.statistics-section h2 {
+  font-size: 3em;
+  margin-bottom: 20px;
+  color: var(--text-light);
+}
+
+.statistics-section p {
+  font-size: 1.2em;
+  margin-bottom: 50px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stat-item {
+  background: rgba(255, 255, 255, 0.08); /* Garde le fond semi-transparent */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--border-radius-lg);
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.stat-value {
+  font-size: 4em;
+  font-weight: 800;
+  background: linear-gradient(
+    90deg,
+    var(--primary-gradient-start),
+    var(--primary-gradient-end)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  margin-bottom: 10px;
+  line-height: 1;
+}
+
+.stat-description {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: var(--secondary-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  opacity: 0.9;
+}
+
+/* CTA Section */
+.cta-section {
+  background: transparent; /* Permet au dégradé du body de s'afficher */
+  padding: 80px 0;
+  text-align: center;
+  background-position: center;
+  color: var(--text-light);
+  overflow: hidden;
+}
+
+.cta-section h2 {
+  font-size: 3.2em;
+  margin-bottom: 20px;
+}
+
+.cta-section p {
+  font-size: 1.1em;
+  margin-bottom: 40px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0.9;
+}
+
+/* Styles pour la nouvelle section des plans sur la page d'accueil */
+.plans-homepage-section {
+  padding: 60px 20px; /* Padding vertical et horizontal par défaut pour desktop */
+  text-align: center;
+  background: transparent; /* Permet au dégradé du body de s'afficher */
+  margin-top: 40px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  color: var(--text-light);
+  overflow: hidden; /* Important pour contenir les débordements sur desktop */
+}
+
+.plans-homepage-section h2 {
+  /* Ancien .section-title */
+  font-size: 3em;
+  color: var(--text-light);
+  margin-bottom: 10px;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.plans-homepage-section p {
+  /* Ancien .section-subtitle */
+  font-size: 1.3em;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 50px;
+}
+
+/* DEFAULT / DESKTOP STYLES for #homepagePlansContainer */
+#homepagePlansContainer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 colonnes par défaut sur desktop */
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  min-height: 300px; /* Pour éviter le tassement pendant le chargement */
+}
+
+/* Styles pour les cartes de plan individuelles (partagé entre desktop et mobile) */
+.plan-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Pousse le bouton vers le bas */
+  /* Assurez-vous d'avoir ici vos styles visuels de base pour la carte (background, border, padding, border-radius) */
+}
+.plan-card .btn {
+  /* Style par défaut pour le bouton du plan */
+}
+
+/* NOUVEAUX STYLES POUR LA LISTE DES CARACTÉRISTIQUES */
+.plan-features {
+  list-style: none; /* Supprime les puces par défaut */
+  padding: 0;
+  margin: 0 0 20px 0; /* Espacement après la liste et avant le bouton */
+  text-align: left; /* Alignement du texte à gauche */
+  flex-grow: 1; /* Permet à la liste de prendre l'espace disponible */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centrer verticalement les éléments si peu nombreux */
+}
+
+.plan-features li {
+  font-size: 0.9em;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 10px;
+  display: flex; /* Pour aligner le losange et le texte */
+  align-items: center; /* Centrer verticalement losange et texte */
+}
+
+.plan-features li:last-child {
+  margin-bottom: 0; /* Pas de marge après le dernier élément */
+}
+
+/* Ancien: .plan-features li img { ... } */ /* SUPPRIMÉ car remplacé par .feature-diamond */
+
+.feature-diamond {
+  width: 12px; /* Taille du losange */
+  height: 12px; /* Doit être la même que la largeur pour un carré */
+  margin-right: 10px; /* Espacement entre le losange et le texte */
+  flex-shrink: 0; /* Empêche le losange de rétrécir */
+
+  /* Styles pour créer le losange et le dégradé */
+  background: linear-gradient(
+    90deg,
+    var(--primary-gradient-start),
+    var(--primary-gradient-end)
+  );
+  transform: rotate(45deg); /* Transforme le carré en losange */
+  border-radius: 2px; /* Légère courbure pour un look plus doux si désiré */
+}
+/* FIN DES NOUVEAUX STYLES POUR LA LISTE DES CARACTÉRISTIQUES */
+
+/* Styles spécifiques pour le chargement sur la homepage */
+#homepageLoadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(13, 13, 43, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: var(--border-radius-lg);
+  transition: opacity 0.3s ease;
+}
+
+#homepagePlansContainer.loaded #homepageLoadingOverlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Responsive Adjustments for main page */
+@media (max-width: 1200px) {
+  #homepagePlansContainer {
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes à partir de 1200px */
+  }
+}
+
+@media (max-width: 992px) {
+  .hero-content h1 {
+    font-size: 3.5em;
+  }
+
+  .hero-content p {
+    font-size: 1.1em;
+  }
+
+  .why-choose-spark-section h2,
+  .choose-your-journey-section h2,
+  .cta-section h2 {
+    font-size: 2.5em;
+  }
+
+  .why-choose-spark-section .cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  /* Responsive de la Navbar pour les écrans plus petits - Styles mis à jour */
+  .navbar .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: rgba(13, 13, 43, 0.95);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    padding: 10px 0;
+    border-bottom-left-radius: var(--border-radius-md);
+    border-bottom-right-radius: var(--border-radius-md);
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease-out;
+  }
+
+  .navbar .nav-links.active {
+    display: flex;
+    max-height: 200px;
+  }
+
+  .navbar .nav-links li {
+    margin: 5px 0;
+    text-align: center;
+  }
+
+  .navbar .nav-links .nav-link {
+    font-size: 1.1em;
+    padding: 8px 0;
+    display: block;
+  }
+
+  .navbar .nav-buttons {
+    display: none; /* Les boutons sont cachés dans le menu mobile */
+    padding-right: 20px; /* On réduit le padding pour mobile si besoin */
+  }
+
+  .menu-toggle {
+    display: flex;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2.8em;
+  }
+
+  .hero-content p {
+    font-size: 1em;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+
+  .hero-buttons .btn {
+    margin: 10px 0;
+    width: 80%;
+  }
+
+  .why-choose-spark-section h2,
+  .choose-your-journey-section h2,
+  .cta-section h2 {
+    font-size: 2em;
+  }
+
+  /* ADAPTATIONS CLÉS POUR LE DÉFILEMENT HORIZONTAL DES PLANS SUR MOBILE */
+  .plans-homepage-section {
+    /* Retire le padding horizontal de la section pour permettre le défilement bord-à-bord */
+    padding: 40px 0; /* Padding vertical conservé, horizontal = 0 */
+  }
+  .plans-homepage-section .container {
+    /* Retire également le padding du conteneur interne de la section */
+    padding-left: 0;
+    padding-right: 0;
+    overflow: hidden; /* Empêche tout débordement du conteneur */
+  }
+
+  .plans-homepage-section .section-title {
+    /* S'applique à h2 dans cette section */
+    font-size: 2.2em;
+  }
+  .plans-homepage-section .section-subtitle {
+    /* S'applique à p dans cette section */
+    font-size: 1.1em;
+    margin-bottom: 30px;
+  }
+
+  #homepagePlansContainer {
+    /* Remplace la disposition grid par une disposition flex pour le défilement */
+    display: flex;
+    flex-wrap: nowrap; /* Empêche les cartes de passer à la ligne */
+    overflow-x: auto; /* Active le défilement horizontal */
+    -webkit-overflow-scrolling: touch; /* Pour un défilement fluide sur iOS */
+    scroll-snap-type: x mandatory; /* Force l'alignement sur chaque carte */
+
+    gap: 20px; /* Espacement entre les cartes */
+    margin-top: 30px; /* Ajustement de la marge supérieure */
+
+    /* Ajoute un padding interne pour les cartes visibles aux bords */
+    padding-left: 20px;
+    padding-right: 20px;
+
+    /* Masque la barre de défilement pour un look plus épuré */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE et Edge */
+    /* min-height existant est conservé */
+  }
+
+  #homepagePlansContainer::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  .plan-card {
+    /* Chaque carte prend une partie définie de la largeur pour le défilement */
+    flex: 0 0 85%; /* La carte prend 85% de la largeur du conteneur de défilement */
+    max-width: 85%; /* S'assure de ne pas dépasser cette largeur */
+    scroll-snap-align: start; /* S'aligne au début de la vue de défilement */
+    /* Supprime toute règle de largeur fixe ou de marge qui pourrait interférer */
+  }
+
+  .plan-card .btn {
+    width: 100%; /* Le bouton de chaque carte prend toute la largeur disponible */
+  }
+
+  /* Styles Responsive pour la section Statistiques sur 768px */
+  .statistics-section {
+    padding: 60px 15px;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .stat-value {
+    font-size: 3.5em;
+  }
+  .stat-description {
+    font-size: 1.1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-content h1 {
+    font-size: 2.2em;
+  }
+
+  .hero-content p {
+    font-size: 0.9em;
+  }
+
+  .btn {
+    padding: 12px 20px;
+    font-size: 0.9em;
+  }
+
+  .why-choose-spark-section .card {
+    padding: 20px;
+  }
+
+  .why-choose-spark-section .card img {
+    width: 60px;
+    height: 60px;
+  }
+
+  /* Styles Responsive pour la section Statistiques sur 480px */
+  .statistics-section .stat-value {
+    font-size: 2em;
+  }
+
+  .cta-section h2 {
+    font-size: 1.8em;
+  }
+}
+
+/* Styles pour les titres avec dégradé (Invest in the Future of Music, Our Investment Plans) */
+.highlight-text {
+  background-image: var(--text-animated-gradient);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: gradient-move 8s ease-in-out infinite alternate;
+}
+
+/* Styles pour le texte SPARK en inline (dans les paragraphes, navbar, titres de section secondaires) */
+.highlight-text-inline {
+  background: linear-gradient(
+    90deg,
+    var(--primary-gradient-start),
+    var(--primary-gradient-end)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* plans-modal.css */
+
+/* ========================================= */
+/* Refonte Graphique de la Modale des Plans */
+/* STYLE NÉON - Harmonisé avec le thème global */
+/* ========================================= */
+
+/* Variables CSS pour les couleurs des dégradés des boutons et les lueurs néon */
+:root {
+  /* Couleurs de base des dégradés des boutons, alignées avec le thème principal */
+  --investor-button-start: #007bff; /* Bleu Secondaire du global.css */
+  --investor-button-end: #00c6ff; /* Un bleu plus clair pour l'effet */
+  --artist-button-start: #8a2be2; /* Accent Purple du global.css */
+  --artist-button-end: #a365e9; /* Un violet plus clair */
+  --label-button-start: #ff7f50; /* Coral pour contraste mais dans le spectre chaud */
+  --label-button-end: #ffa07a; /* Light Salmon */
+  --free-fan-button-start: #4caf50; /* Vert du thème global */
+  --free-fan-button-end: #8bc34a; /* Vert clair */
+
+  /* Nouvelles variables pour les lueurs néon, basées sur la palette globale */
+  --neon-primary-glow: #a365e9; /* Violet lumineux */
+  --neon-secondary-glow: #00c6ff; /* Bleu éclatant */
+  --neon-accent-glow: #ff005a; /* Rouge/Rose pour les accents textuels ou spécifiques */
+
+  /* Définition des couleurs sombres pour le fond de la modale, alignées sur le global */
+  --dark-bg-global: #0d0d2b; /* Fond du body */
+  --modal-bg-subtle: rgba(
+    13,
+    13,
+    43,
+    0.95
+  ); /* Proche du fond global, légèrement transparent */
+  --text-light: #ffffff; /* Texte clair du global.css */
+  --secondary-blue: #007bff; /* Bleu secondaire du global.css */
+  --border-radius-lg: 15px;
+  --border-radius-md: 10px;
+
+  /* Couleur de fond générale de la modale */
+  --modal-background-color: linear-gradient(
+    145deg,
+    var(--dark-bg-global),
+    rgba(26, 26, 58, 0.98)
+  ); /* Dégradé pour le fond */
+  --modal-border-glow: var(
+    --neon-secondary-glow
+  ); /* Lueur par défaut de la modale */
+}
+
+/* Styles de base de la Modale */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.8
+  ); /* Fond noir plus opaque pour l'effet néon */
+  backdrop-filter: blur(8px); /* Effet de flou plus prononcé */
+  -webkit-backdrop-filter: blur(8px);
+  justify-content: center;
+  align-items: center;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out; /* Transitions plus lentes */
+}
+
+.modal.active {
+  opacity: 1;
+  visibility: visible;
+  display: flex;
+}
+
+.modal-content {
+  background: var(--modal-background-color); /* Utilise le dégradé défini */
+  margin: auto;
+  padding: 45px; /* Légèrement plus de padding */
+  border-radius: var(--border-radius-lg);
+  width: 90%;
+  max-width: 1300px; /* Plus large pour accueillir les lueurs */
+  position: relative;
+  text-align: center;
+  color: var(--text-light);
+  transform: translateY(-70px); /* Animation d'entrée plus prononcée */
+  opacity: 0;
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out; /* Transitions plus lentes */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  /* Bordure lumineuse */
+  border: 2px solid rgba(var(--neon-secondary-glow-rgb), 0.3); /* Bordure subtile de base */
+  box-shadow: 0 0 30px var(--neon-secondary-glow),
+    /* Lueur principale néon */ 0 0 60px
+      rgba(var(--neon-secondary-glow-rgb), 0.3),
+    inset 0 0 20px rgba(var(--neon-secondary-glow-rgb), 0.2); /* Lueur interne */
+}
+
+/* Helper pour obtenir les valeurs RGB des couleurs néon */
+:root {
+  --neon-primary-glow-rgb: 163, 101, 233; /* from #a365e9 */
+  --neon-secondary-glow-rgb: 0, 198, 255; /* from #00c6ff */
+  --neon-accent-glow-rgb: 255, 0, 90; /* from #ff005a */
+}
+
+.modal.active .modal-content {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.modal-content h2 {
+  font-size: 3.2em; /* Titre plus grand */
+  color: var(--text-light);
+  margin-bottom: 25px;
+  text-shadow: 0 0 10px var(--neon-primary-glow),
+    /* Lueur néon */ 0 0 20px var(--neon-primary-glow),
+    0 0 30px rgba(var(--neon-primary-glow-rgb), 0.5);
+  font-weight: 800; /* Plus gras */
+  letter-spacing: 1.5px; /* Espacement des lettres */
+}
+
+.modal-content h3 {
+  font-size: 1.4em; /* Texte de description plus grand */
+  color: rgba(255, 255, 255, 0.8); /* Plus clair */
+  margin-bottom: 50px; /* Plus d'espace */
+  max-width: 800px;
+  line-height: 1.6;
+}
+
+.close-button {
+  color: var(--text-light);
+  font-size: 3em; /* Plus grande */
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
+  text-shadow: 0 0 8px var(--neon-primary-glow); /* Lueur par défaut */
+}
+
+.close-button:hover,
+.close-button:focus {
+  color: var(--secondary-blue); /* Couleur secondaire du thème global */
+  transform: rotate(90deg) scale(1.1); /* Rotation et léger agrandissement */
+  text-shadow: 0 0 15px var(--secondary-blue),
+    /* Lueur plus intense au survol */ 0 0 25px var(--secondary-blue);
+}
+
+/* Conteneur des cartes de plan */
+#plansContainer,
+.plan-cards-container {
+  display: grid;
+  grid-template-columns: repeat(
+    4,
+    1fr
+  ); /* 4 colonnes pour un meilleur alignement */
+  gap: 50px; /* Augmenter l'espacement */
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.6s ease; /* Transition plus douce */
+  justify-content: center;
+}
+
+#plansContainer.loaded,
+.plan-cards-container.loaded {
+  opacity: 1;
+}
+
+/* Style de chaque carte de plan */
+.plan-card {
+  border-radius: var(--border-radius-lg);
+  padding: 30px 35px; /* Plus de padding */
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+
+  background-color: rgba(255, 255, 255, 0.03); /* Très léger fond translucide */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Bordure subtile de base */
+
+  /* Lumière interne */
+  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.1); /* Lueur interne subtile */
+
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+  cursor: pointer;
+
+  /* Variables CSS personnalisées pour les lueurs spécifiques à chaque plan */
+  --plan-glow-color: var(
+    --neon-secondary-glow
+  ); /* Couleur de lueur par défaut */
+}
+
+/* Pseudo-élément pour la lueur néon */
+.plan-card::before {
+  content: "";
+  position: absolute;
+  top: -3px; /* Légèrement débordant */
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border-radius: var(--border-radius-lg);
+  background: linear-gradient(
+    45deg,
+    var(--plan-glow-color),
+    transparent 50%,
+    var(--plan-glow-color)
+  );
+  z-index: -1;
+  filter: blur(12px); /* Lueur plus intense */
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.plan-card:hover::before {
+  opacity: 1;
+}
+
+.plan-card:hover {
+  transform: translateY(-8px); /* Montée plus prononcée */
+  /* Box-shadow externe pour la lueur néon au survol */
+  box-shadow: 0 0 25px var(--plan-glow-color),
+    /* Lueur principale */ 0 0 50px rgba(var(--plan-glow-color-rgb), 0.4),
+    /* Lueur plus diffuse */ inset 0 0 25px
+      rgba(var(--plan-glow-color-rgb), 0.2); /* Lueur interne accentuée */
+  border-color: rgba(
+    var(--plan-glow-color-rgb),
+    0.5
+  ); /* Bordure qui prend la couleur de lueur */
+}
+
+/* Badge "Most Popular" */
+.most-popular-badge {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background: linear-gradient(
+    45deg,
+    #ffd700,
+    #ffa500
+  ); /* Or/Orange, peut être ajusté pour plus de cohérence */
+  color: #333; /* Texte sombre pour un bon contraste */
+  padding: 7px 20px;
+  border-bottom-left-radius: 12px;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: uppercase;
+  z-index: 10;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 0 5px rgba(255, 255, 0, 0.7); /* Petite lueur dorée */
+}
+
+/* NOUVEAUX STYLES POUR L'ICÔNE DU PLAN */
+.plan-icon {
+  width: 70px; /* Plus grande */
+  height: 70px;
+  margin-bottom: 25px;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.1),
+    transparent 70%
+  ); /* Effet de halo léger */
+  border-radius: 50%;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5),
+    /* Ombre interne */ 0 0 15px rgba(255, 255, 255, 0.3); /* Lueur blanche subtile */
+}
+
+.plan-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(
+    0 0 10px var(--plan-glow-color)
+  ); /* Lueur néon sur l'icône */
+}
+
+/* Texte de la carte */
+.plan-card .plan-name {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 2em; /* Plus grand */
+  font-weight: 800;
+  color: var(--text-light);
+  text-shadow: 0 0 8px var(--plan-glow-color),
+    /* Lueur néon sur le texte */ 0 0 15px rgba(var(--plan-glow-color-rgb), 0.4);
+  letter-spacing: 1px;
+}
+
+.plan-card .plan-description {
+  font-size: 1em; /* Taille standard */
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 25px;
+  min-height: 40px; /* Hauteur minimale légèrement augmentée */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.5;
+}
+
+.plan-card .price {
+  font-size: 3em; /* Prix beaucoup plus grand */
+  font-weight: 900;
+  margin-bottom: 30px;
+  color: var(--text-light);
+  text-shadow: 0 0 10px var(--plan-glow-color), 0 0 20px var(--plan-glow-color),
+    0 0 30px rgba(var(--plan-glow-color-rgb), 0.6); /* Lueur intense sur le prix */
+}
+
+.plan-card .price span {
+  font-size: 0.4em; /* Légèrement plus petit par rapport au prix */
+  font-weight: normal;
+  opacity: 0.7;
+  margin-left: 8px;
+  vertical-align: super; /* Aligne le /month plus haut */
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  margin-bottom: 40px; /* Plus d'espace avec le bouton */
+  flex-grow: 1;
+  width: 100%;
+}
+
+.plan-features li {
+  margin-bottom: 12px; /* Plus d'espace entre les éléments */
+  font-size: 1.05em; /* Légèrement plus grand */
+  display: flex;
+  align-items: flex-start;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.plan-features li .bullet {
+  color: var(--neon-secondary-glow); /* Couleur néon pour les puces, alignée */
+  margin-right: 12px;
+  font-size: 1em;
+  line-height: 1.2;
+  text-shadow: 0 0 8px var(--neon-secondary-glow); /* Lueur sur les puces */
+}
+
+/* Bouton de sélection de plan */
+.btn-plan-select {
+  display: inline-block;
+  padding: 15px 40px; /* Plus grand */
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-size: 1.2em; /* Texte plus grand */
+  font-weight: 700;
+  color: var(--text-light);
+  background-size: 200% auto;
+  transition: all 0.4s ease; /* Transition plus douce */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Ombre de base */
+
+  /* Bordure lumineuse pour les boutons */
+  border: 2px solid transparent;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  /* Le background-image est défini dynamiquement en JS pour les couleurs spécifiques */
+  /* Ci-dessous, un dégradé par défaut qui sera écrasé par JS */
+  background-image: linear-gradient(
+    to right,
+    var(--neon-primary-glow) 0%,
+    var(--neon-secondary-glow) 50%,
+    var(--neon-primary-glow) 100%
+  );
+}
+
+.btn-plan-select:hover {
+  background-position: right center;
+  transform: translateY(-5px); /* Soulèvement plus prononcé */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 25px var(--plan-glow-color); /* Lueur du bouton intensifiée */
+  border-image: linear-gradient(
+      45deg,
+      var(--plan-glow-color),
+      rgba(var(--plan-glow-color-rgb), 0.5)
+    )
+    1;
+}
+
+/* Couleurs spécifiques des boutons (appliquées via JS en définissant les variables CSS) */
+/* Les `background-image` seront définis dynamiquement par JS pour utiliser `startColor` et `endColor` */
+/* Exemple pour référence, ces règles CSS pourraient être moins nécessaires si JS gère tout */
+.plan-card[data-plan-id="free-fan"] .btn-plan-select {
+  --btn-gradient-start: var(--free-fan-button-start);
+  --btn-gradient-end: var(--free-fan-button-end);
+  background-image: linear-gradient(
+    to right,
+    var(--btn-gradient-start) 0%,
+    var(--btn-gradient-end) 50%,
+    var(--btn-gradient-start) 100%
+  );
+}
+.plan-card[data-plan-id="premium-investor"] .btn-plan-select {
+  --btn-gradient-start: var(--investor-button-start);
+  --btn-gradient-end: var(--investor-button-end);
+  background-image: linear-gradient(
+    to right,
+    var(--btn-gradient-start) 0%,
+    var(--btn-gradient-end) 50%,
+    var(--btn-gradient-start) 100%
+  );
+}
+.plan-card[data-plan-id="artist-pro"] .btn-plan-select {
+  --btn-gradient-start: var(--artist-button-start);
+  --btn-gradient-end: var(--artist-button-end);
+  background-image: linear-gradient(
+    to right,
+    var(--btn-gradient-start) 0%,
+    var(--btn-gradient-end) 50%,
+    var(--btn-gradient-start) 100%
+  );
+}
+.plan-card[data-plan-id="label-suite"] .btn-plan-select {
+  --btn-gradient-start: var(--label-button-start);
+  --btn-gradient-end: var(--label-button-end);
+  background-image: linear-gradient(
+    to right,
+    var(--btn-gradient-start) 0%,
+    var(--btn-gradient-end) 50%,
+    var(--btn-gradient-start) 100%
+  );
+}
+
+/* ========================================= */
+/* Styles pour l'overlay de chargement de la modale */
+/* ========================================= */
+#modalLoadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.95
+  ); /* Fond très sombre pour le chargement */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+}
+
+#modalLoadingOverlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ========================================= */
+/* Responsive pour la modale */
+/* ========================================= */
+@media (max-width: 1200px) {
+  #plansContainer,
+  .plan-cards-container {
+    grid-template-columns: repeat(
+      2,
+      1fr
+    ); /* 2 colonnes sur des écrans plus petits */
+    gap: 40px;
+  }
+  .modal-content h2 {
+    font-size: 2.8em;
+  }
+  .modal-content h3 {
+    font-size: 1.2em;
+  }
+  .plan-card .price {
+    font-size: 2.8em;
+  }
+}
+
+@media (max-width: 992px) {
+  .hero-content h1 {
+    font-size: 3.5em;
+  }
+
+  .hero-content p {
+    font-size: 1.1em;
+  }
+
+  .why-choose-spark-section h2,
+  .choose-your-journey-section h2,
+  .cta-section h2 {
+    font-size: 2.5em;
+  }
+
+  .why-choose-spark-section .cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  /* Responsive de la Navbar pour les écrans plus petits - Styles mis à jour */
+  .navbar .nav-links {
+    display: none; /* Cache les liens de nav par défaut */
+    flex-direction: column;
+    position: absolute;
+    top: 100%; /* Juste en dessous de la barre de nav */
+    left: 0;
+    width: 100%;
+    background-color: rgba(13, 13, 43, 0.95); /* Fond du menu ouvert */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    padding: 10px 0; /* Réduction du padding vertical du conteneur */
+    border-bottom-left-radius: var(--border-radius-md);
+    border-bottom-right-radius: var(--border-radius-md);
+    overflow: hidden; /* Pour l'animation de hauteur */
+    max-height: 0; /* Caché par défaut */
+    transition: max-height 0.4s ease-out; /* Animation d'ouverture/fermeture */
+  }
+
+  .navbar .nav-links.active {
+    display: flex; /* Affiche les liens quand le menu est actif */
+    max-height: 200px; /* Hauteur suffisante pour afficher les liens, réduite pour moins de hauteur globale */
+  }
+
+  .navbar .nav-links li {
+    margin: 5px 0; /* Réduction de la marge verticale entre les liens */
+    text-align: center;
+  }
+
+  .navbar .nav-links .nav-link {
+    font-size: 1.1em; /* Légèrement réduit pour compacter */
+    padding: 8px 0; /* Réduction du padding vertical des liens */
+    display: block; /* Prend toute la largeur disponible */
+  }
+
+  .navbar .nav-buttons {
+    display: none; /* Cache les boutons dans la nav sur mobile */
+  }
+
+  .menu-toggle {
+    display: flex; /* Affiche le menu hamburger sur mobile */
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 30px;
+    width: 95%;
+  }
+  .modal-content h2 {
+    font-size: 2.2em;
+    margin-bottom: 20px;
+  }
+  .modal-content h3 {
+    font-size: 1.1em;
+    margin-bottom: 30px;
+  }
+  .close-button {
+    font-size: 2.8em;
+    top: 15px;
+    right: 25px;
+  }
+  #plansContainer,
+  .plan-cards-container {
+    grid-template-columns: 1fr; /* 1 colonne sur mobiles */
+    gap: 30px;
+  }
+  .plan-card {
+    padding: 25px;
+  }
+  .plan-icon {
+    width: 60px;
+    height: 60px;
+    padding: 10px;
+  }
+  .plan-card .plan-name {
+    font-size: 1.6em;
+  }
+  .plan-card .price {
+    font-size: 2.5em;
+  }
+  .plan-features li {
+    font-size: 0.95em;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 20px;
+  }
+  .modal-content h2 {
+    font-size: 1.8em;
+  }
+  .modal-content h3 {
+    font-size: 0.9em;
+  }
+  .close-button {
+    font-size: 2.5em;
+    top: 10px;
+    right: 20px;
+  }
+  .plan-card {
+    padding: 20px;
+  }
+  .plan-card .plan-name {
+    font-size: 1.4em;
+  }
+  .plan-card .price {
+    font-size: 2.2em;
+  }
+  .btn-plan-select {
+    padding: 10px 25px;
+    font-size: 1em;
+  }
+}
+
+/* Styles pour le tag "Most Popular" */
+.plan-card .popular-tag {
+  position: absolute; /* Positionnement absolu par rapport au .plan-card */
+  top: 15px; /* Positionnement depuis le haut */
+  right: 15px; /* Positionnement depuis la droite */
+  background: linear-gradient(
+    90deg,
+    var(--primary-gradient-start),
+    var(--primary-gradient-end)
+  ); /* Dégradé de fond */
+  color: var(--text-light); /* Couleur du texte clair */
+  padding: 5px 15px; /* Espacement interne */
+  border-radius: var(--border-radius-md); /* Bords arrondis */
+  font-size: 0.85em; /* Taille de police légèrement plus petite */
+  font-weight: 700; /* Gras pour la visibilité */
+  text-transform: uppercase; /* Texte en majuscules */
+  letter-spacing: 0.5px; /* Espacement des lettres */
+  z-index: 5; /* Assure qu'il est au-dessus du reste de la carte */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); /* Ombre subtile */
+  /* Optionnel: pour un look légèrement incliné */
+  /* transform: rotate(3deg); */
+}

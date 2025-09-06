@@ -1,0 +1,68 @@
+/* loading-spinner.css */
+
+/* --- Styles pour la roue de chargement (GLOBAL) --- */
+#loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #0d0d2b; /* Même couleur que le fond du body */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Toujours au-dessus de tout */
+  transition: opacity 0.5s ease-out; /* Transition pour la disparition */
+}
+
+#loadingOverlay.hidden {
+  opacity: 0;
+  pointer-events: none; /* Empêche les clics une fois caché */
+}
+
+/* --- Styles pour le spinner (GLOBAL ET MODALE) --- */
+.spinner {
+  border: 8px solid rgba(255, 255, 255, 0.2);
+  border-top: 8px solid var(--secondary-blue); /* Couleur du spinner */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1.5s linear infinite; /* Animation de rotation */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Styles pour l'overlay de chargement de la MODALE --- */
+#modalLoadingOverlay {
+  position: absolute; /* Positionné par rapport à .modal-content */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(
+    20,
+    0,
+    50,
+    0.9
+  ); /* Un fond semi-transparent pour la modale */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001; /* Au-dessus du contenu de la modale mais en dessous du bouton de fermeture */
+  transition: opacity 0.3s ease;
+  border-radius: var(
+    --border-radius-lg
+  ); /* Pour qu'il respecte les coins de la modale */
+}
+
+#modalLoadingOverlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
