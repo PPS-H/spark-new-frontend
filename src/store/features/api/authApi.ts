@@ -111,6 +111,7 @@ export interface User {
   autoPreview?: boolean;
   language?: boolean;
   darkMode?: boolean;
+  profilePicture?: string;
 }
 
 export interface UpdateUserRequest {
@@ -264,7 +265,7 @@ export const authApi = createApi({
       query: () => '/api/v1/user/',
       providesTags: ['User'],
     }),
-    updateUser: builder.mutation<UpdateUserResponse, UpdateUserRequest>({
+    updateUser: builder.mutation<UpdateUserResponse, UpdateUserRequest | FormData>({
       query: (updateData) => ({
         url: '/api/v1/user',
         method: 'PUT',

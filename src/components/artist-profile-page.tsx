@@ -1,16 +1,16 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, MessageCircle, Heart, DollarSign, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Edit3, Plus, Upload, Settings, RefreshCw, Edit, Trash2, MoreHorizontal, Image } from "lucide-react";
+import { Play, Pause, MessageCircle, Heart, DollarSign, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Edit3, Plus, Upload, RefreshCw, Edit, Trash2, MoreHorizontal, Image, ChevronLeft, ChevronRight, Music } from "lucide-react";
 import SLogo from "@/components/s-logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { ContentUploadModal } from "./content-upload-modal";
 import { useGetContentQuery } from "@/store/features/api/authApi";
+import { useGetAllProjectsQuery } from "@/store/features/api/labelApi";
+import { useUpdateProjectMutation } from "@/store/features/api/projectApi";
 import type { Artist } from "@/types/artist";
 import CreateNewCampaign from "./create-new-campaign";
 
@@ -40,13 +40,19 @@ export default function ArtistProfilePage({
   const [isFollowing, setIsFollowing] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showAddContent, setShowAddContent] = useState(false);
-  const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
+  const [showEditProject, setShowEditProject] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
   const [showFundingSettings, setShowFundingSettings] = useState(false);
-  const [eventName, setEventName] = useState("");
-  const [eventDate, setEventDate] = useState("");
-  const [eventLocation, setEventLocation] = useState("");
-  const [eventDescription, setEventDescription] = useState("");
+  
+  // Edit project form state
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    fundingGoal: 0,
+    description: '',
+    duration: ''
+  });
+  const [currentPage, setCurrentPage] = useState(1);
   
   const [profileData, setProfileData] = useState({
     name: artist.name,
@@ -58,42 +64,57 @@ export default function ArtistProfilePage({
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const eventTypes = [
-    "Concert", "Show", "Album", "EP", "Single", "Tour", "Festival", "Live Stream",
-    "Recording Session", "Music Video", "Collaboration", "Remix", "Acoustic Session",
-    "DJ Set", "Opening Act", "Headliner", "Private Event", "Corporate Event",
-    "Wedding", "Birthday", "Anniversary", "Launch Party", "Release Party",
-    "Listening Party", "Meet & Greet", "Signing Event", "Workshop", "Masterclass",
-    "Interview", "Podcast", "Radio Show", "TV Appearance", "Press Conference",
-    "Photo Shoot", "Video Shoot", "Studio Session", "Rehearsal", "Sound Check",
-    "Open Mic", "Battle", "Competition", "Charity Event", "Fundraiser",
-    "Benefit Concert", "Autres"
-  ];
 
-  // Mock campaigns data (replacing useQuery API call)
-  const mockCampaigns = [
-    {
-      id: 1,
-      title: "Summer Album Production",
-      description: "Funding needed for professional recording, mixing, and mastering of my upcoming summer album.",
-      status: "active",
-      currentFunding: "32500",
-      fundingGoal: "50000",
-      maxInvestmentDuration: "45"
-    },
-    {
-      id: 2,
-      title: "European Tour 2024",
-      description: "Support my first European tour across 12 cities to connect with international fans.",
-      status: "active",
-      currentFunding: "18000",
-      fundingGoal: "75000",
-      maxInvestmentDuration: "60"
+  // Fetch projects using labelApi
+  const {
+    data: projectsData,
+    isLoading: campaignsLoading,
+    error: campaignsError,
+    refetch: refetchProjects
+  } = useGetAllProjectsQuery({
+    page: currentPage,
+    limit: 10,
+  });
+
+  const campaigns = projectsData?.data?.projects || [];
+
+  // Update project mutation
+  const [updateProject, { isLoading: isUpdatingProject }] = useUpdateProjectMutation();
+
+  // Handle edit project button click
+  const handleEditProjectClick = (project: any) => {
+    setSelectedProject(project);
+    setEditFormData({
+      title: project.title,
+      fundingGoal: project.fundingGoal,
+      description: project.description,
+      duration: project.duration
+    });
+    setShowEditProject(true);
+  };
+
+  // Handle update project
+  const handleUpdateProject = async () => {
+    if (!selectedProject) return;
+
+    try {
+      await updateProject({
+        projectId: selectedProject._id,
+        title: editFormData.title,
+        fundingGoal: editFormData.fundingGoal,
+        description: editFormData.description,
+        duration: editFormData.duration,
+      }).unwrap();
+
+      // Close modal and refresh projects
+      setShowEditProject(false);
+      setSelectedProject(null);
+      refetchProjects();
+    } catch (error) {
+      console.error('Failed to update project:', error);
+      // You can add toast notification here if needed
     }
-  ];
-
-  const [campaigns] = useState(mockCampaigns);
-  const campaignsLoading = false;
+  };
 
   // Get content from API based on filter
   const getContentType = () => {
@@ -501,15 +522,6 @@ export default function ArtistProfilePage({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setShowCreateEvent(true)}
-                      className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 backdrop-blur-sm"
-                    >
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Create Event
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
                       onClick={() => setShowAddContent(true)}
                       className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 backdrop-blur-sm"
                     >
@@ -560,7 +572,7 @@ export default function ArtistProfilePage({
         <div className="bg-slate-800/50 border-b border-gray-700/50">
           <div className="max-w-7xl mx-auto px-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 bg-transparent h-14">
+              <TabsList className="grid w-full grid-cols-3 bg-transparent h-14">
                 <TabsTrigger
                   value="portfolio"
                   className="text-gray-400 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none bg-transparent"
@@ -572,12 +584,6 @@ export default function ArtistProfilePage({
                   className="text-gray-400 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none bg-transparent"
                 >
                   Projects
-                </TabsTrigger>
-                <TabsTrigger
-                  value="events"
-                  className="text-gray-400 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none bg-transparent"
-                >
-                  Events
                 </TabsTrigger>
                 <TabsTrigger
                   value="about"
@@ -690,7 +696,7 @@ export default function ArtistProfilePage({
                   <h2 className="text-2xl font-bold text-white">Active Projects</h2>
                   <div className="flex gap-2">
                     <Button
-                      onClick={() => refetch()}
+                      onClick={() => refetchProjects()}
                       variant="outline"
                       size="sm"
                       className="border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -711,107 +717,143 @@ export default function ArtistProfilePage({
                 </div>
 
                 {campaignsLoading ? (
-                  <div className="text-center py-16">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
-                    <p className="text-gray-400 mt-4">Loading projects...</p>
+                  <div className="text-center py-8">
+                    <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-400">Loading projects...</p>
+                  </div>
+                ) : campaignsError ? (
+                  <div className="text-center py-8">
+                    <p className="text-red-400 mb-2">Failed to load projects</p>
+                    <p className="text-gray-500 text-sm">Please try again later</p>
                   </div>
                 ) : campaigns.length === 0 ? (
-                  <div className="text-center py-16">
-                    <TrendingUp className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-white mb-2">No Projects Yet</h3>
-                    <p className="text-gray-400">
-                      {isOwner
-                        ? "Start your first project to connect with investors"
-                        : "This artist hasn't created any projects yet"}
-                    </p>
+                  <div className="text-center py-8">
+                    <TrendingUp className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                    <p className="text-gray-400 mb-2">No projects found</p>
+                    <p className="text-gray-500 text-sm">Create your first project to get started</p>
                   </div>
                 ) : (
-                  <div className="grid gap-6">
-                    {campaigns.map((campaign: any) => (
-                      <Card
-                        key={`campaign-${campaign.id}`}
-                        className="bg-slate-800/50 border border-gray-700/50 hover:border-purple-500/50 transition-all duration-300"
+                  <div className="space-y-4">
+                    {campaigns.map((project: any) => (
+                      <div
+                        key={project._id}
+                        className="p-4 bg-slate-700/30 rounded-lg hover:bg-slate-600/40 transition-all duration-300 group"
                       >
-                        <CardContent className="p-6">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                            <div className="flex-1">
-                              <h3 className="text-xl font-semibold text-white mb-2">{campaign.title}</h3>
-                              <p className="text-gray-300 mb-4">{campaign.description}</p>
-                              
-                              <div className="flex flex-wrap gap-4 mb-4">
-                                <div className="flex items-center space-x-2">
-                                  <DollarSign className="w-4 h-4 text-green-400" />
-                                  <span className="text-sm text-gray-300">
-                                    €{parseFloat(campaign.currentFunding).toLocaleString()} / €{parseFloat(campaign.fundingGoal).toLocaleString()}
-                                  </span>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <Calendar className="w-4 h-4 text-blue-400" />
-                                  <span className="text-sm text-gray-300">
-                                    {campaign.maxInvestmentDuration} days
-                                  </span>
-                                </div>
-                                <Badge
-                                  className={`${
-                                    campaign.status === 'active'
-                                      ? 'bg-green-500/20 text-green-300'
-                                      : campaign.status === 'funded'
-                                      ? 'bg-blue-500/20 text-blue-300'
-                                      : 'bg-gray-500/20 text-gray-300'
-                                  }`}
-                                >
-                                  {campaign.status}
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <h4 className="text-white font-semibold text-lg group-hover:text-cyan-400 transition-colors capitalize">
+                                {project.title}
+                              </h4>
+                              <Badge 
+                                className={`capitalize text-xs ${
+                                  project.status === 'active' 
+                                    ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                                    : project.status === 'completed'
+                                    ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                                    : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                                }`}
+                              >
+                                {project.status}
+                              </Badge>
+                              {project.isVerified && (
+                                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
+                                  Verified
                                 </Badge>
-                              </div>
-                              
-                              <div className="mb-4">
-                                <div className="flex justify-between text-sm mb-1">
-                                  <span className="text-gray-400">Funding Progress</span>
-                                  <span className="text-white">
-                                    {(parseFloat(campaign.currentFunding) / parseFloat(campaign.fundingGoal) * 100).toFixed(1)}%
-                                  </span>
-                                </div>
-                                <Progress 
-                                  value={parseFloat(campaign.currentFunding) / parseFloat(campaign.fundingGoal) * 100} 
-                                  className="h-2"
-                                />
-                              </div>
+                              )}
                             </div>
-                            
-                            <div className="flex flex-col sm:flex-row gap-2">
-                              {!isOwner && (
-                                <Button
-                                  onClick={() => onInvest(artist)}
-                                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                                >
-                                  <DollarSign className="w-4 h-4 mr-2" />
-                                  Invest Now
-                                </Button>
-                              )}
-                              {isOwner && (
-                                <Button
-                                  variant="outline"
-                                  className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
-                                >
-                                  <Settings className="w-4 h-4 mr-2" />
-                                  Manage
-                                </Button>
-                              )}
+                            <p className="text-gray-300 text-sm mb-3 line-clamp-2 capitalize">
+                              {project.description}
+                            </p>
+                            <div className="flex items-center space-x-4 text-sm text-gray-400">
+                              <div className="flex items-center space-x-1">
+                                <Music className="w-4 h-4" />
+                                <span>{project.songTitle} - {project.artistName}</span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <Calendar className="w-4 h-4" />
+                                <span>{new Date(project.expectedReleaseDate).toLocaleDateString()}</span>
+                              </div>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                          <div className="text-center">
+                            <p className="text-2xl font-bold text-white">${project.fundingGoal.toLocaleString()}</p>
+                            <p className="text-xs text-gray-400">Funding Goal</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-2xl font-bold text-cyan-400">{project.expectedROIPercentage}%</p>
+                            <p className="text-xs text-gray-400">Expected ROI</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-2xl font-bold text-purple-400">{project.duration} days</p>
+                            <p className="text-xs text-gray-400">Duration</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-2xl font-bold text-orange-400 capitalize">{project.releaseType}</p>
+                            <p className="text-xs text-gray-400">Release Type</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm text-gray-400">
+                            <p>Deadline: {new Date(project.fundingDeadline).toLocaleDateString()}</p>
+                            <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
+                          </div>
+                          <div className="flex space-x-2">
+                            {isOwner && (
+                              <Button
+                                size="sm"
+                                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+                                onClick={() => handleEditProjectClick(project)}
+                              >
+                                Edit Project
+                              </Button>
+                            )}
+                            {!isOwner && (
+                              <Button
+                                size="sm"
+                                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+                                onClick={() => onInvest(artist)}
+                              >
+                                Invest
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
-              </div>
-            </TabsContent>
 
-            <TabsContent value="events" className="mt-0">
-              <div className="text-center py-16">
-                <Calendar className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">Upcoming Events</h3>
-                <p className="text-gray-400">Event calendar features coming soon</p>
+                {/* Pagination Controls */}
+                {projectsData?.pagination && projectsData.pagination.totalPages > 1 && (
+                  <div className="flex items-center justify-center space-x-2 mt-6">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-gray-500 text-gray-300 hover:bg-gray-600"
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <span className="text-sm text-gray-400">
+                      {currentPage} / {projectsData.pagination.totalPages}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-gray-500 text-gray-300 hover:bg-gray-600"
+                      onClick={() => setCurrentPage(prev => Math.min(projectsData.pagination.totalPages, prev + 1))}
+                      disabled={currentPage === projectsData.pagination.totalPages}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </TabsContent>
 
@@ -937,97 +979,6 @@ export default function ArtistProfilePage({
           </div>
         )}
 
-        {/* Create Event Modal */}
-        {showCreateEvent && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-              <h3 className="text-xl font-bold text-white mb-4">Create Event</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Event Name</label>
-                  <Select value={eventName} onValueChange={setEventName}>
-                    <SelectTrigger className="w-full bg-slate-700 text-white border-gray-600">
-                      <SelectValue placeholder="Sélectionnez le type d'événement" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-700 border-gray-600">
-                      {eventTypes.map((type) => (
-                        <SelectItem 
-                          key={type} 
-                          value={type.toLowerCase()} 
-                          className="text-white hover:bg-slate-600"
-                        >
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Date & Time</label>
-                  <input
-                    type="datetime-local"
-                    value={eventDate}
-                    onChange={(e) => setEventDate(e.target.value)}
-                    className="w-full p-2 bg-slate-700 text-white rounded border border-gray-600"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Location</label>
-                  <input
-                    type="text"
-                    value={eventLocation}
-                    onChange={(e) => setEventLocation(e.target.value)}
-                    placeholder="Venue name and address"
-                    className="w-full p-2 bg-slate-700 text-white rounded border border-gray-600"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
-                  <textarea
-                    value={eventDescription}
-                    onChange={(e) => setEventDescription(e.target.value)}
-                    placeholder="Event details"
-                    rows={3}
-                    className="w-full p-2 bg-slate-700 text-white rounded border border-gray-600"
-                  />
-                </div>
-              </div>
-              <div className="flex space-x-3 mt-6">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowCreateEvent(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    if (eventName && eventDate) {
-                      console.log('Creating event:', {
-                        eventName,
-                        eventDate,
-                        eventLocation,
-                        eventDescription
-                      });
-                      setEventName("");
-                      setEventDate("");
-                      setEventLocation("");
-                      setEventDescription("");
-                      setShowCreateEvent(false);
-                      alert("Event created successfully!");
-                    } else {
-                      alert('Veuillez remplir au moins le type d\'événement et la date');
-                    }
-                  }}
-                  className="flex-1 bg-blue-500 hover:bg-blue-600"
-                  disabled={!eventName || !eventDate}
-                >
-                  Create Event
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Funding Settings Modal */}
         {showFundingSettings && (
@@ -1112,6 +1063,217 @@ export default function ArtistProfilePage({
             console.log('✅ Contenu uploadé avec succès - rafraîchissement global');
           }}
         />
+
+        {/* Edit Project Modal */}
+        {showEditProject && selectedProject && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-slate-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-white">Edit Project</h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowEditProject(false);
+                      setSelectedProject(null);
+                    }}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    ✕
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Campaign Information */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-white mb-4">Campaign Information</h3>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Project Title</label>
+                      <input
+                        type="text"
+                        value={editFormData.title}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, title: e.target.value }))}
+                        className="w-full p-3 bg-slate-700 text-white rounded border border-gray-600 focus:border-cyan-400 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Funding Goal ($)</label>
+                      <input
+                        type="number"
+                        value={editFormData.fundingGoal}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, fundingGoal: Number(e.target.value) }))}
+                        className="w-full p-3 bg-slate-700 text-white rounded border border-gray-600 focus:border-cyan-400 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                      <textarea
+                        value={editFormData.description}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, description: e.target.value }))}
+                        rows={3}
+                        className="w-full p-3 bg-slate-700 text-white rounded border border-gray-600 focus:border-cyan-400 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Duration (days)</label>
+                      <input
+                        type="number"
+                        value={editFormData.duration}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, duration: e.target.value }))}
+                        className="w-full p-3 bg-slate-700 text-white rounded border border-gray-600 focus:border-cyan-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Song Details - Read Only */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-white mb-4">Song Details</h3>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Song Title</label>
+                      <input
+                        type="text"
+                        value={selectedProject.songTitle}
+                        disabled
+                        className="w-full p-3 bg-slate-600 text-gray-400 rounded border border-gray-600 cursor-not-allowed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Artist Name</label>
+                      <input
+                        type="text"
+                        value={selectedProject.artistName}
+                        disabled
+                        className="w-full p-3 bg-slate-600 text-gray-400 rounded border border-gray-600 cursor-not-allowed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">ISRC Code</label>
+                      <input
+                        type="text"
+                        value={selectedProject.isrcCode}
+                        disabled
+                        className="w-full p-3 bg-slate-600 text-gray-400 rounded border border-gray-600 cursor-not-allowed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">UPC Code</label>
+                      <input
+                        type="text"
+                        value={selectedProject.upcCode}
+                        disabled
+                        className="w-full p-3 bg-slate-600 text-gray-400 rounded border border-gray-600 cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Platform Integration - Read Only */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-white mb-4">Platform Integration</h3>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Spotify Track Link</label>
+                      <input
+                        type="url"
+                        value={selectedProject.spotifyTrackLink || ''}
+                        disabled
+                        className="w-full p-3 bg-slate-600 text-gray-400 rounded border border-gray-600 cursor-not-allowed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">YouTube Music Link</label>
+                      <input
+                        type="url"
+                        value={selectedProject.youtubeMusicLink || ''}
+                        disabled
+                        className="w-full p-3 bg-slate-600 text-gray-400 rounded border border-gray-600 cursor-not-allowed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Deezer Track Link</label>
+                      <input
+                        type="url"
+                        value={selectedProject.deezerTrackLink || ''}
+                        disabled
+                        className="w-full p-3 bg-slate-600 text-gray-400 rounded border border-gray-600 cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Release Information - Read Only */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-white mb-4">Release Information</h3>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Release Type</label>
+                      <select
+                        value={selectedProject.releaseType}
+                        disabled
+                        className="w-full p-3 bg-slate-600 text-gray-400 rounded border border-gray-600 cursor-not-allowed"
+                      >
+                        <option value="single">Single</option>
+                        <option value="ep">EP</option>
+                        <option value="album">Album</option>
+                        <option value="mixtape">Mixtape</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Expected Release Date</label>
+                      <input
+                        type="datetime-local"
+                        value={new Date(selectedProject.expectedReleaseDate).toISOString().slice(0, 16)}
+                        disabled
+                        className="w-full p-3 bg-slate-600 text-gray-400 rounded border border-gray-600 cursor-not-allowed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Funding Deadline</label>
+                      <input
+                        type="datetime-local"
+                        value={new Date(selectedProject.fundingDeadline).toISOString().slice(0, 16)}
+                        disabled
+                        className="w-full p-3 bg-slate-600 text-gray-400 rounded border border-gray-600 cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-700">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowEditProject(false);
+                      setSelectedProject(null);
+                    }}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleUpdateProject}
+                    disabled={isUpdatingProject}
+                    className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white disabled:opacity-50"
+                  >
+                    {isUpdatingProject ? 'Updating...' : 'Update Project'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

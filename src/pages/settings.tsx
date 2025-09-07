@@ -9,7 +9,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useUpdateUserMutation, useChangePasswordMutation } from "@/store/features/api/authApi";
 import { useConnectSpotifyMutation } from "@/store/features/api/socialMediaApi";
 import { useToast } from "@/hooks/use-toast";
-import SubscriptionSwiper from "@/components/subscription-swiper";
 import {
   Settings,
   User,
@@ -18,7 +17,6 @@ import {
   CreditCard,
   Globe,
   Moon,
-  Sun,
   Volume2,
   Mail,
   Smartphone,
@@ -40,6 +38,8 @@ export default function SettingsPage() {
   // Local state for form fields
   const [displayName, setDisplayName] = useState(user?.username || "");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
   
   // Change password modal state
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -76,6 +76,63 @@ export default function SettingsPage() {
     }
   }, [user]);
 
+  // Cleanup profile picture preview on unmount
+  useEffect(() => {
+    return () => {
+      if (profilePicturePreview) {
+        URL.revokeObjectURL(profilePicturePreview);
+      }
+    };
+  }, [profilePicturePreview]);
+
+  // Clear profile picture when editing is cancelled
+  useEffect(() => {
+    if (!isEditingProfile) {
+      clearProfilePicture();
+    }
+  }, [isEditingProfile]);
+
+  // Handle profile picture file selection
+  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select an image file.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please select an image smaller than 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setProfilePicture(file);
+      
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setProfilePicturePreview(previewUrl);
+    }
+  };
+
+  // Clear profile picture selection
+  const clearProfilePicture = () => {
+    setProfilePicture(null);
+    if (profilePicturePreview) {
+      URL.revokeObjectURL(profilePicturePreview);
+    }
+    setProfilePicturePreview(null);
+  };
+
   // Handle profile name update
   const handleUpdateProfile = async () => {
     if (!displayName.trim()) {
@@ -88,11 +145,24 @@ export default function SettingsPage() {
     }
 
     try {
-      await updateUser({ username: displayName.trim() }).unwrap();
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('username', displayName.trim());
+      
+      // Add file if selected
+      if (profilePicture) {
+        formData.append('file', profilePicture);
+      }
+
+      await updateUser(formData).unwrap();
+      
+      // Clear profile picture state after successful update
+      clearProfilePicture();
       setIsEditingProfile(false);
+      
       toast({
         title: "Profile Updated",
-        description: "Your display name has been updated successfully.",
+        description: "Your profile has been updated successfully.",
       });
     } catch (error: any) {
       console.error("Profile update error:", error);
@@ -247,8 +317,6 @@ export default function SettingsPage() {
   };
 
   const roleInfo = getRoleInfo();
-  const isPaidUser =
-    user?.role && ["artist", "investor", "label", "admin"].includes(user.role);
 
   // Authentication check
   if (!isAuthenticated) {
@@ -355,16 +423,6 @@ export default function SettingsPage() {
                   className="bg-slate-800/50 border-slate-600 text-white"
                   disabled={!isEditingProfile}
                 />
-                {isEditingProfile && (
-                  <Button
-                    onClick={handleUpdateProfile}
-                    disabled={isUpdating}
-                    className="mt-2 bg-cyan-500 hover:bg-cyan-600 text-white"
-                    size="sm"
-                  >
-                    {isUpdating ? "Updating..." : "Update Name"}
-                  </Button>
-                )}
               </div>
               <div>
                 <label className="text-white text-sm font-medium mb-2 block">
@@ -380,6 +438,63 @@ export default function SettingsPage() {
                 </p>
               </div>
             </div>
+
+            {/* Profile Picture Field - Only show when editing */}
+            {isEditingProfile && (
+              <div className="mt-4">
+                <label className="text-white text-sm font-medium mb-2 block">
+                  Profile Picture
+                </label>
+                <div className="flex items-center space-x-4">
+                  {/* Current/Preview Image */}
+                  <div className="relative">
+                      <img
+                        src={
+                          profilePicturePreview || 
+                          (user?.profilePicture ? `${import.meta.env.VITE_API_BASE_URL}/${user.profilePicture}` : "https://cdn-icons-png.flaticon.com/512/0/93.png")
+                        }
+                        alt="Profile Preview"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-slate-600"
+                      />
+                    {profilePicturePreview && (
+                      <button
+                        onClick={clearProfilePicture}
+                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* File Input */}
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfilePictureChange}
+                      className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-500 file:text-white hover:file:bg-cyan-600 file:cursor-pointer cursor-pointer bg-slate-800/50 border border-slate-600 rounded-lg p-2"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Select an image file (max 5MB)
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Update Button - Only show when editing */}
+            {isEditingProfile && (
+              <div className="mt-4">
+                <Button
+                  onClick={handleUpdateProfile}
+                  disabled={isUpdating}
+                  className="bg-cyan-500 hover:bg-cyan-600 text-white"
+                  size="sm"
+                >
+                  {isUpdating ? "Updating..." : "Update Profile"}
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 

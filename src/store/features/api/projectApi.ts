@@ -135,6 +135,21 @@ export interface CreateProjectResponse {
   data: Project;
 }
 
+// Update project interfaces
+export interface UpdateProjectRequest {
+  projectId: string;
+  title: string;
+  fundingGoal: number;
+  description: string;
+  duration: string;
+}
+
+export interface UpdateProjectResponse {
+  success: boolean;
+  message: string;
+  data: Project;
+}
+
 // Get base URL from environment variable
 const getBaseUrl = () => {
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
@@ -209,9 +224,23 @@ export const projectApi = createApi({
       },
       invalidatesTags: ['Project'],
     }),
+    updateProject: builder.mutation<UpdateProjectResponse, UpdateProjectRequest>({
+      query: (updateData) => ({
+        url: `/api/v1/project/${updateData.projectId}`,
+        method: 'PUT',
+        body: {
+          title: updateData.title,
+          fundingGoal: updateData.fundingGoal,
+          description: updateData.description,
+          duration: updateData.duration,
+        },
+      }),
+      invalidatesTags: ['Project'],
+    }),
   }),
 });
 
 export const {
   useCreateProjectMutation,
+  useUpdateProjectMutation,
 } = projectApi;
