@@ -133,6 +133,64 @@ interface CreateCheckoutSessionResponse {
   };
 }
 
+// Invested Projects interfaces
+export interface InvestedProjectUser {
+  _id: string;
+  username: string;
+  email: string;
+  country: string;
+  favoriteGenre: string;
+  aboutTxt?: string;
+  artistBio?: string;
+}
+
+export interface InvestedProject {
+  _id: string;
+  userId: InvestedProjectUser;
+  title: string;
+  fundingGoal: number;
+  description: string;
+  duration: string;
+  songTitle: string;
+  artistName: string;
+  isrcCode: string;
+  upcCode: string;
+  spotifyTrackLink: string;
+  spotifyTrackId: string;
+  releaseType: string;
+  expectedReleaseDate: string;
+  fundingDeadline: string;
+  expectedROIPercentage: number;
+  isVerified: boolean;
+  verificationStatus: string;
+  verifiedAt: string;
+  status: string;
+  isActive: boolean;
+  distroKidConnected: boolean;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface GetInvestedProjectsRequest {
+  page: number;
+  limit: number;
+}
+
+export interface GetInvestedProjectsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    projects: InvestedProject[];
+  };
+  pagination: {
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 // Create the API slice
 export const labelApi = createApi({
   reducerPath: 'labelApi',
@@ -147,7 +205,7 @@ export const labelApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Projects', 'ProjectDetails'],
+  tagTypes: ['Projects', 'ProjectDetails', 'InvestedProjects'],
   endpoints: (builder) => ({
     // Get all projects
     getAllProjects: builder.query<GetAllProjectsResponse, GetAllProjectsRequest>({
@@ -181,6 +239,14 @@ export const labelApi = createApi({
         body,
       }),
     }),
+    // Get invested projects
+    getInvestedProjects: builder.query<GetInvestedProjectsResponse, GetInvestedProjectsRequest>({
+      query: ({ page, limit }) => ({
+        url: `project/getInvestedProjects?page=${page}&limit=${limit}`,
+        method: 'GET',
+      }),
+      providesTags: ['InvestedProjects'],
+    }),
   }),
 });
 
@@ -190,4 +256,5 @@ export const {
   useGetProjectDetailsQuery,
   useLikeDislikeArtistMutation,
   useCreateCheckoutSessionMutation,
+  useGetInvestedProjectsQuery,
 } = labelApi;

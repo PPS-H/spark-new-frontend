@@ -348,7 +348,7 @@ export default function LabelHome() {
 
           <Card
             className="artist-metric-card group hover:scale-105 transition-all duration-300 cursor-pointer"
-            onClick={() => navigate("/roster")}
+            onClick={() => navigate("/portfolio")}
           >
             <CardContent className="p-6 text-center">
               <Users className="w-12 h-12 text-cyan-400 mx-auto mb-4 group-hover:animate-pulse" />
@@ -361,7 +361,7 @@ export default function LabelHome() {
 
           <Card
             className="artist-metric-card group hover:scale-105 transition-all duration-300 cursor-pointer"
-            onClick={() => navigate("/analytics-dashboard")}
+            onClick={() => navigate("/analytics")}
           >
             <CardContent className="p-6 text-center">
               <BarChart3 className="w-12 h-12 text-green-400 mx-auto mb-4 group-hover:animate-pulse" />
