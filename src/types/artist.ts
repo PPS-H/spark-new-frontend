@@ -1,5 +1,5 @@
 export interface Artist {
-  id: number;
+  id: any;
   name: string;
   genre: string;
   country: string;
@@ -21,5 +21,6 @@ export interface Artist {
   isActive?: boolean;
   createdAt?: Date;
   isLiked?: boolean;
+  isFollowed?: boolean;
   artistId?: string;
 }

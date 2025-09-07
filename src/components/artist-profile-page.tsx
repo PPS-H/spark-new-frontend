@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, MessageCircle, Heart, DollarSign, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Edit3, Plus, Upload, RefreshCw, Edit, Trash2, MoreHorizontal, Image, ChevronLeft, ChevronRight, Music } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Play, Pause, MessageCircle, Heart, DollarSign, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Plus, Upload, RefreshCw, Edit, Trash2, MoreHorizontal, Image, ChevronLeft, ChevronRight, Music } from "lucide-react";
 import SLogo from "@/components/s-logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,8 @@ import { ContentUploadModal } from "./content-upload-modal";
 import { useGetContentQuery } from "@/store/features/api/authApi";
 import { useGetAllProjectsQuery } from "@/store/features/api/labelApi";
 import { useUpdateProjectMutation } from "@/store/features/api/projectApi";
+import { useFollowUnfollowArtistMutation } from "@/store/features/api/searchApi";
+import { useAuth } from "@/hooks/useAuthRTK";
 import type { Artist } from "@/types/artist";
 import CreateNewCampaign from "./create-new-campaign";
 
@@ -33,11 +36,13 @@ export default function ArtistProfilePage({
   isOwner = false,
   onProfileUpdate
 }: ArtistProfilePageProps) {
-
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
   const [activeTab, setActiveTab] = useState("portfolio");
   const [contentFilter, setContentFilter] = useState("all");
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(artist.isFollowed || false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showAddContent, setShowAddContent] = useState(false);
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
@@ -61,6 +66,33 @@ export default function ArtistProfilePage({
     imageUrl: artist.imageUrl
   });
 
+  // Update profileData when artist prop changes
+  useEffect(() => {
+    setProfileData({
+      name: artist.name,
+      genre: artist.genre,
+      description: artist.description,
+      imageUrl: artist.imageUrl
+    });
+    // Update isFollowing state when artist prop changes
+    setIsFollowing(artist.isFollowed || false);
+  }, [artist]);
+
+  // Determine user role and whether to show Invest button
+  const userRole = user?.role || 'fan';
+  const shouldShowInvestButton = userRole === 'fan' || userRole === 'label';
+
+  // Handle invest button click
+  const handleInvestClick = (projectId: string) => {
+    navigate(`/invest/${projectId}`);
+  };
+
+  // Debug: Log the image URL to see what we're getting
+  useEffect(() => {
+    console.log('Artist imageUrl:', artist.imageUrl);
+    console.log('ProfileData imageUrl:', profileData.imageUrl);
+  }, [artist.imageUrl, profileData.imageUrl]);
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -80,6 +112,9 @@ export default function ArtistProfilePage({
 
   // Update project mutation
   const [updateProject, { isLoading: isUpdatingProject }] = useUpdateProjectMutation();
+
+  // Follow/Unfollow artist mutation
+  const [followUnfollowArtist, { isLoading: isFollowUnfollowLoading }] = useFollowUnfollowArtistMutation();
 
   // Handle edit project button click
   const handleEditProjectClick = (project: any) => {
@@ -177,9 +212,18 @@ export default function ArtistProfilePage({
     }
   };
 
-  const handleFollow = () => {
-    setIsFollowing(!isFollowing);
-    onFollow(artist);
+  const handleFollow = async () => {
+    try {
+      await followUnfollowArtist({ artistId: artist.artistId || artist.id.toString() }).unwrap();
+      setIsFollowing(!isFollowing);
+      // Call the parent onFollow callback if provided
+      if (onFollow) {
+        onFollow(artist);
+      }
+    } catch (error) {
+      console.error('Failed to follow/unfollow artist:', error);
+      // You can add toast notification here if needed
+    }
   };
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,16 +278,10 @@ export default function ArtistProfilePage({
 
 
   
-  const totalRaisedFromCampaigns = campaigns.reduce((sum: number, campaign: any) =>
-    sum + parseFloat(campaign.currentFunding), 0
-  );
-  
-  const totalGoalFromCampaigns = campaigns.reduce((sum: number, campaign: any) =>
-    sum + parseFloat(campaign.fundingGoal), 0
-  );
-  
-  const activeProjects = campaigns.filter((campaign: any) => campaign.status === 'active').length;
-  const monthlyROI = totalGoalFromCampaigns > 0 ? (totalRaisedFromCampaigns / totalGoalFromCampaigns) * 100 : 0;
+  // Use real data from artist prop instead of calculating from campaigns
+  const totalRaisedFromCampaigns = parseFloat(artist.currentFunding) || 0;
+  const totalGoalFromCampaigns = parseFloat(artist.fundingGoal) || 0;
+  const monthlyROI = parseFloat(artist.expectedReturn?.replace('%', '') || '0') || 0;
 
   const renderContentCard = (item: any) => {
     const displayDate = new Date(item.createdAt).toLocaleDateString();
@@ -423,6 +461,7 @@ export default function ArtistProfilePage({
     }
   };
 
+  console.log('Artist imageUrl:', artist);
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
       <audio ref={audioRef} onEnded={() => setCurrentlyPlaying(null)} />
@@ -434,6 +473,13 @@ export default function ArtistProfilePage({
             src={artist.imageUrl || "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&h=600&fit=crop"} 
             alt={artist.name}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              console.error('Hero image failed to load:', artist.imageUrl);
+              console.error('Error event:', e);
+            }}
+            onLoad={() => {
+              console.log('Hero image loaded successfully:', artist.imageUrl);
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/70 to-transparent" />
           
@@ -450,23 +496,30 @@ export default function ArtistProfilePage({
             <div className="flex items-end justify-between">
               <div className="flex items-end space-x-6">
                 <div className="relative">
-                  <button
+                  {/* <button
                     onClick={() => setShowEditProfile(true)}
                     className="group focus:outline-none focus:ring-2 focus:ring-white/50 rounded-full"
-                  >
+                  > */}
                     <Avatar className="w-24 h-24 border-4 border-white/20 cursor-pointer group-hover:scale-105 transition-transform">
                       <AvatarImage 
-                        src={profileData.imageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"} 
-                        alt={profileData.name}
+                        src={artist.imageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"} 
+                        alt={artist.name}
                         className="object-cover"
+                        onError={(e) => {
+                          console.error('Avatar image failed to load:', artist.imageUrl);
+                          console.error('Error event:', e);
+                        }}
+                        onLoad={() => {
+                          console.log('Avatar image loaded successfully:', artist.imageUrl);
+                        }}
                       />
                       <AvatarFallback className="bg-gray-600 text-2xl">
-                        {profileData.name[0]}
+                        {artist.name[0]}
                       </AvatarFallback>
                     </Avatar>
-                  </button>
+                  {/* </button> */}
                   
-                  {isOwner && (
+                  {/* {isOwner && (
                     <Button
                       size="sm"
                       variant="ghost"
@@ -475,14 +528,14 @@ export default function ArtistProfilePage({
                     >
                       <Edit3 className="w-4 h-4 text-white" />
                     </Button>
-                  )}
+                  )} */}
                 </div>
                 
                 <div>
-                  <h1 className="text-4xl font-bold text-white mb-2">{profileData.name}</h1>
+                  <h1 className="text-4xl font-bold text-white mb-2">{artist.name}</h1>
                   <div className="flex items-center space-x-4 text-gray-300">
                     <Badge className="bg-purple-500/20 text-purple-300 capitalize">
-                      {profileData.genre}
+                      {artist.genre}
                     </Badge>
                     <div className="flex items-center space-x-1">
                       <MapPin className="w-4 h-4" />
@@ -492,12 +545,12 @@ export default function ArtistProfilePage({
                   
                   <div className="flex items-center space-x-6 mt-4">
                     <div className="text-center">
-                      <div className="text-white font-bold text-lg">€{totalRaisedFromCampaigns.toLocaleString()}</div>
-                      <div className="text-gray-400 text-xs">Raised</div>
+                      <div className="text-white font-bold text-lg">${totalRaisedFromCampaigns.toLocaleString()}</div>
+                      <div className="text-gray-400 text-xs">Total Raised</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-white font-bold text-lg">{activeProjects}</div>
-                      <div className="text-gray-400 text-xs">Projects</div>
+                      <div className="text-white font-bold text-lg">${totalGoalFromCampaigns.toLocaleString()}</div>
+                      <div className="text-gray-400 text-xs">Funding Goal</div>
                     </div>
                     <div className="text-center">
                       <div className="text-green-400 font-bold text-lg">{monthlyROI.toFixed(1)}%</div>
@@ -510,7 +563,7 @@ export default function ArtistProfilePage({
               <div className="flex items-center space-x-3">
                 {isOwner ? (
                   <>
-                    <Button
+                    {/* <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setShowFundingSettings(true)}
@@ -518,7 +571,7 @@ export default function ArtistProfilePage({
                     >
                       <DollarSign className="w-4 h-4 mr-2" />
                       Funding Settings
-                    </Button>
+                    </Button> */}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -531,7 +584,7 @@ export default function ArtistProfilePage({
                   </>
                 ) : (
                   <>
-                    <Button
+                    {/* <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => onMessage(artist)}
@@ -539,28 +592,29 @@ export default function ArtistProfilePage({
                     >
                       <MessageCircle className="w-4 h-4 mr-2" />
                       Message
-                    </Button>
+                    </Button> */}
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleFollow}
+                      disabled={isFollowUnfollowLoading}
                       className={`backdrop-blur-sm ${
                         isFollowing
                           ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300'
                           : 'bg-white/10 hover:bg-white/20 text-white'
-                      }`}
+                      } ${isFollowUnfollowLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <Heart className={`w-4 h-4 mr-2 ${isFollowing ? 'fill-current' : ''}`} />
-                      {isFollowing ? 'Following' : 'Follow'}
+                      {isFollowUnfollowLoading ? 'Loading...' : (isFollowing ? 'Following' : 'Follow')}
                     </Button>
-                    <Button
+                    {/* <Button
                       size="sm"
                       onClick={() => onInvest(artist)}
                       className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold hover:shadow-lg hover:shadow-purple-500/25"
                     >
                       <DollarSign className="w-4 h-4 mr-2" />
                       Invest Now
-                    </Button>
+                    </Button> */}
                   </>
                 )}
               </div>
@@ -812,11 +866,11 @@ export default function ArtistProfilePage({
                                 Edit Project
                               </Button>
                             )}
-                            {!isOwner && (
+                            {!isOwner && shouldShowInvestButton && (
                               <Button
                                 size="sm"
                                 className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
-                                onClick={() => onInvest(artist)}
+                                onClick={() => handleInvestClick(project._id)}
                               >
                                 Invest
                               </Button>
@@ -875,15 +929,15 @@ export default function ArtistProfilePage({
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Funding Goal</span>
-                          <span className="text-white">€{artist.fundingGoal}</span>
+                          <span className="text-white">${totalGoalFromCampaigns.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Current Funding</span>
-                          <span className="text-green-400">€{artist.currentFunding}</span>
+                          <span className="text-gray-400">Total Raised</span>
+                          <span className="text-green-400">${totalRaisedFromCampaigns.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Expected Return</span>
-                          <span className="text-purple-400">{artist.expectedReturn}</span>
+                          <span className="text-gray-400">Monthly ROI</span>
+                          <span className="text-purple-400">{monthlyROI.toFixed(1)}%</span>
                         </div>
                       </div>
                     </div>

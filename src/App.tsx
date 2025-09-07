@@ -1,5 +1,5 @@
 import "./components/i18n";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -76,7 +76,7 @@ function ConditionalHome() {
 }
 
 function AppRoutes() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   
   return (
     <div className="relative">
@@ -93,6 +93,7 @@ function AppRoutes() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/create" element={<CreatePage />} />
+        <Route path="/artist/:userId" element={<CreatePage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/settings" element={<SettingsPage />} />

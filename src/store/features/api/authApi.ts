@@ -77,6 +77,49 @@ export interface MeResponse {
   };
 }
 
+export interface GetUserProfileRequest {
+  userId?: string;
+}
+
+export interface GetUserProfileResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: {
+      _id: string;
+      username: string;
+      email: string;
+      password: string;
+      country?: string;
+      favoriteGenre?: string;
+      musicPlatforms: string[];
+      role: string;
+      companyType?: string;
+      teamSize?: string;
+      website?: string;
+      companyDescription?: string;
+      artistBio?: string;
+      aboutTxt?: string;
+      instagram?: string;
+      youtube?: string;
+      spotify?: string;
+      profilePicture?: string;
+      isDeleted: boolean;
+      isStripeAccountConnected: boolean;
+      isPaymentMethodAdded: boolean;
+      createdAt: string;
+      updatedAt: string;
+      __v: number;
+      totalFundsRaised: number;
+      totalFundingGoal: number;
+      monthlyROI: number;
+      totalProjects: number;
+      totalInvestors: number;
+      isFollowed:boolean;
+    };
+  };
+}
+
 export interface User {
   _id: string;
   username: string;
@@ -330,6 +373,19 @@ export const authApi = createApi({
       },
       providesTags: ['Content'],
     }),
+    getUserProfile: builder.query<GetUserProfileResponse, GetUserProfileRequest | void>({
+      query: (params) => {
+        const searchParams = new URLSearchParams();
+        if (params?.userId) {
+          searchParams.append('userId', params.userId);
+        }
+        const queryString = searchParams.toString();
+        return {
+          url: `/api/v1/user/${queryString ? `?${queryString}` : ''}`,
+        };
+      },
+      providesTags: ['User'],
+    }),
   }),
 });
 
@@ -344,4 +400,5 @@ export const {
   useForgotPasswordMutation,
   useUploadContentMutation,
   useGetContentQuery,
+  useGetUserProfileQuery,
 } = authApi; 

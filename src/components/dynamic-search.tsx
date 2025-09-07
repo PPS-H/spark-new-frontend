@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   ArrowLeft,
@@ -81,6 +82,7 @@ export default function DynamicSearch({
   searchQuery?: string;
 }) {
   console.log("enter here");
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
@@ -181,6 +183,11 @@ export default function DynamicSearch({
     if (currentValue.length >= 2) {
       setShowSearchHistory(true);
     }
+  };
+
+  // Handle artist card click
+  const handleArtistClick = (artistId: string) => {
+    navigate(`/artist/${artistId}`);
   };
 
   // Handle search input blur
@@ -592,9 +599,32 @@ export default function DynamicSearch({
                 trendingData.data.artists.map((artist: Artist) => {
                   console.log("Rendering artist:", artist.username, "isFollowed:", artist.isFollowed);
                   return (
-                  <div key={artist._id} className="bg-gray-900 rounded-lg p-4 space-y-3">
-                    <div className="aspect-square bg-gray-800 rounded-lg flex items-center justify-center">
-                      <span className="text-2xl font-bold text-gray-400">
+                  <div 
+                    key={artist._id} 
+                    className="bg-gray-900 rounded-lg p-4 space-y-3 cursor-pointer"
+                    onClick={() => handleArtistClick(artist._id)}
+                  >
+                    <div className="aspect-square bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
+                      {(artist as any).profilePicture ? (
+                        <img
+                          src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${(artist as any).profilePicture}`}
+                          alt={artist.username}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to initials if image fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const fallback = target.nextElementSibling as HTMLElement;
+                            if (fallback) {
+                              fallback.style.display = 'flex';
+                            }
+                          }}
+                        />
+                      ) : null}
+                      <span 
+                        className={`text-2xl font-bold text-gray-400 ${(artist as any).profilePicture ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}
+                        style={{ display: (artist as any).profilePicture ? 'none' : 'flex' }}
+                      >
                         {artist.username.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -602,7 +632,7 @@ export default function DynamicSearch({
                       <h4 className="font-semibold text-white text-sm">{artist.username}</h4>
                       <p className="text-gray-400 text-xs">{artist.favoriteGenre}</p>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
                       <Button
                         size="sm"
                         variant="outline"

@@ -1,68 +1,48 @@
 import { useState, useEffect } from "react";
-import { Plus, TrendingUp, Users, DollarSign, Play, Upload, Settings, Crown, LogOut, MessageCircle, X } from "lucide-react";
+import { Plus, TrendingUp, Users, DollarSign, Play, Settings, Crown, LogOut, MessageCircle } from "lucide-react";
 import SLogo from "@/components/s-logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuthRTK";
-import ArtistDashboard from "@/components/artist-dashboard";
-import ProfessionalInbox from "@/components/professional-inbox";
-import ArtistProfilePage from "@/components/artist-profile-page";
-import CreateNewCampaign from "@/components/create-new-campaign";
+import { useGetAllProjectsQuery } from "@/store/features/api/labelApi";
+import { useGetUserProfileQuery } from "@/store/features/api/authApi";
+import { Music, Calendar } from "lucide-react";
 export default function ArtistHome() {
   const { user, logout, isLogoutLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState("overview");
   const [showProfessionalInbox, setShowProfessionalInbox] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
-  const [campaignTitle, setCampaignTitle] = useState("");
-  const [fundingGoal, setFundingGoal] = useState("");
-  const [campaignDescription, setCampaignDescription] = useState("");
-  const [campaignDuration, setCampaignDuration] = useState("");
 
-  // Mock campaigns data (replacing useQuery API call)
-  const mockCampaigns = [
-    {
-      id: 1,
-      title: "Summer Vibes EP",
-      status: "active",
-      currentFunding: "32500",
-      fundingGoal: "50000",
-      maxInvestmentDuration: "45"
-    },
-    {
-      id: 2,
-      title: "World Tour 2024",
-      status: "active",
-      currentFunding: "18000",
-      fundingGoal: "75000",
-      maxInvestmentDuration: "60"
-    },
-    {
-      id: 3,
-      title: "New Album Production",
-      status: "draft",
-      currentFunding: "0",
-      fundingGoal: "100000",
-      maxInvestmentDuration: "90"
-    }
-  ];
+  // Get user profile data
+  const { data: profileData, isLoading: profileLoading, error: profileError } = useGetUserProfileQuery();
 
-  const [campaigns, setCampaigns] = useState(mockCampaigns);
-  const campaignsLoading = false; // Mock loading state
+  // Get projects from API
+  const { data: projectsData, isLoading: campaignsLoading, error: campaignsError } = useGetAllProjectsQuery({
+    page: 1,
+    limit: 3, // Only get latest 3 projects
+  });
 
-  // Convert campaigns to UI format (keeping original logic)
+  const campaigns = projectsData?.data?.projects || [];
+
+  // Convert campaigns to UI format for display
   const projects = campaigns.map((campaign) => ({
-    id: campaign.id,
+    id: campaign._id,
     title: campaign.title,
     status: campaign.status === 'active' ? 'Active' : 'Draft',
-    raised: parseFloat(campaign.currentFunding),
-    goal: parseFloat(campaign.fundingGoal),
-    contributors: Math.floor(Math.random() * 50) + 10, // Mock contributors
-    deadline: `${campaign.maxInvestmentDuration} days duration`
+    raised: 0, // This would need to be calculated from actual investments
+    goal: campaign.fundingGoal,
+    contributors: 0, // This would need to be calculated from actual investments
+    deadline: new Date(campaign.fundingDeadline).toLocaleDateString(),
+    // Additional fields for the new UI
+    description: campaign.description,
+    songTitle: campaign.songTitle,
+    artistName: campaign.artistName,
+    expectedROIPercentage: campaign.expectedROIPercentage,
+    duration: campaign.duration,
+    releaseType: campaign.releaseType,
+    isVerified: campaign.isVerified,
+    createdAt: campaign.createdAt
   }));
 
   // Log for debugging (keeping original)
@@ -71,70 +51,32 @@ export default function ArtistHome() {
     console.log('🎯 Dashboard projects:', projects);
   }, [campaigns, projects]);
   
-  const handleCreateCampaign = async () => {
-    if (!campaignTitle || !fundingGoal || !campaignDescription || !campaignDuration) {
-      alert("Please fill in all fields.");
-      return;
-    }
 
-    try {
-      // Simulate API call with setTimeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const newCampaign = {
-        id: campaigns.length + 1,
-        title: campaignTitle,
-        status: "draft",
-        currentFunding: "0",
-        fundingGoal: fundingGoal,
-        maxInvestmentDuration: campaignDuration
-      };
-
-      console.log("✅ Campagne créée :", newCampaign);
-      
-      // Update campaigns state
-      setCampaigns(prev => [...prev, newCampaign]);
-      
-      // Trigger custom event (keeping original)
-      window.dispatchEvent(new CustomEvent('campaignCreated', { 
-        detail: newCampaign 
-      }));
-      
-      setCampaignTitle("");
-      setFundingGoal("");
-      setCampaignDescription("");
-      setCampaignDuration("");
-      setShowNewCampaignModal(false);
-
-      alert("Campaign created successfully!");
-    } catch (error) {
-      console.error("❌ Erreur lors de la création :", error);
-      alert("Erreur lors de la création de la campagne.");
-    }
-  };
-
-  // Calculate real-time stats based on campaigns (keeping original logic)
-  const totalRaised = projects.reduce((sum, project) => sum + project.raised, 0);
+  // Get financial data from user profile
+  const totalFundsRaised = profileData?.data?.user?.totalFundsRaised || 0;
+  const totalFundingGoal = profileData?.data?.user?.totalFundingGoal || 0;
+  const totalProjects = profileData?.data?.user?.totalProjects || 0;
   const activeCampaigns = projects.filter(project => project.status === 'Active').length;
-  const totalGoal = projects.reduce((sum, project) => sum + project.goal, 0);
-  const averageProgress = projects.length > 0 ? (totalRaised / totalGoal) * 100 : 0;
+  
+  // Calculate average progress based on total funds raised and funding goal
+  const averageProgress = totalFundingGoal > 0 ? (totalFundsRaised / totalFundingGoal) * 100 : 0;
 
   const quickStats = [
     { 
       label: "Total Raised", 
-      value: `€${totalRaised.toLocaleString()}`, 
+      value: `$${totalFundsRaised.toLocaleString()}`, 
       icon: DollarSign, 
       color: "text-green-400" 
     },
     { 
-      label: "Active Campaigns", 
-      value: activeCampaigns.toString(), 
+      label: "Total Projects", 
+      value: totalProjects.toString(), 
       icon: TrendingUp, 
       color: "text-blue-400" 
     },
     { 
       label: "Total Goal", 
-      value: `€${totalGoal.toLocaleString()}`, 
+      value: `$${totalFundingGoal.toLocaleString()}`, 
       icon: Users, 
       color: "text-purple-400" 
     },
@@ -146,11 +88,6 @@ export default function ArtistHome() {
     }
   ];
 
-  const recentActivity = [
-    { action: "New contribution", detail: "€150 from Luna S.", time: "2 hours ago" },
-    { action: "Stream milestone", detail: "50K streams reached", time: "1 day ago" },
-    { action: "Campaign update", detail: "Summer Vibes EP 60% funded", time: "2 days ago" }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-20">
@@ -162,7 +99,7 @@ export default function ArtistHome() {
             <Crown className="text-yellow-400 text-2xl" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white">
-            WELCOME {user?.firstName?.toUpperCase() || 'ARTIST'}
+            WELCOME {user?.username?.toUpperCase() || 'ARTIST'}
           </h1>
           <p className="text-xl text-gray-400">Your creative and business cockpit</p>
           <div className="flex items-center space-x-4">
@@ -184,19 +121,36 @@ export default function ArtistHome() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {quickStats.map((stat, index) => (
-            <Card key={index} className="artist-metric-card">
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <stat.icon className={`w-8 h-8 ${stat.color}`} />
-                  <div>
-                    <div className="text-2xl font-bold text-white">{stat.value}</div>
-                    <div className="text-sm text-gray-400">{stat.label}</div>
+          {profileLoading ? (
+            // Loading state for all cards
+            Array.from({ length: 4 }).map((_, index) => (
+              <Card key={index} className="artist-metric-card">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gray-600 rounded animate-pulse"></div>
+                    <div className="flex-1">
+                      <div className="h-6 bg-gray-600 rounded animate-pulse mb-2"></div>
+                      <div className="h-4 bg-gray-600 rounded animate-pulse w-3/4"></div>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            quickStats.map((stat, index) => (
+              <Card key={index} className="artist-metric-card">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <stat.icon className={`w-8 h-8 ${stat.color}`} />
+                    <div>
+                      <div className="text-2xl font-bold text-white">{stat.value}</div>
+                      <div className="text-sm text-gray-400">{stat.label}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
 
         {/* Quick Actions */}
@@ -249,7 +203,12 @@ export default function ArtistHome() {
             {campaignsLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400 mx-auto mb-4"></div>
-                <p className="text-gray-400">Loading your campaigns...</p>
+                <p className="text-gray-400">Loading your projects...</p>
+              </div>
+            ) : campaignsError ? (
+              <div className="text-center py-8">
+                <p className="text-red-400 mb-2">Failed to load projects</p>
+                <p className="text-gray-500 text-sm">Please try again later</p>
               </div>
             ) : projects.length === 0 ? (
               <div className="text-center py-8">
@@ -263,56 +222,87 @@ export default function ArtistHome() {
                 </Button>
               </div>
             ) : (
-              projects.map((project) => (
-              <div key={project.id} className="bg-slate-800/30 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-white font-semibold">{project.title}</h3>
-                  <Badge className={`${
-                    project.status === 'Active' 
-                      ? 'bg-green-500/20 text-green-300' 
-                      : 'bg-yellow-500/20 text-yellow-300'
-                  }`}>
-                    {project.status}
-                  </Badge>
-                </div>
-                
-                {project.status === 'Active' ? (
-                  <>
-                    <div className="flex items-center justify-between text-sm text-gray-400 mb-2">
-                      <span>€{project.raised.toLocaleString()} raised</span>
-                      <span>€{project.goal.toLocaleString()} goal</span>
+              <div className="space-y-4">
+                {projects.map((project) => (
+                  <div
+                    key={project.id}
+                    className="p-4 bg-slate-700/30 rounded-lg hover:bg-slate-600/40 transition-all duration-300 group"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h4 className="text-white font-semibold text-lg group-hover:text-cyan-400 transition-colors capitalize">
+                            {project.title}
+                          </h4>
+                          <Badge 
+                            className={`capitalize text-xs ${
+                              project.status === 'Active' 
+                                ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                                : project.status === 'completed'
+                                ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                                : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                            }`}
+                          >
+                            {project.status}
+                          </Badge>
+                          {project.isVerified && (
+                            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
+                              Verified
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-gray-300 text-sm mb-3 line-clamp-2 capitalize">
+                          {project.description}
+                        </p>
+                        <div className="flex items-center space-x-4 text-sm text-gray-400">
+                          <div className="flex items-center space-x-1">
+                            <Music className="w-4 h-4" />
+                            <span>{project.songTitle} - {project.artistName}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>{new Date(project.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <Progress 
-                      value={(project.raised / project.goal) * 100} 
-                      className="mb-3"
-                    />
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-300">{project.contributors} contributors</span>
-                      <span className="text-cyan-400">{project.deadline}</span>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-white">${project.goal.toLocaleString()}</p>
+                        <p className="text-xs text-gray-400">Funding Goal</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-cyan-400">{project.expectedROIPercentage}%</p>
+                        <p className="text-xs text-gray-400">Expected ROI</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-purple-400">{project.duration} days</p>
+                        <p className="text-xs text-gray-400">Duration</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-orange-400 capitalize">{project.releaseType}</p>
+                        <p className="text-xs text-gray-400">Release Type</p>
+                      </div>
                     </div>
-                  </>
-                ) : (
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-400 text-sm">Ready to publish</span>
-                    <Button 
-                      size="sm" 
-                      className="bg-gradient-to-r from-cyan-500 to-blue-500"
-                      onClick={() => {
-                        // Mock launching campaign
-                        setCampaigns(prev => prev.map(c => 
-                          c.id === project.id 
-                            ? { ...c, status: 'active' }
-                            : c
-                        ));
-                        alert(`Campaign "${project.title}" launched successfully!`);
-                      }}
-                    >
-                      Launch Campaign
-                    </Button>
+
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-gray-400">
+                        <p>Deadline: {project.deadline}</p>
+                        <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      {/* <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+                        >
+                          View Details
+                        </Button>
+                      </div> */}
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
-              ))
             )}
             
             {!campaignsLoading && (
@@ -329,7 +319,7 @@ export default function ArtistHome() {
         </Card>
 
         {/* Recent Activity */}
-        <Card className="artist-metric-card">
+        {/* <Card className="artist-metric-card">
           <CardHeader>
             <CardTitle className="text-white">Recent Activity</CardTitle>
           </CardHeader>
@@ -346,10 +336,10 @@ export default function ArtistHome() {
               ))}
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Artist Dashboard Integration */}
-        <div className="bg-slate-800/30 rounded-xl p-6">
+        {/* <div className="bg-slate-800/30 rounded-xl p-6">
           <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
             <TrendingUp className="w-6 h-6 mr-3 text-purple-400" />
             Professional Dashboard
@@ -358,26 +348,26 @@ export default function ArtistHome() {
             isArtistUser={true}
             onUpgrade={() => {}}
           />
-        </div>
+        </div> */}
       </div>
 
       {/* Professional Inbox Modal */}
-      {showProfessionalInbox && (
+      {/* {showProfessionalInbox && (
         <ProfessionalInbox onClose={() => setShowProfessionalInbox(false)} />
-      )}
+      )} */}
 
       {/* New Campaign Modal */}
-      {showNewCampaignModal && (
+      {/* {showNewCampaignModal && (
           <CreateNewCampaign onClose={() => setShowNewCampaignModal(false)} />
-      )}
+      )} */}
 
       {/* Artist Profile Page - Full Screen */}
-      {showProfile && (
+      {/* {showProfile && (
         <div className="fixed inset-0 z-50 bg-slate-900">
           <ArtistProfilePage
             artist={{
               id: user?.id || 1,
-              name: user?.firstName || "Artist Name",
+              name: user?.username || "Artist Name",
               genre: "pop",
               country: "france",
               monthlyListeners: 425000,
@@ -398,7 +388,7 @@ export default function ArtistHome() {
             isOwner={true} // Artist viewing their own profile
           />
         </div>
-      )}
+      )} */}
     </div>
   );
 }

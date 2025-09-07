@@ -45,6 +45,7 @@ export interface Artist {
   };
   isLiked: boolean;
   isFollowed?: boolean;
+  profilePicture?: string;
 }
 
 export interface GetTrendingContentRequest {
