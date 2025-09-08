@@ -4,13 +4,13 @@ import {
   Search,
   ArrowLeft,
   Play,
+  Pause,
   Volume2,
   Heart,
-  Share,
   Users,
   Flame,
+  Music,
 } from "lucide-react";
-import SLogo from "@/components/s-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -87,6 +87,121 @@ export default function DynamicSearch({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  
+  // Music player state
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [songDurations, setSongDurations] = useState<{[key: string]: number}>({});
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [isAudioLoading, setIsAudioLoading] = useState(false);
+  const [audioLoadSuccess, setAudioLoadSuccess] = useState(false);
+
+  // Mock songs data for when API returns empty
+  const mockSongs: ContentItem[] = [
+    {
+      _id: 'mock-song-1',
+      title: 'Shape of You',
+      file: 'https://www.bensound.com/bensound-music/bensound-sunny.mp3',
+      genre: 'Pop',
+      description: 'A catchy pop song with great melody',
+      type: 'audio',
+      createdAt: new Date().toISOString(),
+      user: {
+        _id: 'mock-user-1',
+        username: 'Ed Sheeran',
+        email: 'ed@example.com',
+        country: 'UK',
+        favoriteGenre: 'Pop',
+        role: 'artist',
+        artistBio: 'International pop sensation',
+        socialMediaLinks: {
+          instagram: 'https://instagram.com/edsheeran',
+          youtube: 'https://youtube.com/edsheeran',
+          spotify: 'https://spotify.com/artist/edsheeran'
+        }
+      },
+      likeCount: 1250,
+      weeklyTrendingScore: 95,
+      isLiked: false
+    },
+    {
+      _id: 'mock-song-2',
+      title: 'Blinding Lights',
+      file: 'https://www.bensound.com/bensound-music/bensound-creativeminds.mp3',
+      genre: 'Synth-pop',
+      description: 'An electrifying synth-pop anthem',
+      type: 'audio',
+      createdAt: new Date().toISOString(),
+      user: {
+        _id: 'mock-user-2',
+        username: 'The Weeknd',
+        email: 'weeknd@example.com',
+        country: 'Canada',
+        favoriteGenre: 'R&B',
+        role: 'artist',
+        artistBio: 'Grammy-winning R&B artist',
+        socialMediaLinks: {
+          instagram: 'https://instagram.com/theweeknd',
+          youtube: 'https://youtube.com/theweeknd',
+          spotify: 'https://spotify.com/artist/theweeknd'
+        }
+      },
+      likeCount: 2100,
+      weeklyTrendingScore: 88,
+      isLiked: true
+    },
+    {
+      _id: 'mock-song-3',
+      title: 'Levitating',
+      file: 'https://www.bensound.com/bensound-music/bensound-ukulele.mp3',
+      genre: 'Dance-pop',
+      description: 'Upbeat dance track that gets you moving',
+      type: 'audio',
+      createdAt: new Date().toISOString(),
+      user: {
+        _id: 'mock-user-3',
+        username: 'Dua Lipa',
+        email: 'dua@example.com',
+        country: 'UK',
+        favoriteGenre: 'Pop',
+        role: 'artist',
+        artistBio: 'Chart-topping pop diva',
+        socialMediaLinks: {
+          instagram: 'https://instagram.com/dualipa',
+          youtube: 'https://youtube.com/dualipa',
+          spotify: 'https://spotify.com/artist/dualipa'
+        }
+      },
+      likeCount: 1800,
+      weeklyTrendingScore: 92,
+      isLiked: false
+    }
+  ];
+
+  // Audio sources - using real music samples and API data
+  const getAudioSource = (item: ContentItem): string => {
+    // First try to use the file from the API data
+    if (item.file && item.file.startsWith('http')) {
+      return item.file;
+    }
+    
+    // If file is a local path, construct the full URL
+    if (item.file) {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+      return `${baseUrl}/${item.file}`;
+    }
+    
+    // Fallback to demo audio based on song ID - using free music samples
+    const demoAudioSources: {[key: string]: string} = {
+      'mock-song-1': 'https://www.bensound.com/bensound-music/bensound-sunny.mp3',
+      'mock-song-2': 'https://www.bensound.com/bensound-music/bensound-creativeminds.mp3',
+      'mock-song-3': 'https://www.bensound.com/bensound-music/bensound-ukulele.mp3',
+    };
+    
+    return demoAudioSources[item._id] || 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav';
+  };
 
   // Like/Dislike mutations
   const [likeDislikeContent, { isLoading: isLikeDislikeContentLoading }] = useLikeDislikeContentMutation();
@@ -145,6 +260,226 @@ export default function DynamicSearch({
     } catch (error) {
       console.error("Error toggling artist follow:", error);
     }
+  };
+
+  // Music player functions
+  const handlePlayPause = (contentId: string) => {
+    if (currentlyPlaying === contentId) {
+      // Same song - toggle play/pause
+      if (audioElement) {
+        if (isPlaying) {
+          audioElement.pause();
+          setIsPlaying(false);
+        } else {
+          audioElement.play();
+          setIsPlaying(true);
+        }
+      }
+    } else {
+      // Different song - stop current and start new
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        // Remove all event listeners to prevent memory leaks
+        audioElement.removeEventListener('loadstart', () => {});
+        audioElement.removeEventListener('loadedmetadata', () => {});
+        audioElement.removeEventListener('canplay', () => {});
+        audioElement.removeEventListener('canplaythrough', () => {});
+        audioElement.removeEventListener('timeupdate', () => {});
+        audioElement.removeEventListener('ended', () => {});
+        audioElement.removeEventListener('play', () => {});
+        audioElement.removeEventListener('pause', () => {});
+        audioElement.removeEventListener('error', () => {});
+        audioElement.src = ''; // Clear the source
+        audioElement.load(); // Reset the audio element
+      }
+
+      // Find the song item to get the correct audio source
+      const songItem = mockSongs.find(song => song._id === contentId) || 
+                      (trendingData?.data && Array.isArray(trendingData.data) ? 
+                        trendingData.data.find(song => song._id === contentId) : null);
+      
+      if (!songItem) {
+        console.error('Song not found:', contentId);
+        return;
+      }
+      
+      // Set loading state
+      setIsAudioLoading(true);
+      setIsPlaying(false);
+      setCurrentTime(0);
+      setCurrentlyPlaying(contentId);
+      setAudioLoadSuccess(false);
+      
+      // Create new audio element with the correct source
+      const audioSource = getAudioSource(songItem);
+      console.log('Playing audio from:', audioSource);
+      const audio = new Audio(audioSource);
+      
+      // Set up event listeners
+      audio.addEventListener('loadstart', () => {
+        console.log('Audio loading started...');
+      });
+
+      audio.addEventListener('loadedmetadata', () => {
+        console.log('Audio metadata loaded, duration:', audio.duration);
+        setDuration(audio.duration);
+        setSongDurations(prev => ({
+          ...prev,
+          [contentId]: audio.duration
+        }));
+      });
+
+      audio.addEventListener('canplay', () => {
+        console.log('Audio can start playing');
+        setAudioLoadSuccess(true);
+        setIsAudioLoading(false);
+        // Try to play the audio now that it's ready
+        audio.play().catch(error => {
+          console.error('Error playing audio after canplay:', error);
+          setIsAudioLoading(false);
+          // Try fallback audio if the original fails
+          const fallbackAudio = new Audio('https://www.bensound.com/bensound-music/bensound-sunny.mp3');
+          fallbackAudio.addEventListener('canplay', () => {
+            console.log('Using fallback audio');
+            setAudioElement(fallbackAudio);
+            setAudioLoadSuccess(true);
+            fallbackAudio.play().catch(err => {
+              console.error('Fallback audio also failed:', err);
+              alert('Audio playback not available. Please check your internet connection.');
+            });
+          });
+          fallbackAudio.addEventListener('error', () => {
+            alert('Could not load audio. Please check your internet connection or try a different song.');
+          });
+        });
+      });
+
+      audio.addEventListener('canplaythrough', () => {
+        console.log('Audio can play through without stopping');
+        setAudioLoadSuccess(true);
+        setIsAudioLoading(false);
+      });
+
+      audio.addEventListener('timeupdate', () => {
+        setCurrentTime(audio.currentTime);
+      });
+
+      audio.addEventListener('ended', () => {
+        setIsPlaying(false);
+        setCurrentTime(0);
+        setCurrentlyPlaying(null);
+        setIsAudioLoading(false);
+      });
+
+      audio.addEventListener('play', () => {
+        console.log('Audio started playing');
+        setIsPlaying(true);
+        setIsAudioLoading(false);
+      });
+
+      audio.addEventListener('pause', () => {
+        console.log('Audio paused');
+        setIsPlaying(false);
+      });
+
+      // Add error handling for audio loading
+      audio.addEventListener('error', (e) => {
+        console.error('Audio loading error:', e);
+        setIsAudioLoading(false);
+        // Don't show alert immediately - let the timeout handle it
+      });
+
+      // Set the audio element first
+      setAudioElement(audio);
+      
+      // Set up a timeout to check if audio loaded successfully
+      const loadTimeout = setTimeout(() => {
+        if (!audioLoadSuccess && isAudioLoading) {
+          console.log('Audio loading timeout - showing error');
+          setIsAudioLoading(false);
+          alert('Could not load audio. Please check your internet connection or try a different song.');
+        }
+      }, 5000); // 5 second timeout
+      
+      // Clear timeout if audio loads successfully
+      const clearTimeoutOnSuccess = () => {
+        clearTimeout(loadTimeout);
+      };
+      
+      audio.addEventListener('canplay', clearTimeoutOnSuccess);
+      audio.addEventListener('canplaythrough', clearTimeoutOnSuccess);
+      
+      // Load the audio (this will trigger the canplay event)
+      audio.load();
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleProgressChange = (newTime: number) => {
+    if (audioElement) {
+      audioElement.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  // Cleanup audio element on unmount
+  useEffect(() => {
+    return () => {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        // Remove all event listeners
+        audioElement.removeEventListener('loadstart', () => {});
+        audioElement.removeEventListener('loadedmetadata', () => {});
+        audioElement.removeEventListener('canplay', () => {});
+        audioElement.removeEventListener('canplaythrough', () => {});
+        audioElement.removeEventListener('timeupdate', () => {});
+        audioElement.removeEventListener('ended', () => {});
+        audioElement.removeEventListener('play', () => {});
+        audioElement.removeEventListener('pause', () => {});
+        audioElement.removeEventListener('error', () => {});
+        audioElement.src = '';
+        audioElement.load();
+      }
+    };
+  }, [audioElement]);
+
+  // Custom Progress Bar Component
+  const ProgressBar = ({ 
+    currentTime, 
+    duration, 
+    onTimeChange 
+  }: { 
+    currentTime: number; 
+    duration: number; 
+    onTimeChange: (time: number) => void;
+  }) => {
+    const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const newTime = (clickX / rect.width) * duration;
+      onTimeChange(Math.max(0, Math.min(duration, newTime)));
+    };
+
+    return (
+      <div 
+        className="w-full h-1 bg-gray-600 rounded-full cursor-pointer group"
+        onClick={handleClick}
+      >
+        <div 
+          className="h-full bg-white rounded-full transition-all duration-200 group-hover:bg-green-400"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    );
   };
 
   // Handle search input change
@@ -574,7 +909,7 @@ export default function DynamicSearch({
       )} */}
 
       {/* Main content */}
-      <div className="relative z-0 px-4 pb-20">
+      <div className="relative z-0 px-4 pb-20 w-full">
         {isLoading ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -584,6 +919,160 @@ export default function DynamicSearch({
           <div className="text-center py-12">
             <p className="text-red-400 mb-4">Failed to load trending content</p>
             <p className="text-gray-500 text-sm">Please try again later</p>
+          </div>
+        ) : activeTab === "songs" ? (
+          // Songs tab - Show songs with music player UI
+          <div className="space-y-6">
+            <div className="flex items-center space-x-2">
+              <Music className="w-5 h-5" style={{ color: themeColors.accent }} />
+              <h3 className="text-lg font-bold" style={{ color: themeColors.text }}>
+                {hasSearched && parentSearchQuery ? `Search Results for "${parentSearchQuery}"` : 'Trending Songs'}
+              </h3>
+            </div>
+            
+            {/* Songs List - Spotify Style */}
+            <div className="space-y-2">
+              {(() => {
+                // Use API data if available, otherwise use mock data
+                const songsData = (trendingData?.data && Array.isArray(trendingData.data) && trendingData.data.length > 0) 
+                  ? trendingData.data 
+                  : mockSongs;
+                
+                console.log('Songs data:', songsData);
+                console.log('trendingData:', trendingData);
+                
+                return songsData.map((item: ContentItem, index: number) => {
+                  const isCurrentlyPlaying = currentlyPlaying === item._id;
+                  const isPlayingThis = isCurrentlyPlaying && isPlaying;
+                  
+                  return (
+                    <div
+                      key={item._id}
+                      className={`group flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-800/50 transition-all duration-200 ${
+                        isCurrentlyPlaying ? 'bg-gray-800/70' : ''
+                      }`}
+                    >
+                      {/* Track Number / Play Button */}
+                      <div className="w-8 flex justify-center">
+                        {isCurrentlyPlaying ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="p-0 w-8 h-8 hover:bg-transparent"
+                            onClick={() => handlePlayPause(item._id)}
+                            disabled={isAudioLoading}
+                          >
+                            {isAudioLoading ? (
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            ) : isPlayingThis ? (
+                              <Pause className="w-4 h-4 text-white" />
+                            ) : (
+                              <Play className="w-4 h-4 text-white" />
+                            )}
+                          </Button>
+                        ) : (
+                          <span className="text-gray-400 text-sm group-hover:hidden">
+                            {index + 1}
+                          </span>
+                        )}
+                        {!isCurrentlyPlaying && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="p-0 w-8 h-8 hover:bg-transparent hidden group-hover:flex items-center justify-center"
+                            onClick={() => handlePlayPause(item._id)}
+                          >
+                            <Play className="w-4 h-4 text-white" />
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Album Art / Thumbnail */}
+                      <div className="w-12 h-12 bg-gray-700 rounded-md overflow-hidden flex-shrink-0">
+                        {(item as any).thumbnail ? (
+                          <img
+                            src={(item as any).thumbnail}
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                            <Music className="w-6 h-6 text-white" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Song Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2">
+                          <h4 className={`font-medium truncate ${
+                            isCurrentlyPlaying ? 'text-white' : 'text-gray-100'
+                          }`}>
+                            {item.title}
+                          </h4>
+                          {((item as any).verified) && (
+                            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs">
+                              Verified
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-400 truncate">
+                          {item.user.username} • {item.user.favoriteGenre}
+                        </p>
+                      </div>
+
+                      {/* Progress Bar (only for currently playing) */}
+                      {isCurrentlyPlaying && (
+                        <div className="flex-1 max-w-32">
+                          {isAudioLoading ? (
+                            <div className="flex items-center justify-center space-x-2">
+                              <div className="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                              <span className="text-xs text-cyan-400">Loading...</span>
+                            </div>
+                          ) : (
+                            <>
+                              <ProgressBar
+                                currentTime={currentTime}
+                                duration={duration}
+                                onTimeChange={handleProgressChange}
+                              />
+                              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>{formatTime(currentTime)}</span>
+                                <span>{formatTime(duration)}</span>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Duration */}
+                      <div className="w-12 text-right">
+                        <span className="text-sm text-gray-400">
+                          {isCurrentlyPlaying ? formatTime(duration) : formatTime(songDurations[item._id] || 180)}
+                        </span>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={`p-2 hover:bg-gray-700 ${
+                            item.isLiked ? 'text-red-500' : 'text-gray-400'
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleLikeContent(item._id);
+                          }}
+                        >
+                          <Heart className={`w-4 h-4 ${item.isLiked ? 'fill-current' : ''}`} />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
           </div>
         ) : activeTab === "artists" ? (
           // Artists tab - Show artists from API
@@ -793,8 +1282,8 @@ export default function DynamicSearch({
           </div>
         ) : !parentSearchQuery && !hasSearched ? (
           // Trending content when no search
-          <div className="space-y-6">
-            <div className="space-y-4">
+          <div className="space-y-6 w-full">
+            <div className="space-y-4 w-full">
               <div className="flex items-center space-x-2">
                 <Flame
                   className="w-5 h-5"
@@ -807,12 +1296,12 @@ export default function DynamicSearch({
                   {activeTab === 'top' ? 'Trending Now' : activeTab === 'songs' ? 'Trending Songs' : 'Trending Artists'}
                 </h3>
                       </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
                 {trendingData?.data && Array.isArray(trendingData.data) ? 
                   trendingData.data.map((item: ContentItem) => (
                     <div
                       key={item._id}
-                      className="rounded-lg shadow-lg overflow-hidden max-w-xl bg-gray-900/50 backdrop-blur-sm border border-gray-700/30"
+                      className="rounded-lg shadow-lg overflow-hidden w-full bg-gray-900/50 backdrop-blur-sm border border-gray-700/30"
                     >
                       {/* Instagram-style layout for all content types */}
                       <>
@@ -996,13 +1485,6 @@ export default function DynamicSearch({
                               }}
                             >
                               <Heart className="w-4 h-4 text-white" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 p-0"
-                            >
-                              <Share className="w-4 h-4 text-white" />
                             </Button>
                           </div>
                         )}

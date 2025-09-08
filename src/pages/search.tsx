@@ -14,7 +14,7 @@ export default function Search() {
     data: trendingData, 
     isLoading, 
     error 
-  } = useGetTrendingContentQuery({ 
+  } = useGetTrendingContentQuery({
     page: 1, 
     limit: 10, 
     type: activeTab,
