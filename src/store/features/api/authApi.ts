@@ -266,6 +266,15 @@ export interface GetContentResponse {
   data: ContentItem[];
 }
 
+export interface DeleteContentRequest {
+  contentId: string;
+}
+
+export interface DeleteContentResponse {
+  success: boolean;
+  message: string;
+}
+
 // Get base URL from environment variable
 const getBaseUrl = () => {
   // Use environment variable if available, otherwise fallback to localhost
@@ -373,6 +382,13 @@ export const authApi = createApi({
       },
       providesTags: ['Content'],
     }),
+    deleteContent: builder.mutation<DeleteContentResponse, DeleteContentRequest>({
+      query: ({ contentId }) => ({
+        url: `/api/v1/content/${contentId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Content'],
+    }),
     getUserProfile: builder.query<GetUserProfileResponse, GetUserProfileRequest | void>({
       query: (params) => {
         const searchParams = new URLSearchParams();
@@ -400,5 +416,6 @@ export const {
   useForgotPasswordMutation,
   useUploadContentMutation,
   useGetContentQuery,
+  useDeleteContentMutation,
   useGetUserProfileQuery,
 } = authApi; 

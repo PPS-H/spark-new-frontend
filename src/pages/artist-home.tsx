@@ -8,7 +8,11 @@ import { useAuth } from "@/hooks/useAuthRTK";
 import { useGetAllProjectsQuery } from "@/store/features/api/labelApi";
 import { useGetUserProfileQuery } from "@/store/features/api/authApi";
 import { Music, Calendar } from "lucide-react";
+import CreateNewCampaign from "@/components/create-new-campaign";
+import { useNavigate } from "react-router-dom";
+
 export default function ArtistHome() {
+  const navigate = useNavigate();
   const { user, logout, isLogoutLoading } = useAuth();
   const [showProfessionalInbox, setShowProfessionalInbox] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -50,41 +54,41 @@ export default function ArtistHome() {
     console.log('🎯 Dashboard campaigns:', campaigns);
     console.log('🎯 Dashboard projects:', projects);
   }, [campaigns, projects]);
-  
+
 
   // Get financial data from user profile
   const totalFundsRaised = profileData?.data?.user?.totalFundsRaised || 0;
   const totalFundingGoal = profileData?.data?.user?.totalFundingGoal || 0;
   const totalProjects = profileData?.data?.user?.totalProjects || 0;
   const activeCampaigns = projects.filter(project => project.status === 'Active').length;
-  
+
   // Calculate average progress based on total funds raised and funding goal
   const averageProgress = totalFundingGoal > 0 ? (totalFundsRaised / totalFundingGoal) * 100 : 0;
 
   const quickStats = [
-    { 
-      label: "Total Raised", 
-      value: `$${totalFundsRaised.toLocaleString()}`, 
-      icon: DollarSign, 
-      color: "text-green-400" 
+    {
+      label: "Total Raised",
+      value: `$${totalFundsRaised.toLocaleString()}`,
+      icon: DollarSign,
+      color: "text-green-400"
     },
-    { 
-      label: "Total Projects", 
-      value: totalProjects.toString(), 
-      icon: TrendingUp, 
-      color: "text-blue-400" 
+    {
+      label: "Total Projects",
+      value: totalProjects.toString(),
+      icon: TrendingUp,
+      color: "text-blue-400"
     },
-    { 
-      label: "Total Goal", 
-      value: `$${totalFundingGoal.toLocaleString()}`, 
-      icon: Users, 
-      color: "text-purple-400" 
+    {
+      label: "Total Goal",
+      value: `$${totalFundingGoal.toLocaleString()}`,
+      icon: Users,
+      color: "text-purple-400"
     },
-    { 
-      label: "Avg Progress", 
-      value: `${averageProgress.toFixed(1)}%`, 
-      icon: Play, 
-      color: "text-cyan-400" 
+    {
+      label: "Avg Progress",
+      value: `${averageProgress.toFixed(1)}%`,
+      icon: Play,
+      color: "text-cyan-400"
     }
   ];
 
@@ -163,28 +167,28 @@ export default function ArtistHome() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button 
+              <Button
                 onClick={() => setShowNewCampaignModal(true)}
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 h-20 flex-col"
               >
                 <Plus className="w-6 h-6 mb-2" />
                 New Campaign
               </Button>
-              <Button 
+              {/* <Button 
                 onClick={() => setShowProfessionalInbox(true)}
                 variant="outline" 
                 className="border-green-500/30 text-green-300 h-20 flex-col hover:bg-green-500/10"
               >
                 <MessageCircle className="w-6 h-6 mb-2" />
                 Professional Inbox
-              </Button>
-              <Button variant="outline" className="border-blue-500/30 text-blue-300 h-20 flex-col">
+              </Button> */}
+              <Button variant="outline" className="border-blue-500/30 text-blue-300 h-20 flex-col" onClick={() => navigate('/analytics')}>
                 <TrendingUp className="w-6 h-6 mb-2" />
                 View Analytics
               </Button>
-              <Button 
-                onClick={() => setShowProfile(true)}
-                variant="outline" 
+              <Button
+                onClick={() => navigate('/settings')}
+                variant="outline"
                 className="border-gray-500/30 text-gray-300 h-20 flex-col hover:bg-gray-500/10"
               >
                 <Settings className="w-6 h-6 mb-2" />
@@ -213,7 +217,7 @@ export default function ArtistHome() {
             ) : projects.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-400 mb-4">No active campaigns yet</p>
-                <Button 
+                <Button
                   onClick={() => setShowNewCampaignModal(true)}
                   className="bg-gradient-to-r from-purple-500 to-pink-500"
                 >
@@ -234,14 +238,13 @@ export default function ArtistHome() {
                           <h4 className="text-white font-semibold text-lg group-hover:text-cyan-400 transition-colors capitalize">
                             {project.title}
                           </h4>
-                          <Badge 
-                            className={`capitalize text-xs ${
-                              project.status === 'Active' 
-                                ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                          <Badge
+                            className={`capitalize text-xs ${project.status === 'Active'
+                                ? 'bg-green-500/20 text-green-400 border-green-500/30'
                                 : project.status === 'completed'
-                                ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                                : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
-                            }`}
+                                  ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                                  : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                              }`}
                           >
                             {project.status}
                           </Badge>
@@ -266,7 +269,7 @@ export default function ArtistHome() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div className="text-center">
                         <p className="text-2xl font-bold text-white">${project.goal.toLocaleString()}</p>
@@ -304,11 +307,11 @@ export default function ArtistHome() {
                 ))}
               </div>
             )}
-            
+
             {!campaignsLoading && (
-              <Button 
+              <Button
                 onClick={() => setShowNewCampaignModal(true)}
-                variant="outline" 
+                variant="outline"
                 className="w-full border-dashed border-purple-500/50 text-purple-300 hover:bg-purple-500/10"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -357,9 +360,9 @@ export default function ArtistHome() {
       )} */}
 
       {/* New Campaign Modal */}
-      {/* {showNewCampaignModal && (
-          <CreateNewCampaign onClose={() => setShowNewCampaignModal(false)} />
-      )} */}
+      {showNewCampaignModal && (
+        <CreateNewCampaign onClose={() => setShowNewCampaignModal(false)} />
+      )}
 
       {/* Artist Profile Page - Full Screen */}
       {/* {showProfile && (

@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Pause, MessageCircle, Heart, DollarSign, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Plus, Upload, RefreshCw, Edit, Trash2, MoreHorizontal, Image, ChevronLeft, ChevronRight, Music } from "lucide-react";
-import SLogo from "@/components/s-logo";
+import { Play, Pause, Heart, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Plus, Upload, RefreshCw, Trash2, MoreHorizontal, Image, ChevronLeft, ChevronRight, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,19 +8,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 import { ContentUploadModal } from "./content-upload-modal";
-import { useGetContentQuery } from "@/store/features/api/authApi";
+import { useGetContentQuery, useDeleteContentMutation } from "@/store/features/api/authApi";
 import { useGetAllProjectsQuery } from "@/store/features/api/labelApi";
 import { useUpdateProjectMutation } from "@/store/features/api/projectApi";
 import { useFollowUnfollowArtistMutation } from "@/store/features/api/searchApi";
 import { useAuth } from "@/hooks/useAuthRTK";
+import { useToast } from "@/hooks/use-toast";
 import type { Artist } from "@/types/artist";
 import CreateNewCampaign from "./create-new-campaign";
 
 interface ArtistProfilePageProps {
   artist: Artist;
   onBack: () => void;
-  onMessage: (artist: Artist) => void;
-  onInvest: (artist: Artist) => void;
   onFollow: (artist: Artist) => void;
   isOwner?: boolean;
   onProfileUpdate?: (newData: any) => void;
@@ -30,18 +28,24 @@ interface ArtistProfilePageProps {
 export default function ArtistProfilePage({
   artist,
   onBack,
-  onMessage,
-  onInvest,
   onFollow,
   isOwner = false,
   onProfileUpdate
 }: ArtistProfilePageProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   
   const [activeTab, setActiveTab] = useState("portfolio");
   const [contentFilter, setContentFilter] = useState("all");
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [songDurations, setSongDurations] = useState<{[key: string]: number}>({});
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [isAudioLoading, setIsAudioLoading] = useState(false);
+  const [audioLoadSuccess, setAudioLoadSuccess] = useState(false);
   const [isFollowing, setIsFollowing] = useState(artist.isFollowed || false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showAddContent, setShowAddContent] = useState(false);
@@ -49,6 +53,8 @@ export default function ArtistProfilePage({
   const [showEditProject, setShowEditProject] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [showFundingSettings, setShowFundingSettings] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [contentToDelete, setContentToDelete] = useState<string | null>(null);
   
   // Edit project form state
   const [editFormData, setEditFormData] = useState({
@@ -115,6 +121,9 @@ export default function ArtistProfilePage({
 
   // Follow/Unfollow artist mutation
   const [followUnfollowArtist, { isLoading: isFollowUnfollowLoading }] = useFollowUnfollowArtistMutation();
+
+  // Delete content mutation
+  const [deleteContent, { isLoading: isDeletingContent }] = useDeleteContentMutation();
 
   // Handle edit project button click
   const handleEditProjectClick = (project: any) => {
@@ -197,19 +206,227 @@ export default function ArtistProfilePage({
   // Content is already filtered by the API based on contentFilter
   const filteredContent = contentItems;
 
-  const playAudio = (id: string, url: string) => {
-    if (currentlyPlaying === id) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        setCurrentlyPlaying(null);
+  // Audio player functions (copied from Search component)
+  const getAudioSource = (item: any) => {
+    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+    return `${backendUrl}/${item.file}`;
+  };
+
+  const handlePlayPause = (contentId: string) => {
+    if (currentlyPlaying === contentId) {
+      // Same song - toggle play/pause
+      if (audioElement) {
+        if (isPlaying) {
+          audioElement.pause();
+          setIsPlaying(false);
+        } else {
+          audioElement.play();
+          setIsPlaying(true);
+        }
       }
     } else {
-      if (audioRef.current) {
-        audioRef.current.src = url;
-        audioRef.current.play();
-        setCurrentlyPlaying(id);
+      // Different song - stop current and start new
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        // Remove all event listeners to prevent memory leaks
+        audioElement.removeEventListener('loadstart', () => {});
+        audioElement.removeEventListener('loadedmetadata', () => {});
+        audioElement.removeEventListener('canplay', () => {});
+        audioElement.removeEventListener('canplaythrough', () => {});
+        audioElement.removeEventListener('timeupdate', () => {});
+        audioElement.removeEventListener('ended', () => {});
+        audioElement.removeEventListener('play', () => {});
+        audioElement.removeEventListener('pause', () => {});
+        audioElement.removeEventListener('error', () => {});
+        audioElement.src = ''; // Clear the source
+        audioElement.load(); // Reset the audio element
       }
+
+      // Find the song item to get the correct audio source
+      const songItem = contentItems.find((song: any) => song._id === contentId);
+      
+      if (!songItem) {
+        console.error('Song not found:', contentId);
+        return;
+      }
+      
+      // Set loading state
+      setIsAudioLoading(true);
+      setIsPlaying(false);
+      setCurrentTime(0);
+      setCurrentlyPlaying(contentId);
+      setAudioLoadSuccess(false);
+      
+      // Create new audio element with the correct source
+      const audioSource = getAudioSource(songItem);
+      console.log('Playing audio from:', audioSource);
+      const audio = new Audio(audioSource);
+      
+      // Set up event listeners
+      audio.addEventListener('loadstart', () => {
+        console.log('Audio loading started...');
+      });
+
+      audio.addEventListener('loadedmetadata', () => {
+        console.log('Audio metadata loaded, duration:', audio.duration);
+        setDuration(audio.duration);
+        setSongDurations(prev => ({
+          ...prev,
+          [contentId]: audio.duration
+        }));
+      });
+
+      audio.addEventListener('canplay', () => {
+        console.log('Audio can start playing');
+        setAudioLoadSuccess(true);
+        setIsAudioLoading(false);
+        // Try to play the audio now that it's ready
+        audio.play().catch(error => {
+          console.error('Error playing audio after canplay:', error);
+          setIsAudioLoading(false);
+          // Try fallback audio if the original fails
+          const fallbackAudio = new Audio('https://www.bensound.com/bensound-music/bensound-sunny.mp3');
+          fallbackAudio.addEventListener('canplay', () => {
+            console.log('Using fallback audio');
+            setAudioElement(fallbackAudio);
+            setAudioLoadSuccess(true);
+            fallbackAudio.play().catch(err => {
+              console.error('Fallback audio also failed:', err);
+              alert('Audio playback not available. Please check your internet connection.');
+            });
+          });
+          fallbackAudio.addEventListener('error', () => {
+            alert('Could not load audio. Please check your internet connection or try a different song.');
+          });
+        });
+      });
+
+      audio.addEventListener('canplaythrough', () => {
+        console.log('Audio can play through without stopping');
+        setAudioLoadSuccess(true);
+        setIsAudioLoading(false);
+      });
+
+      audio.addEventListener('timeupdate', () => {
+        setCurrentTime(audio.currentTime);
+      });
+
+      audio.addEventListener('ended', () => {
+        setIsPlaying(false);
+        setCurrentTime(0);
+        setCurrentlyPlaying(null);
+        setIsAudioLoading(false);
+      });
+
+      audio.addEventListener('play', () => {
+        console.log('Audio started playing');
+        setIsPlaying(true);
+        setIsAudioLoading(false);
+      });
+
+      audio.addEventListener('pause', () => {
+        console.log('Audio paused');
+        setIsPlaying(false);
+      });
+
+      // Add error handling for audio loading
+      audio.addEventListener('error', (e) => {
+        console.error('Audio loading error:', e);
+        setIsAudioLoading(false);
+        // Don't show alert immediately - let the timeout handle it
+      });
+
+      // Set the audio element first
+      setAudioElement(audio);
+      
+      // Set up a timeout to check if audio loaded successfully
+      const loadTimeout = setTimeout(() => {
+        if (!audioLoadSuccess && isAudioLoading) {
+          console.log('Audio loading timeout - showing error');
+          setIsAudioLoading(false);
+          alert('Could not load audio. Please check your internet connection or try a different song.');
+        }
+      }, 5000); // 5 second timeout
+      
+      // Clear timeout if audio loads successfully
+      const clearTimeoutOnSuccess = () => {
+        clearTimeout(loadTimeout);
+      };
+      
+      audio.addEventListener('canplay', clearTimeoutOnSuccess);
+      audio.addEventListener('canplaythrough', clearTimeoutOnSuccess);
+      
+      // Load the audio (this will trigger the canplay event)
+      audio.load();
     }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleProgressChange = (newTime: number) => {
+    if (audioElement) {
+      audioElement.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  // Cleanup audio element on unmount
+  useEffect(() => {
+    return () => {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        // Remove all event listeners
+        audioElement.removeEventListener('loadstart', () => {});
+        audioElement.removeEventListener('loadedmetadata', () => {});
+        audioElement.removeEventListener('canplay', () => {});
+        audioElement.removeEventListener('canplaythrough', () => {});
+        audioElement.removeEventListener('timeupdate', () => {});
+        audioElement.removeEventListener('ended', () => {});
+        audioElement.removeEventListener('play', () => {});
+        audioElement.removeEventListener('pause', () => {});
+        audioElement.removeEventListener('error', () => {});
+        audioElement.src = '';
+        audioElement.load();
+      }
+    };
+  }, [audioElement]);
+
+  // Custom Progress Bar Component
+  const ProgressBar = ({ 
+    currentTime, 
+    duration, 
+    onTimeChange 
+  }: { 
+    currentTime: number; 
+    duration: number; 
+    onTimeChange: (time: number) => void;
+  }) => {
+    const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const newTime = (clickX / rect.width) * duration;
+      onTimeChange(Math.max(0, Math.min(duration, newTime)));
+    };
+
+    return (
+      <div 
+        className="w-full h-1 bg-gray-600 rounded-full cursor-pointer group"
+        onClick={handleClick}
+      >
+        <div 
+          className="h-full bg-white rounded-full transition-all duration-200 group-hover:bg-green-400"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    );
   };
 
   const handleFollow = async () => {
@@ -224,6 +441,41 @@ export default function ArtistProfilePage({
       console.error('Failed to follow/unfollow artist:', error);
       // You can add toast notification here if needed
     }
+  };
+
+  // Handle delete content
+  const handleDeleteContent = (contentId: string) => {
+    setContentToDelete(contentId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteContent = async () => {
+    if (!contentToDelete) return;
+
+    try {
+      await deleteContent({ contentId: contentToDelete }).unwrap();
+      // Refresh content after successful deletion
+      refetchContent();
+      setShowDeleteConfirm(false);
+      setContentToDelete(null);
+      toast({
+        title: "Success",
+        description: "Content deleted successfully!",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('Failed to delete content:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete content. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const cancelDeleteContent = () => {
+    setShowDeleteConfirm(false);
+    setContentToDelete(null);
   };
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -285,56 +537,129 @@ export default function ArtistProfilePage({
 
   const renderContentCard = (item: any) => {
     const displayDate = new Date(item.createdAt).toLocaleDateString();
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
     const fileUrl = `${backendUrl}/${item.file}`;
 
     switch (item.type) {
       case "audio":
+        const isCurrentlyPlaying = currentlyPlaying === item._id;
+        const isPlayingThis = isCurrentlyPlaying && isPlaying;
+        
         return (
-          <Card key={item._id} className="bg-slate-800/70 backdrop-blur-sm border-0 rounded-2xl overflow-hidden hover:bg-slate-700/70 transition-all duration-300 shadow-lg group">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-4">
-                <div className="relative w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-md">
-                  <SLogo className="text-white" size={24} />
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-white font-semibold text-lg leading-tight">{item.title}</h3>
-                  <p className="text-gray-400 text-sm mt-1 leading-tight">{item.description || 'New single from upcoming album'}</p>
-                  <div className="flex items-center space-x-3 mt-2">
-                    <span className="text-xs text-gray-500">{displayDate}</span>
-                    {item.genre && <span className="text-xs text-purple-400 font-medium">{item.genre}</span>}
-                  </div>
-                  
-                  {currentlyPlaying === item._id && (
-                    <div className="mt-3">
-                      <div className="w-full bg-slate-600/30 rounded-full h-1">
-                        <div className="bg-white h-1 rounded-full transition-all duration-300" style={{ width: '45%' }} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                {isOwner && (
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-2">
-                    <button className="w-8 h-8 rounded-full bg-slate-600/40 hover:bg-slate-500/40 text-white flex items-center justify-center transition-all">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="w-8 h-8 rounded-full bg-red-600/40 hover:bg-red-500/40 text-white flex items-center justify-center transition-all">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-                
-                <button
-                  onClick={() => playAudio(item._id, fileUrl)}
-                  className="w-12 h-12 rounded-full bg-slate-700/80 hover:bg-slate-600/80 text-white flex items-center justify-center transition-all hover:scale-105 shadow-lg"
+          <div
+            key={item._id}
+            className={`group flex items-center space-x-4 p-4 rounded-lg hover:bg-slate-800/50 transition-all duration-200 bg-slate-800/30 ${
+              isCurrentlyPlaying ? 'bg-slate-800/70' : ''
+            }`}
+          >
+            {/* Track Number / Play Button */}
+            <div className="w-8 flex justify-center">
+              {isCurrentlyPlaying ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-0 w-8 h-8 hover:bg-transparent"
+                  onClick={() => handlePlayPause(item._id)}
+                  disabled={isAudioLoading}
                 >
-                  {currentlyPlaying === item._id ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+                  {isAudioLoading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : isPlayingThis ? (
+                    <Pause className="w-4 h-4 text-white" />
+                  ) : (
+                    <Play className="w-4 h-4 text-white" />
+                  )}
+                </Button>
+              ) : (
+                <span className="text-gray-400 text-sm group-hover:hidden">
+                  <Music className="w-4 h-4" />
+                </span>
+              )}
+              {!isCurrentlyPlaying && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-0 w-8 h-8 hover:bg-transparent hidden group-hover:flex items-center justify-center"
+                  onClick={() => handlePlayPause(item._id)}
+                >
+                  <Play className="w-4 h-4 text-white" />
+                </Button>
+              )}
+            </div>
+
+            {/* Album Art / Thumbnail */}
+            <div className="w-12 h-12 bg-gray-700 rounded-md overflow-hidden flex-shrink-0">
+              <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                <Music className="w-6 h-6 text-white" />
+              </div>
+            </div>
+
+            {/* Song Info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2">
+                <h4 className={`font-medium truncate ${
+                  isCurrentlyPlaying ? 'text-white' : 'text-gray-100'
+                }`}>
+                  {item.title}
+                </h4>
+              </div>
+              <p className="text-sm text-gray-400 truncate">
+                {item.description || 'New single from upcoming album'}
+              </p>
+              <div className="flex items-center space-x-3 mt-1">
+                <span className="text-xs text-gray-500">{displayDate}</span>
+                {item.genre && <span className="text-xs text-purple-400 font-medium">{item.genre}</span>}
+              </div>
+            </div>
+
+            {/* Progress Bar (only for currently playing) */}
+            {isCurrentlyPlaying && (
+              <div className="flex-1 max-w-32">
+                {isAudioLoading ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-xs text-cyan-400">Loading...</span>
+                  </div>
+                ) : (
+                  <>
+                    <ProgressBar
+                      currentTime={currentTime}
+                      duration={duration}
+                      onTimeChange={handleProgressChange}
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>{formatTime(currentTime)}</span>
+                      <span>{formatTime(duration)}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Duration */}
+            <div className="w-12 text-right">
+              <span className="text-sm text-gray-400">
+                {isCurrentlyPlaying ? formatTime(duration) : formatTime(songDurations[item._id] || 180)}
+              </span>
+            </div>
+
+            {/* Actions */}
+            {isOwner && (
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={() => handleDeleteContent(item._id)}
+                  disabled={isDeletingContent}
+                  className="w-8 h-8 rounded-full bg-red-600/40 hover:bg-red-500/40 text-white flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isDeletingContent ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                 </button>
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </div>
         );
 
       case "video":
@@ -342,24 +667,20 @@ export default function ArtistProfilePage({
           <Card key={item._id} className="bg-slate-800/80 backdrop-blur-sm border-0 rounded-2xl overflow-hidden hover:bg-slate-700/80 transition-all duration-300 shadow-xl group">
             <CardContent className="p-0">
               <div className="relative">
-                <img 
+                <video 
                   src={fileUrl}
-                  alt={item.title}
                   className="w-full h-48 object-cover"
+                  controls
+                  preload="metadata"
                   onError={(e) => {
-                    // Fallback to gradient background if image fails to load
+                    console.error('Video loading error:', e);
+                    // Fallback to gradient background if video fails to load
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                   }}
                 />
                 <div className="w-full h-48 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hidden">
                   <Video className="w-12 h-12 text-white" />
-                </div>
-                
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-center justify-center">
-                  <button className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-transform hover:scale-105 shadow-lg">
-                    <Play className="w-6 h-6 text-white ml-1" />
-                  </button>
                 </div>
                 
                 {isOwner && (
@@ -384,11 +705,16 @@ export default function ArtistProfilePage({
                   
                   {isOwner && (
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-2 ml-2">
-                      <button className="w-8 h-8 rounded-full bg-slate-600/40 hover:bg-slate-500/40 text-white flex items-center justify-center transition-all">
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button className="w-8 h-8 rounded-full bg-red-600/40 hover:bg-red-500/40 text-white flex items-center justify-center transition-all">
-                        <Trash2 className="w-4 h-4" />
+                      <button 
+                        onClick={() => handleDeleteContent(item._id)}
+                        disabled={isDeletingContent}
+                        className="w-8 h-8 rounded-full bg-red-600/40 hover:bg-red-500/40 text-white flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isDeletingContent ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   )}
@@ -409,9 +735,14 @@ export default function ArtistProfilePage({
                   className="w-full h-64 object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
                   onClick={() => window.open(fileUrl, '_blank')}
                   onError={(e) => {
+                    console.error('Image loading error:', e);
+                    console.error('Image URL:', fileUrl);
                     // Fallback to gradient background if image fails to load
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                  onLoad={() => {
+                    console.log('Image loaded successfully:', fileUrl);
                   }}
                 />
                 <div className="w-full h-64 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hidden">
@@ -442,11 +773,16 @@ export default function ArtistProfilePage({
                   
                   {isOwner && (
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-2 ml-2">
-                      <button className="w-8 h-8 rounded-full bg-slate-600/40 hover:bg-slate-500/40 text-white flex items-center justify-center transition-all">
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button className="w-8 h-8 rounded-full bg-red-600/40 hover:bg-red-500/40 text-white flex items-center justify-center transition-all">
-                        <Trash2 className="w-4 h-4" />
+                      <button 
+                        onClick={() => handleDeleteContent(item._id)}
+                        disabled={isDeletingContent}
+                        className="w-8 h-8 rounded-full bg-red-600/40 hover:bg-red-500/40 text-white flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isDeletingContent ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   )}
@@ -738,7 +1074,7 @@ export default function ArtistProfilePage({
                   )}
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
                   {filteredContent?.map(renderContentCard)}
                 </div>
               )}
@@ -923,10 +1259,10 @@ export default function ArtistProfilePage({
                     <div>
                       <h4 className="text-white font-semibold mb-2">Stats</h4>
                       <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
+                        {/* <div className="flex justify-between">
                           <span className="text-gray-400">Monthly Listeners</span>
                           <span className="text-white">{artist.monthlyListeners.toLocaleString()}</span>
-                        </div>
+                        </div> */}
                         <div className="flex justify-between">
                           <span className="text-gray-400">Funding Goal</span>
                           <span className="text-white">${totalGoalFromCampaigns.toLocaleString()}</span>
@@ -1324,6 +1660,42 @@ export default function ArtistProfilePage({
                     {isUpdatingProject ? 'Updating...' : 'Update Project'}
                   </Button>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-slate-800 rounded-lg p-6 w-full max-w-md">
+              <h3 className="text-xl font-bold text-white mb-4">Delete Content</h3>
+              <p className="text-gray-300 mb-6">
+                Are you sure you want to permanently delete this content? This action cannot be undone.
+              </p>
+              <div className="flex space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={cancelDeleteContent}
+                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+                  disabled={isDeletingContent}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmDeleteContent}
+                  disabled={isDeletingContent}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white disabled:opacity-50"
+                >
+                  {isDeletingContent ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Deleting...</span>
+                    </div>
+                  ) : (
+                    'Yes, Delete'
+                  )}
+                </Button>
               </div>
             </div>
           </div>

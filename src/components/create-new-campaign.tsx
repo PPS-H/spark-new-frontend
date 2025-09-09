@@ -6,37 +6,37 @@ import { X, Upload, Music, Youtube, Headphones } from 'lucide-react';
 import { useCreateProjectMutation } from '@/store/features/api/projectApi';
 
 interface Campaign {
-  id: number;
-  title: string;
-  status: string;
-  currentFunding: string;
-  fundingGoal: string;
-  maxInvestmentDuration: string;
+    id: number;
+    title: string;
+    status: string;
+    currentFunding: string;
+    fundingGoal: string;
+    maxInvestmentDuration: string;
 }
 
 interface CreateNewCampaignProps {
-  onClose: () => void;
-  onCampaignCreated?: (campaign: Campaign) => void;
+    onClose: () => void;
+    onCampaignCreated?: (campaign: Campaign) => void;
 }
 
 const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampaignCreated }) => {
     const [createProject, { isLoading }] = useCreateProjectMutation();
-    
+
     // Basic campaign fields
     const [campaignTitle, setCampaignTitle] = useState("");
     const [fundingGoal, setFundingGoal] = useState("");
     const [campaignDescription, setCampaignDescription] = useState("");
     const [campaignDuration, setCampaignDuration] = useState("");
-    
+
     // Song details
     const [songTitle, setSongTitle] = useState("");
     const [artistName, setArtistName] = useState("");
     const [isrcCode, setIsrcCode] = useState("");
     const [upcCode, setUpcCode] = useState("");
-    
+
     // Platform selection
     const [selectedPlatform, setSelectedPlatform] = useState("");
-    
+
     // Platform-specific fields
     const [spotifyTrackLink, setSpotifyTrackLink] = useState("");
     const [spotifyTrackId, setSpotifyTrackId] = useState("");
@@ -44,12 +44,12 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
     const [youtubeVideoId, setYoutubeVideoId] = useState("");
     const [deezerTrackLink, setDeezerTrackLink] = useState("");
     const [deezerTrackId, setDeezerTrackId] = useState("");
-    
+
     // Release details
     const [releaseType, setReleaseType] = useState("");
     const [expectedReleaseDate, setExpectedReleaseDate] = useState("");
     const [fundingDeadline, setFundingDeadline] = useState("");
-    
+
     // File upload
     const [distrokidFile, setDistrokidFile] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -57,87 +57,87 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
 
     const handleCreateCampaign = async () => {
         // Basic validation
-        if (!campaignTitle || !fundingGoal || !campaignDescription || !campaignDuration || 
-            !songTitle || !artistName || !isrcCode || !upcCode || !releaseType || 
+        if (!campaignTitle || !fundingGoal || !campaignDescription || !campaignDuration ||
+            !songTitle || !artistName || !isrcCode || !upcCode || !releaseType ||
             !expectedReleaseDate || !fundingDeadline) {
-          alert("Please fill in all required fields.");
-          return;
+            alert("Please fill in all required fields.");
+            return;
         }
 
         // Platform-specific validation
         if (selectedPlatform === "spotify" && (!spotifyTrackLink || !spotifyTrackId)) {
-          alert("Please fill in Spotify track link and ID.");
-          return;
+            alert("Please fill in Spotify track link and ID.");
+            return;
         }
         if (selectedPlatform === "youtube" && (!youtubeMusicLink || !youtubeVideoId)) {
-          alert("Please fill in YouTube music link and video ID.");
-          return;
+            alert("Please fill in YouTube music link and video ID.");
+            return;
         }
         if (selectedPlatform === "deezer" && (!deezerTrackLink || !deezerTrackId)) {
-          alert("Please fill in Deezer track link and ID.");
-          return;
+            alert("Please fill in Deezer track link and ID.");
+            return;
         }
-    
+
         try {
-          const projectData = {
-            title: campaignTitle,
-            fundingGoal: parseInt(fundingGoal),
-            description: campaignDescription,
-            duration: campaignDuration,
-            songTitle,
-            artistName,
-            isrcCode,
-            upcCode,
-            releaseType,
-            expectedReleaseDate,
-            fundingDeadline,
-            ...(selectedPlatform === "spotify" && {
-              spotifyTrackLink,
-              spotifyTrackId
-            }),
-            ...(selectedPlatform === "youtube" && {
-              youtubeMusicLink,
-              youtubeVideoId
-            }),
-            ...(selectedPlatform === "deezer" && {
-              deezerTrackLink,
-              deezerTrackId
-            }),
-            distrokidFile
-          };
-         console.log("projectData::::::", projectData);
-          const result = await createProject(projectData).unwrap();
-    
-          console.log("✅ Project created:", result);
-          
-          // Call parent callback if provided
-          if (onCampaignCreated) {
-            onCampaignCreated({
-              id: Date.now(), // Temporary ID for compatibility
-              title: result.data.title,
-              status: result.data.status,
-              currentFunding: "0",
-              fundingGoal: result.data.fundingGoal.toString(),
-              maxInvestmentDuration: result.data.duration
-            });
-          }
-          
-          // Trigger custom event
-          window.dispatchEvent(new CustomEvent('campaignCreated', { 
-            detail: result.data 
-          }));
-          
-          // Reset form
-          resetForm();
-          
-          // Close modal
-          onClose();
-    
-          alert("Project created successfully!");
+            const projectData = {
+                title: campaignTitle,
+                fundingGoal: parseInt(fundingGoal),
+                description: campaignDescription,
+                duration: campaignDuration,
+                songTitle,
+                artistName,
+                isrcCode,
+                upcCode,
+                releaseType,
+                expectedReleaseDate,
+                fundingDeadline,
+                ...(selectedPlatform === "spotify" && {
+                    spotifyTrackLink,
+                    spotifyTrackId
+                }),
+                ...(selectedPlatform === "youtube" && {
+                    youtubeMusicLink,
+                    youtubeVideoId
+                }),
+                ...(selectedPlatform === "deezer" && {
+                    deezerTrackLink,
+                    deezerTrackId
+                }),
+                distrokidFile
+            };
+            console.log("projectData::::::", projectData);
+            const result = await createProject(projectData).unwrap();
+
+            console.log("✅ Project created:", result);
+
+            // Call parent callback if provided
+            if (onCampaignCreated) {
+                onCampaignCreated({
+                    id: Date.now(), // Temporary ID for compatibility
+                    title: result.data.title,
+                    status: result.data.status,
+                    currentFunding: "0",
+                    fundingGoal: result.data.fundingGoal.toString(),
+                    maxInvestmentDuration: result.data.duration
+                });
+            }
+
+            // Trigger custom event
+            window.dispatchEvent(new CustomEvent('campaignCreated', {
+                detail: result.data
+            }));
+
+            // Reset form
+            resetForm();
+
+            // Close modal
+            onClose();
+
+            alert("Project created successfully!");
         } catch (error: any) {
-          console.error("❌ Error creating project:", error);
-          const errorMessage = error?.data?.message || error?.message || "Error creating project.";
-          alert(errorMessage);
+            console.error("❌ Error creating project:", error);
+            const errorMessage = error?.data?.message || error?.message || "Error creating project.";
+            alert(errorMessage);
         }
     };
 
@@ -186,13 +186,13 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
             <div className="bg-slate-800 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold text-white">Create New Campaign</h3>
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
+                    <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={handleClose}
                         disabled={isLoading}
                     >
@@ -203,12 +203,12 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                     {/* Basic Campaign Information */}
                     <div className="space-y-4">
                         <h4 className="text-lg font-semibold text-white mb-4">Campaign Information</h4>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Campaign Title *
                             </label>
-                            <Input 
+                            <Input
                                 type="text"
                                 value={campaignTitle}
                                 onChange={(e) => setCampaignTitle(e.target.value)}
@@ -217,12 +217,12 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 disabled={isLoading}
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Funding Goal (€) *
                             </label>
-                            <Input 
+                            <Input
                                 type="number"
                                 value={fundingGoal}
                                 onChange={(e) => setFundingGoal(e.target.value)}
@@ -232,12 +232,12 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 min="1"
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Campaign Description *
                             </label>
-                            <Textarea 
+                            <Textarea
                                 value={campaignDescription}
                                 onChange={(e) => setCampaignDescription(e.target.value)}
                                 placeholder="Describe your campaign"
@@ -246,7 +246,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 disabled={isLoading}
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Campaign Duration *
@@ -269,12 +269,12 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                     {/* Song Details */}
                     <div className="space-y-4">
                         <h4 className="text-lg font-semibold text-white mb-4">Song Details</h4>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Song Title *
                             </label>
-                            <Input 
+                            <Input
                                 type="text"
                                 value={songTitle}
                                 onChange={(e) => setSongTitle(e.target.value)}
@@ -283,12 +283,12 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 disabled={isLoading}
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Artist Name *
                             </label>
-                            <Input 
+                            <Input
                                 type="text"
                                 value={artistName}
                                 onChange={(e) => setArtistName(e.target.value)}
@@ -297,13 +297,13 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 disabled={isLoading}
                             />
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-2">
                                     ISRC Code *
                                 </label>
-                                <Input 
+                                <Input
                                     type="text"
                                     value={isrcCode}
                                     onChange={(e) => setIsrcCode(e.target.value)}
@@ -316,7 +316,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 <label className="block text-sm font-medium text-gray-300 mb-2">
                                     UPC Code *
                                 </label>
-                                <Input 
+                                <Input
                                     type="text"
                                     value={upcCode}
                                     onChange={(e) => setUpcCode(e.target.value)}
@@ -326,7 +326,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 />
                             </div>
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Release Type *
@@ -349,7 +349,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                     {/* Platform Selection */}
                     <div className="space-y-4">
                         <h4 className="text-lg font-semibold text-white mb-4">Platform Integration</h4>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Select Platform *
@@ -358,11 +358,10 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 <button
                                     type="button"
                                     onClick={() => setSelectedPlatform("spotify")}
-                                    className={`p-3 rounded-lg border-2 transition-all ${
-                                        selectedPlatform === "spotify"
+                                    className={`p-3 rounded-lg border-2 transition-all ${selectedPlatform === "spotify"
                                             ? "border-green-500 bg-green-500/20"
                                             : "border-gray-600 hover:border-gray-500"
-                                    }`}
+                                        }`}
                                     disabled={isLoading}
                                 >
                                     <Music className="w-6 h-6 mx-auto mb-2 text-green-400" />
@@ -371,11 +370,10 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 <button
                                     type="button"
                                     onClick={() => setSelectedPlatform("youtube")}
-                                    className={`p-3 rounded-lg border-2 transition-all ${
-                                        selectedPlatform === "youtube"
+                                    className={`p-3 rounded-lg border-2 transition-all ${selectedPlatform === "youtube"
                                             ? "border-red-500 bg-red-500/20"
                                             : "border-gray-600 hover:border-gray-500"
-                                    }`}
+                                        }`}
                                     disabled={isLoading}
                                 >
                                     <Youtube className="w-6 h-6 mx-auto mb-2 text-red-400" />
@@ -384,11 +382,10 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 <button
                                     type="button"
                                     onClick={() => setSelectedPlatform("deezer")}
-                                    className={`p-3 rounded-lg border-2 transition-all ${
-                                        selectedPlatform === "deezer"
+                                    className={`p-3 rounded-lg border-2 transition-all ${selectedPlatform === "deezer"
                                             ? "border-blue-500 bg-blue-500/20"
                                             : "border-gray-600 hover:border-gray-500"
-                                    }`}
+                                        }`}
                                     disabled={isLoading}
                                 >
                                     <Headphones className="w-6 h-6 mx-auto mb-2 text-blue-400" />
@@ -404,7 +401,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
                                         Spotify Track Link *
                                     </label>
-                                    <Input 
+                                    <Input
                                         type="url"
                                         value={spotifyTrackLink}
                                         onChange={(e) => setSpotifyTrackLink(e.target.value)}
@@ -417,7 +414,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
                                         Spotify Track ID *
                                     </label>
-                                    <Input 
+                                    <Input
                                         type="text"
                                         value={spotifyTrackId}
                                         onChange={(e) => setSpotifyTrackId(e.target.value)}
@@ -436,7 +433,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
                                         YouTube Music Link *
                                     </label>
-                                    <Input 
+                                    <Input
                                         type="url"
                                         value={youtubeMusicLink}
                                         onChange={(e) => setYoutubeMusicLink(e.target.value)}
@@ -449,7 +446,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
                                         YouTube Video ID *
                                     </label>
-                                    <Input 
+                                    <Input
                                         type="text"
                                         value={youtubeVideoId}
                                         onChange={(e) => setYoutubeVideoId(e.target.value)}
@@ -468,7 +465,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
                                         Deezer Track Link *
                                     </label>
-                                    <Input 
+                                    <Input
                                         type="url"
                                         value={deezerTrackLink}
                                         onChange={(e) => setDeezerTrackLink(e.target.value)}
@@ -481,7 +478,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
                                         Deezer Track ID *
                                     </label>
-                                    <Input 
+                                    <Input
                                         type="text"
                                         value={deezerTrackId}
                                         onChange={(e) => setDeezerTrackId(e.target.value)}
@@ -497,12 +494,12 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                     {/* Release Dates & File Upload */}
                     <div className="space-y-4">
                         <h4 className="text-lg font-semibold text-white mb-4">Release & Files</h4>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Expected Release Date *
                             </label>
-                            <Input 
+                            <Input
                                 type="datetime-local"
                                 value={expectedReleaseDate}
                                 onChange={(e) => setExpectedReleaseDate(e.target.value)}
@@ -510,12 +507,12 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 disabled={isLoading}
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Funding Deadline *
                             </label>
-                            <Input 
+                            <Input
                                 type="datetime-local"
                                 value={fundingDeadline}
                                 onChange={(e) => setFundingDeadline(e.target.value)}
@@ -523,17 +520,16 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 disabled={isLoading}
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Distrokid File
                             </label>
                             <div
-                                className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                                    isDragOver
+                                className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${isDragOver
                                         ? "border-purple-500 bg-purple-500/10"
                                         : "border-gray-600 hover:border-gray-500"
-                                }`}
+                                    }`}
                                 onDragOver={(e) => {
                                     e.preventDefault();
                                     setIsDragOver(true);
@@ -573,8 +569,8 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                     </div>
                 </div>
                 <div className="flex space-x-3 mt-6">
-                    <Button 
-                        variant="outline" 
+                    <Button
+                        variant="outline"
                         onClick={handleClose}
                         className="flex-1"
                         disabled={isLoading}

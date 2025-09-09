@@ -138,7 +138,9 @@ export function AnalyticsUnified() {
                 <CardContent className="p-4 md:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs md:text-sm font-medium text-muted-foreground">Total Streams</p>
+              
+              '
+              '        <p className="text-xs md:text-sm font-medium text-muted-foreground">Total Streams</p>
                       <p className="text-lg md:text-2xl font-bold">{formatNumber(artistAnalytics.totalStreams)}</p>
                     </div>
                     <Music className="h-6 w-6 md:h-8 md:w-8 text-blue-500" />
