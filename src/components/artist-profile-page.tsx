@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Pause, Heart, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Plus, Upload, RefreshCw, Trash2, MoreHorizontal, Image, ChevronLeft, ChevronRight, Music } from "lucide-react";
+import { Play, Pause, Heart, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Plus, Upload, RefreshCw, Trash2, Image, ChevronLeft, ChevronRight, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,6 +55,8 @@ export default function ArtistProfilePage({
   const [showFundingSettings, setShowFundingSettings] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [contentToDelete, setContentToDelete] = useState<string | null>(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<{url: string, title: string} | null>(null);
   
   // Edit project form state
   const [editFormData, setEditFormData] = useState({
@@ -478,6 +480,17 @@ export default function ArtistProfilePage({
     setContentToDelete(null);
   };
 
+  // Handle image click to open full screen
+  const handleImageClick = (imageUrl: string, imageTitle: string) => {
+    setSelectedImage({ url: imageUrl, title: imageTitle });
+    setShowImageModal(true);
+  };
+
+  const closeImageModal = () => {
+    setShowImageModal(false);
+    setSelectedImage(null);
+  };
+
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -682,14 +695,6 @@ export default function ArtistProfilePage({
                 <div className="w-full h-48 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hidden">
                   <Video className="w-12 h-12 text-white" />
                 </div>
-                
-                {isOwner && (
-                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <button className="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700/80 text-white flex items-center justify-center transition-all">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
               </div>
               
               <div className="p-4">
@@ -728,12 +733,17 @@ export default function ArtistProfilePage({
         return (
           <Card key={item._id} className="bg-slate-800/80 backdrop-blur-sm border-0 rounded-2xl overflow-hidden hover:bg-slate-700/80 transition-all duration-300 shadow-xl group">
             <CardContent className="p-0">
-              <div className="relative">
+              <div 
+                className="relative cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleImageClick(fileUrl, item.title);
+                }}
+              >
                 <img 
                   src={fileUrl}
                   alt={item.title}
-                  className="w-full h-64 object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
-                  onClick={() => window.open(fileUrl, '_blank')}
+                  className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
                     console.error('Image loading error:', e);
                     console.error('Image URL:', fileUrl);
@@ -749,15 +759,7 @@ export default function ArtistProfilePage({
                   <Image className="w-12 h-12 text-white" />
                 </div>
                 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-                
-                {isOwner && (
-                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <button className="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700/80 text-white flex items-center justify-center transition-all">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
               </div>
               
               <div className="p-4">
@@ -1696,6 +1698,46 @@ export default function ArtistProfilePage({
                     'Yes, Delete'
                   )}
                 </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Full Screen Image Modal */}
+        {showImageModal && selectedImage && (
+          <div 
+            className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+            onClick={closeImageModal}
+          >
+            <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center">
+              {/* Close Button */}
+              <button
+                onClick={closeImageModal}
+                className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-all"
+              >
+                <span className="text-2xl">&times;</span>
+              </button>
+              
+              {/* Image Container */}
+              <div 
+                className="relative max-w-full max-h-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img
+                  src={selectedImage.url}
+                  alt={selectedImage.title}
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                  onError={(e) => {
+                    console.error('Full screen image loading error:', e);
+                    // Fallback to a placeholder
+                    e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjMzc0MTUxIi8+CjxwYXRoIGQ9Ik0xNzUgMTI1SDIyNVYxNzVIMTc1VjEyNVoiIGZpbGw9IiM2QjcyODAiLz4KPHN2Zz4K';
+                  }}
+                />
+                
+                {/* Image Title */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 rounded-b-lg">
+                  <h3 className="text-white text-lg font-semibold">{selectedImage.title}</h3>
+                </div>
               </div>
             </div>
           </div>
