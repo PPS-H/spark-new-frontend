@@ -186,8 +186,8 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
-            <div className="bg-slate-800 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4 pb-20">
+            <div className="bg-slate-800 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto pb-8">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold text-white">Create New Campaign</h3>
                     <Button
@@ -568,7 +568,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                         </div>
                     </div>
                 </div>
-                <div className="flex space-x-3 mt-6">
+                <div className="flex space-x-3 mt-6 mb-8">
                     <Button
                         variant="outline"
                         onClick={handleClose}
@@ -585,6 +585,8 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                         {isLoading ? "Creating..." : "Create Campaign"}
                     </Button>
                 </div>
+                {/* Extra bottom spacing to ensure buttons are not hidden behind navigation */}
+                <div className="h-16"></div>
             </div>
         </div>
     )

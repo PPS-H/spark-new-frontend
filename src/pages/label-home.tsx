@@ -319,7 +319,7 @@ export default function LabelHome() {
         </Card> */}
 
         {/* Action Buttons */}
-        <div className="grid md:grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-3 gap-4">
           <Card
             className="artist-metric-card group hover:scale-105 transition-all duration-300 cursor-pointer"
             onClick={() => navigate("/search")}
@@ -333,7 +333,7 @@ export default function LabelHome() {
             </CardContent>
           </Card>
 
-          <Card
+          {/* <Card
             className="artist-metric-card group hover:scale-105 transition-all duration-300 cursor-pointer"
             onClick={() => setShowProfessionalInbox(true)}
           >
@@ -344,7 +344,7 @@ export default function LabelHome() {
               </h3>
               <p className="text-gray-300">Professional communications</p>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card
             className="artist-metric-card group hover:scale-105 transition-all duration-300 cursor-pointer"

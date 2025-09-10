@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Pause, Heart, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Plus, Upload, RefreshCw, Trash2, Image, ChevronLeft, ChevronRight, Music } from "lucide-react";
+import { Play, Pause, Heart, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Plus, Upload, Trash2, Image, ChevronLeft, ChevronRight, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -804,7 +804,7 @@ export default function ArtistProfilePage({
     <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
       <audio ref={audioRef} onEnded={() => setCurrentlyPlaying(null)} />
       
-      <div className="h-full overflow-y-auto">
+      <div className="h-full overflow-y-auto pb-32">
         {/* Hero Section */}
         <div className="relative h-80 overflow-hidden flex-shrink-0">
           <img 
@@ -991,7 +991,7 @@ export default function ArtistProfilePage({
         {/* Content Area */}
         <div className="max-w-4xl mx-auto px-6 py-4">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsContent value="portfolio" className="mt-0">
+            <TabsContent value="portfolio" className="mt-0 pb-16">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                 <h2 className="text-xl font-semibold text-white">Artist Portfolio</h2>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
@@ -1082,12 +1082,12 @@ export default function ArtistProfilePage({
               )}
             </TabsContent>
 
-            <TabsContent value="projects" className="mt-0">
-              <div className="space-y-6">
+            <TabsContent value="projects" className="mt-0 pb-16">
+              <div className="space-y-6 pb-8">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <h2 className="text-2xl font-bold text-white">Active Projects</h2>
                   <div className="flex gap-2">
-                    <Button
+                    {/* <Button
                       onClick={() => refetchProjects()}
                       variant="outline"
                       size="sm"
@@ -1095,7 +1095,7 @@ export default function ArtistProfilePage({
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
                       Refresh
-                    </Button>
+                    </Button> */}
                     {isOwner && (
                       <Button
                         onClick={() => setShowCreateCampaign(true)}
@@ -1246,10 +1246,12 @@ export default function ArtistProfilePage({
                     </Button>
                   </div>
                 )}
+                {/* Extra bottom spacing to ensure content is not hidden behind navigation */}
+                <div className="h-20"></div>
               </div>
             </TabsContent>
 
-            <TabsContent value="about" className="mt-0">
+            <TabsContent value="about" className="mt-0 pb-16">
               <Card className="bg-slate-800/50 border border-gray-700/50">
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold text-white mb-4">About {artist.name}</h3>

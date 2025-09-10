@@ -13,16 +13,7 @@ import {
   Heart, 
   MessageCircle, 
   DollarSign, 
-  TrendingUp, 
-  Users, 
-  Calendar,
-  Music,
-  Video,
   Image as ImageIcon,
-  Share2,
-  Star,
-  Globe,
-  Headphones,
   Edit,
   Camera,
   Plus
@@ -210,7 +201,7 @@ export default function ArtistProfile() {
   const displayHeaderImage = currentHeaderImage || artist.image;
   
   // Check if current user is the owner of this profile
-  const isOwner = user?.role === 'artist' && user?.id === artist.id;
+  const isOwner = user?.role === 'artist' && user?._id === artist.id.toString();
 
   const handleProfileImageSave = () => {
     if (newProfileImage) {
@@ -255,7 +246,7 @@ export default function ArtistProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-48">
       {/* Hero Section */}
       <div className="relative h-80 bg-gradient-to-r from-purple-900/80 to-pink-900/80 overflow-hidden">
         <div 
@@ -602,7 +593,7 @@ export default function ArtistProfile() {
             <TabsTrigger value="about" className="text-white">About</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="portfolio" className="space-y-4">
+          <TabsContent value="portfolio" className="space-y-4 pb-16">
             <div className="flex flex-col space-y-4 mb-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-white">Artist Portfolio</h2>
@@ -664,9 +655,9 @@ export default function ArtistProfile() {
             </div>
           </TabsContent>
 
-          <TabsContent value="projects" className="space-y-4">
+          <TabsContent value="projects" className="space-y-4 pb-24">
             <h2 className="text-2xl font-bold text-white mb-4">Active Projects</h2>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
               <Card className="bg-slate-800 border-slate-700">
                 <CardHeader>
                   <CardTitle className="text-white">New Album Production</CardTitle>
@@ -685,9 +676,11 @@ export default function ArtistProfile() {
                 </CardContent>
               </Card>
             </div>
+            {/* Extra bottom spacing to ensure content is not hidden behind navigation */}
+            <div className="h-20"></div>
           </TabsContent>
 
-          <TabsContent value="events" className="space-y-4">
+          <TabsContent value="events" className="space-y-4 pb-16">
             <h2 className="text-2xl font-bold text-white mb-4">Upcoming Events</h2>
             <div className="space-y-4">
               <Card className="bg-slate-800 border-slate-700">
@@ -707,7 +700,7 @@ export default function ArtistProfile() {
             </div>
           </TabsContent>
 
-          <TabsContent value="about" className="space-y-4">
+          <TabsContent value="about" className="space-y-4 pb-16">
             <h2 className="text-2xl font-bold text-white mb-4">About {artist.name}</h2>
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="p-6">
@@ -725,7 +718,21 @@ export default function ArtistProfile() {
       {/* Investment Modal */}
       {showInvestmentModal && (
         <InvestmentModal 
-          artist={artist}
+          artist={{
+            id: artist.id,
+            name: artist.name,
+            genre: artist.genre,
+            country: artist.country,
+            description: artist.description,
+            monthlyListeners: artist.monthlyListeners,
+            fundingGoal: artist.fundingGoal.toString(),
+            currentFunding: artist.currentFunding.toString(),
+            expectedReturn: artist.expectedReturn.toString(),
+            imageUrl: artist.imageUrl,
+            isActive: true,
+            isLiked: false,
+            isFollowed: false
+          }}
           isOpen={showInvestmentModal}
           onClose={() => setShowInvestmentModal(false)}
           onInvest={(amount, method) => {

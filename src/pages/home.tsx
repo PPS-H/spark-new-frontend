@@ -103,7 +103,7 @@ export default function Home() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Alt + D for discover section
-      if (event.altKey && event.key === 'd') {
+      if (event.altKey && event.key === 'd') {0
         event.preventDefault();
         scrollToSection('discover');
       }
@@ -522,7 +522,7 @@ export default function Home() {
                   <img 
                     src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100" 
                     alt="Music artist" 
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-12 h-12 rounded-full object-cover" 
                   />
                   <div>
                     <p className="text-white font-semibold">Luna</p>

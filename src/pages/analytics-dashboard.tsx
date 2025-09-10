@@ -1,290 +1,761 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
   Activity,
-  Music,
   DollarSign,
   TrendingUp,
-  Users
+  Users,
+  Heart,
+  ArrowUpRight,
+  RefreshCw,
+  BarChart3,
+  Target,
+  Briefcase,
+  PieChart,
+  Music,
+  Play,
+  Image,
+  FileText
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuthRTK";
+import { useGetAnalyticsQuery } from "@/store/features/api/analyticsApi";
 
 interface AnalyticsData {
-  totalStreams: number;
+  // Main metrics
   totalRevenue: number;
-  monthlyGrowth: number;
-  investorMetrics: {
-    totalInvestors: number;
-    totalInvested: number;
-    averageReturn: number;
+  totalEngagement: number;
+  followers: number;
+  likes: number;
+  
+  // Artist specific
+  totalProjects: number;
+  totalFundsRaised: number;
+  totalFundingGoal: number;
+  monthlyROI: number;
+  totalInvestors: number;
+  activeProjects: number;
+  draftProjects: number;
+  
+  // Label specific
+  totalInvestments: number;
+  totalInvestedAmount: number;
+  averageReturn: number;
+  activeInvestments: number;
+  completedInvestments: number;
+  cancelledInvestments: number;
+  
+  // Content breakdown
+  contentBreakdown: {
+    audio: { percentage: number; count: number };
+    video: { percentage: number; count: number };
+    image: { percentage: number; count: number };
   };
-  topTracks: Array<{
-    trackId: string;
-    name: string;
-    streams: number;
-    revenue: number;
-  }>;
-  platformBreakdown: Array<{
-    platform: string;
-    percentage: number;
-    revenue: number;
-  }>;
+  
+  // Revenue breakdown by source
+  revenueBreakdown: {
+    spotify: { percentage: number; amount: number };
+    youtube: { percentage: number; amount: number };
+  };
+  
+  // Project status breakdown
+  projectStatusBreakdown: {
+    active: { percentage: number; count: number };
+    draft: { percentage: number; count: number };
+  };
+  
+  // Investment status breakdown
+  investmentStatusBreakdown: {
+    active: { percentage: number; count: number };
+    completed: { percentage: number; count: number };
+    cancelled: { percentage: number; count: number };
+  };
 }
 
 export function AnalyticsDashboard() {
-  const [selectedArtist, setSelectedArtist] = useState<string>('1');
+  const { user } = useAuth();
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
+    totalRevenue: 0,
+    totalEngagement: 0,
+    followers: 0,
+    likes: 0,
+    totalProjects: 0,
+    totalFundsRaised: 0,
+    totalFundingGoal: 0,
+    monthlyROI: 0,
+    totalInvestors: 0,
+    activeProjects: 0,
+    draftProjects: 0,
+    totalInvestments: 0,
+    totalInvestedAmount: 0,
+    averageReturn: 0,
+    activeInvestments: 0,
+    completedInvestments: 0,
+    cancelledInvestments: 0,
+    contentBreakdown: {
+      audio: { percentage: 0, count: 0 },
+      video: { percentage: 0, count: 0 },
+      image: { percentage: 0, count: 0 }
+    },
+    revenueBreakdown: {
+      spotify: { percentage: 0, amount: 0 },
+      youtube: { percentage: 0, amount: 0 }
+    },
+    projectStatusBreakdown: {
+      active: { percentage: 0, count: 0 },
+      draft: { percentage: 0, count: 0 }
+    },
+    investmentStatusBreakdown: {
+      active: { percentage: 0, count: 0 },
+      completed: { percentage: 0, count: 0 },
+      cancelled: { percentage: 0, count: 0 }
+    }
+  });
+  // Fetch analytics data from API
+  const { data: analyticsResponse, isLoading: analyticsLoading } = useGetAnalyticsQuery();
 
-  // Mock data for selected artist
-  const mockAnalyticsData: Record<string, AnalyticsData> = {
-    '1': {
-      totalStreams: 15420000,
-      totalRevenue: 82450,
-      monthlyGrowth: 12.5,
-      investorMetrics: {
-        totalInvestors: 245,
-        totalInvested: 450000,
-        averageReturn: 8.7
-      },
-      topTracks: [
-        { trackId: '1', name: 'Tití Me Preguntó', streams: 3450000, revenue: 18200 },
-        { trackId: '2', name: 'Me Porto Bonito', streams: 2890000, revenue: 15300 },
-        { trackId: '3', name: 'Ojitos Lindos', streams: 2120000, revenue: 11200 },
-        { trackId: '4', name: 'Party', streams: 1850000, revenue: 9800 },
-        { trackId: '5', name: 'Efecto', streams: 1420000, revenue: 7500 }
-      ],
-      platformBreakdown: [
-        { platform: 'Spotify', percentage: 45, revenue: 37100 },
-        { platform: 'Apple Music', percentage: 28, revenue: 23100 },
-        { platform: 'YouTube Music', percentage: 15, revenue: 12400 },
-        { platform: 'Deezer', percentage: 8, revenue: 6600 },
-        { platform: 'Amazon Music', percentage: 4, revenue: 3300 }
-      ]
-    },
-    '2': {
-      totalStreams: 22350000,
-      totalRevenue: 125600,
-      monthlyGrowth: 18.2,
-      investorMetrics: {
-        totalInvestors: 398,
-        totalInvested: 720000,
-        averageReturn: 11.4
-      },
-      topTracks: [
-        { trackId: '1', name: 'Blinding Lights', streams: 5200000, revenue: 28600 },
-        { trackId: '2', name: 'Save Your Tears', streams: 4100000, revenue: 22500 },
-        { trackId: '3', name: 'The Hills', streams: 3800000, revenue: 20900 },
-        { trackId: '4', name: 'Can\'t Feel My Face', streams: 3200000, revenue: 17600 },
-        { trackId: '5', name: 'Starboy', streams: 2850000, revenue: 15700 }
-      ],
-      platformBreakdown: [
-        { platform: 'Spotify', percentage: 52, revenue: 65300 },
-        { platform: 'Apple Music', percentage: 24, revenue: 30100 },
-        { platform: 'YouTube Music', percentage: 14, revenue: 17600 },
-        { platform: 'Deezer', percentage: 6, revenue: 7500 },
-        { platform: 'Amazon Music', percentage: 4, revenue: 5000 }
-      ]
-    },
-    '3': {
-      totalStreams: 31800000,
-      totalRevenue: 189400,
-      monthlyGrowth: 22.8,
-      investorMetrics: {
-        totalInvestors: 512,
-        totalInvested: 1200000,
-        averageReturn: 15.2
-      },
-      topTracks: [
-        { trackId: '1', name: 'Anti-Hero', streams: 7200000, revenue: 42800 },
-        { trackId: '2', name: 'Lavender Haze', streams: 5800000, revenue: 34500 },
-        { trackId: '3', name: 'Shake It Off', streams: 5100000, revenue: 30300 },
-        { trackId: '4', name: 'Blank Space', streams: 4200000, revenue: 25000 },
-        { trackId: '5', name: 'Bad Blood', streams: 3500000, revenue: 20800 }
-      ],
-      platformBreakdown: [
-        { platform: 'Spotify', percentage: 48, revenue: 90900 },
-        { platform: 'Apple Music', percentage: 26, revenue: 49200 },
-        { platform: 'YouTube Music', percentage: 16, revenue: 30300 },
-        { platform: 'Deezer', percentage: 6, revenue: 11400 },
-        { platform: 'Amazon Music', percentage: 4, revenue: 7600 }
-      ]
-    },
-    '4': {
-      totalStreams: 28200000,
-      totalRevenue: 158900,
-      monthlyGrowth: 16.7,
-      investorMetrics: {
-        totalInvestors: 445,
-        totalInvested: 890000,
-        averageReturn: 13.1
-      },
-      topTracks: [
-        { trackId: '1', name: 'God\'s Plan', streams: 6100000, revenue: 36400 },
-        { trackId: '2', name: 'One Dance', streams: 5400000, revenue: 32200 },
-        { trackId: '3', name: 'Hotline Bling', streams: 4800000, revenue: 28600 },
-        { trackId: '4', name: 'In My Feelings', streams: 4200000, revenue: 25000 },
-        { trackId: '5', name: 'Nice For What', streams: 3700000, revenue: 22000 }
-      ],
-      platformBreakdown: [
-        { platform: 'Spotify', percentage: 46, revenue: 73100 },
-        { platform: 'Apple Music', percentage: 29, revenue: 46100 },
-        { platform: 'YouTube Music', percentage: 15, revenue: 23800 },
-        { platform: 'Deezer', percentage: 7, revenue: 11100 },
-        { platform: 'Amazon Music', percentage: 3, revenue: 4800 }
-      ]
+  // Update analytics data when API response is received
+  useEffect(() => {
+    if (analyticsResponse?.data) {
+      setAnalyticsData(analyticsResponse.data);
+    }
+  }, [analyticsResponse]);
+
+  const formatNumber = (num: number) => 
+    new Intl.NumberFormat('en-US').format(num);
+
+  const formatCurrency = (amount: number) => 
+    new Intl.NumberFormat('en-US', { 
+      style: 'currency', 
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+
+  const getRoleTitle = () => {
+    switch (user?.role) {
+      case 'artist': return 'Artist Analytics';
+      case 'label': return 'Label Analytics';
+      default: return 'Analytics Dashboard';
     }
   };
 
-  const artistAnalytics = mockAnalyticsData[selectedArtist];
+  const getContentTypeData = () => {
+    return [
+      { 
+        type: 'Audio', 
+        percentage: analyticsData.contentBreakdown.audio.percentage, 
+        count: analyticsData.contentBreakdown.audio.count,
+        color: 'bg-pink-500',
+        textColor: 'text-pink-400',
+        icon: Music
+      },
+      { 
+        type: 'Video', 
+        percentage: analyticsData.contentBreakdown.video.percentage, 
+        count: analyticsData.contentBreakdown.video.count,
+        color: 'bg-purple-500',
+        textColor: 'text-purple-400',
+        icon: Play
+      },
+      { 
+        type: 'Images', 
+        percentage: analyticsData.contentBreakdown.image.percentage, 
+        count: analyticsData.contentBreakdown.image.count,
+        color: 'bg-blue-500',
+        textColor: 'text-blue-400',
+        icon: Image
+      }
+    ];
+  };
 
-  const formatCurrency = (amount: number) => 
-    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+  const getRevenueData = () => {
+    return [
+      { 
+        type: 'Spotify', 
+        percentage: analyticsData.revenueBreakdown.spotify.percentage, 
+        amount: analyticsData.revenueBreakdown.spotify.amount,
+        color: 'bg-green-500',
+        textColor: 'text-green-400'
+      },
+      { 
+        type: 'YouTube', 
+        percentage: analyticsData.revenueBreakdown.youtube.percentage, 
+        amount: analyticsData.revenueBreakdown.youtube.amount,
+        color: 'bg-red-500',
+        textColor: 'text-red-400'
+      }
+    ];
+  };
 
-  const formatNumber = (num: number) => 
-    new Intl.NumberFormat('fr-FR').format(num);
+  if (analyticsLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 text-cyan-500 animate-spin mx-auto mb-4" />
+          <p className="text-white text-lg">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Analytics SPARK</h1>
-            <p className="text-sm md:text-base text-muted-foreground">Tableau de bord analytics temps réel</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="flex items-center gap-2 text-xs md:text-sm">
-              <Activity className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
-              Temps Réel
-            </Badge>
-          </div>
-        </div>
-
-        {/* Artist Selector */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Sélectionner un Artiste</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-              {[
-                { id: '1', name: 'Bad Bunny' },
-                { id: '2', name: 'The Weeknd' },
-                { id: '3', name: 'Taylor Swift' },
-                { id: '4', name: 'Drake' }
-              ].map(artist => (
-                <Button
-                  key={artist.id}
-                  variant={selectedArtist === artist.id ? "default" : "outline"}
-                  onClick={() => setSelectedArtist(artist.id)}
-                  className="text-xs md:text-sm p-2 h-auto"
-                >
-                  {artist.name}
-                </Button>
-              ))}
+              <h1 className="text-4xl font-bold text-white mb-2">{getRoleTitle()}</h1>
+              <p className="text-slate-400 text-lg">
+                {user?.role === 'artist' 
+                  ? 'Track your music content performance and fan engagement' 
+                  : 'Monitor your investment portfolio and content reach'
+                }
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            {/* <div className="flex items-center gap-3">
+              <Badge variant="outline" className="flex items-center gap-2 text-cyan-400 border-cyan-400 px-4 py-2">
+                <Activity className="h-4 w-4 text-cyan-400" />
+                Live Data
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.reload()}
+                className="text-slate-300 border-slate-600 hover:bg-slate-700"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+            </div> */}
+          </div>
 
-        {/* Artist Metrics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          <Card>
-            <CardContent className="p-4 md:p-6">
+        </div>
+
+        {/* Additional Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs md:text-sm font-medium text-muted-foreground">Total Streams</p>
-                  <p className="text-lg md:text-2xl font-bold">{formatNumber(artistAnalytics.totalStreams)}</p>
+                  <p className="text-slate-400 text-sm font-medium">Total Content</p>
+                  <p className="text-2xl font-bold text-white">
+                    {formatNumber(
+                      analyticsData.contentBreakdown.audio.count +
+                      analyticsData.contentBreakdown.video.count +
+                      analyticsData.contentBreakdown.image.count
+                    )}
+                  </p>
                 </div>
-                <Music className="h-6 w-6 md:h-8 md:w-8 text-blue-500" />
+                <FileText className="h-8 w-8 text-cyan-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-4 md:p-6">
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs md:text-sm font-medium text-muted-foreground">Revenus Total</p>
-                  <p className="text-lg md:text-2xl font-bold">{formatCurrency(artistAnalytics.totalRevenue)}</p>
+                  <p className="text-slate-400 text-sm font-medium">Avg. Engagement</p>
+                  <p className="text-2xl font-bold text-white">{analyticsData.totalEngagement.toFixed(1)}%</p>
                 </div>
-                <DollarSign className="h-6 w-6 md:h-8 md:w-8 text-green-500" />
+                <Activity className="h-8 w-8 text-green-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-4 md:p-6">
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs md:text-sm font-medium text-muted-foreground">Croissance Mensuelle</p>
-                  <p className="text-lg md:text-2xl font-bold">+{artistAnalytics.monthlyGrowth}%</p>
+                  <p className="text-slate-400 text-sm font-medium">Growth Rate</p>
+                  <p className="text-2xl font-bold text-white">+12.5%</p>
                 </div>
-                <TrendingUp className="h-6 w-6 md:h-8 md:w-8 text-purple-500" />
+                <TrendingUp className="h-8 w-8 text-purple-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-4 md:p-6">
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs md:text-sm font-medium text-muted-foreground">Investisseurs</p>
-                  <p className="text-lg md:text-2xl font-bold">{artistAnalytics.investorMetrics.totalInvestors}</p>
+                  <p className="text-slate-400 text-sm font-medium">Active {user?.role === 'artist' ? 'Projects' : 'Investments'}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {user?.role === 'artist' ? analyticsData.totalProjects : analyticsData.activeInvestments}
+                  </p>
                 </div>
-                <Users className="h-6 w-6 md:h-8 md:w-8 text-orange-500" />
+                {user?.role === 'artist' ? (
+                  <Target className="h-8 w-8 text-orange-400" />
+                ) : (
+                  <Briefcase className="h-8 w-8 text-orange-400" />
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Top Tracks */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Tracks</CardTitle>
-            <CardDescription>Les 5 titres les plus performants</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 md:space-y-4">
-              {artistAnalytics.topTracks.map((track, index) => (
-                <div key={track.trackId} className="flex items-center justify-between p-2 md:p-3 rounded-lg border">
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <Badge variant="secondary" className="text-xs">#{index + 1}</Badge>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-sm md:text-base truncate">{track.name}</p>
-                      <p className="text-xs md:text-sm text-muted-foreground">{formatNumber(track.streams)} streams</p>
+        {/* Main Analytics Overview */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Revenue Overview Card */}
+          <Card className="bg-slate-800/50 border-slate-700 lg:col-span-2">
+            <CardContent className="p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-5xl font-bold text-white mb-2">
+                    {formatCurrency(analyticsData.totalRevenue)}
+                  </h2>
+                  <p className="text-slate-400 text-lg">Total Revenue</p>
+                </div>
+                
+                {/* Revenue Breakdown Pie Chart */}
+                <div className="flex items-center gap-8">
+                  <div className="relative w-32 h-32">
+                    <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
+                      {getRevenueData().map((item, index) => {
+                        const startAngle = getRevenueData().slice(0, index).reduce((sum, prev) => sum + prev.percentage, 0);
+                        const circumference = 2 * Math.PI * 15.9155;
+                        const strokeDasharray = `${(item.percentage / 100) * circumference} ${circumference}`;
+                        const strokeDashoffset = `-${(startAngle / 100) * circumference}`;
+                        
+                        return (
+                          <path
+                            key={index}
+                            className={item.color.replace('bg-', 'text-')}
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            fill="transparent"
+                            strokeDasharray={strokeDasharray}
+                            strokeDashoffset={strokeDashoffset}
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                        );
+                      })}
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-white">
+                          {analyticsData.revenueBreakdown.spotify.percentage}%
+                        </div>
+                        <div className="text-xs text-slate-400">Spotify</div>
+                      </div>
                     </div>
                   </div>
+                  
                   <div className="text-right">
-                    <p className="font-semibold text-sm md:text-base">{formatCurrency(track.revenue)}</p>
+                    <div className="text-2xl font-bold text-white">
+                      {formatCurrency(analyticsData.revenueBreakdown.spotify.amount)}
+                    </div>
+                    <div className="text-sm text-green-400 mb-2">Spotify</div>
+                    <div className="text-2xl font-bold text-white">
+                      {formatCurrency(analyticsData.revenueBreakdown.youtube.amount)}
+                    </div>
+                    <div className="text-sm text-red-400">YouTube</div>
                   </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Engagement Metrics */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold text-white">
+                    {analyticsData.totalEngagement.toFixed(1)}%
+                  </h3>
+                  <p className="text-slate-400">Engagement Rate</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-green-400 text-sm font-semibold flex items-center">
+                    <ArrowUpRight className="h-4 w-4 mr-1" />
+                    +12.5%
+                  </div>
+                  <p className="text-slate-400 text-sm">vs last period</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Key Metrics Card */}
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-cyan-400" />
+                Key Metrics
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {user?.role === 'artist' ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Target className="h-8 w-8 text-cyan-400" />
+                      <div>
+                        <p className="text-white font-medium">Projects</p>
+                        <p className="text-slate-400 text-sm">Active campaigns</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-white">{analyticsData.totalProjects}</p>
+                      <p className="text-green-400 text-sm">+2 this month</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <DollarSign className="h-8 w-8 text-green-400" />
+                      <div>
+                        <p className="text-white font-medium">Funds Raised</p>
+                        <p className="text-slate-400 text-sm">Total funding</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-white">{formatCurrency(analyticsData.totalFundsRaised)}</p>
+                      <p className="text-green-400 text-sm">+15.3%</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <TrendingUp className="h-8 w-8 text-purple-400" />
+                      <div>
+                        <p className="text-white font-medium">Monthly ROI</p>
+                        <p className="text-slate-400 text-sm">Expected return</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-white">{analyticsData.monthlyROI.toFixed(1)}%</p>
+                      <p className="text-green-400 text-sm">+1.2%</p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Briefcase className="h-8 w-8 text-cyan-400" />
+                      <div>
+                        <p className="text-white font-medium">Investments</p>
+                        <p className="text-slate-400 text-sm">Portfolio size</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-white">{analyticsData.totalInvestments}</p>
+                      <p className="text-green-400 text-sm">+3 this month</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <DollarSign className="h-8 w-8 text-green-400" />
+                      <div>
+                        <p className="text-white font-medium">Total Invested</p>
+                        <p className="text-slate-400 text-sm">Portfolio value</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-white">{formatCurrency(analyticsData.totalInvestedAmount)}</p>
+                      <p className="text-green-400 text-sm">+8.7%</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <TrendingUp className="h-8 w-8 text-purple-400" />
+                      <div>
+                        <p className="text-white font-medium">Avg Return</p>
+                        <p className="text-slate-400 text-sm">Portfolio performance</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-white">{analyticsData.averageReturn.toFixed(1)}%</p>
+                      <p className="text-green-400 text-sm">+0.8%</p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Content Type Analysis */}
+        <Card className="bg-slate-800/50 border-slate-700 mb-6">
+          <CardHeader>
+            <CardTitle className="text-white text-xl">Content Performance</CardTitle>
+            <CardDescription className="text-slate-400">
+              Breakdown by content type
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Content Type Breakdown */}
+            <div className="space-y-4">
+              {getContentTypeData().map((content, index) => {
+                const IconComponent = content.icon;
+                return (
+                  <div key={index} className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg ${content.color}`}>
+                          <IconComponent className="h-4 w-4 text-white" />
+                        </div>
+                        <span className="text-white font-medium">{content.type}</span>
+                      </div>
+                      <span className="text-white font-semibold">{content.percentage.toFixed(1)}%</span>
+                    </div>
+                    <div className="relative">
+                      <Progress 
+                        value={content.percentage} 
+                        className="h-3 bg-slate-700"
+                      />
+                      <div className="absolute inset-0 flex items-center">
+                        <div 
+                          className={`h-full ${content.color} rounded-full`}
+                          style={{ width: `${content.percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div className="text-sm text-slate-400">
+                      {formatNumber(content.count)} items
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
 
-        {/* Platform Breakdown */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Répartition par Plateforme</CardTitle>
-            <CardDescription>Revenus par plateforme de streaming</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {artistAnalytics.platformBreakdown.map((platform) => (
-                <div key={platform.platform} className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="font-medium">{platform.platform}</span>
-                    <span>{platform.percentage}% • {formatCurrency(platform.revenue)}</span>
+        {/* Project/Investment Status Analysis */}
+        {user?.role === 'artist' ? (
+          <Card className="bg-slate-800/50 border-slate-700 mb-6">
+            <CardHeader>
+              <CardTitle className="text-white text-xl flex items-center gap-2">
+                <Target className="h-5 w-5 text-cyan-400" />
+                Project Status Breakdown
+              </CardTitle>
+              <CardDescription className="text-slate-400">
+                Distribution of your projects by status
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="relative w-48 h-48">
+                  <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      className="text-green-500"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="transparent"
+                      strokeDasharray={`${analyticsData.projectStatusBreakdown.active.percentage}, 100`}
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      className="text-orange-500"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="transparent"
+                      strokeDasharray={`${analyticsData.projectStatusBreakdown.draft.percentage}, 100`}
+                      strokeDashoffset={`-${analyticsData.projectStatusBreakdown.active.percentage}`}
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-white">
+                        {analyticsData.projectStatusBreakdown.active.percentage}%
+                      </div>
+                      <div className="text-sm text-slate-400">Active</div>
+                    </div>
                   </div>
-                  <Progress value={platform.percentage} className="h-2" />
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                    <div>
+                      <div className="text-white font-medium">Active Projects</div>
+                      <div className="text-slate-400 text-sm">{analyticsData.projectStatusBreakdown.active.count} projects</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full bg-orange-500"></div>
+                    <div>
+                      <div className="text-white font-medium">Draft Projects</div>
+                      <div className="text-slate-400 text-sm">{analyticsData.projectStatusBreakdown.draft.count} projects</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="bg-slate-800/50 border-slate-700 mb-6">
+            <CardHeader>
+              <CardTitle className="text-white text-xl flex items-center gap-2">
+                <Briefcase className="h-5 w-5 text-cyan-400" />
+                Investment Status Breakdown
+              </CardTitle>
+              <CardDescription className="text-slate-400">
+                Distribution of your investments by status
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="relative w-48 h-48">
+                  <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      className="text-green-500"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="transparent"
+                      strokeDasharray={`${analyticsData.investmentStatusBreakdown.active.percentage}, 100`}
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      className="text-blue-500"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="transparent"
+                      strokeDasharray={`${analyticsData.investmentStatusBreakdown.completed.percentage}, 100`}
+                      strokeDashoffset={`-${analyticsData.investmentStatusBreakdown.active.percentage}`}
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      className="text-red-500"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="transparent"
+                      strokeDasharray={`${analyticsData.investmentStatusBreakdown.cancelled.percentage}, 100`}
+                      strokeDashoffset={`-${analyticsData.investmentStatusBreakdown.active.percentage + analyticsData.investmentStatusBreakdown.completed.percentage}`}
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-white">
+                        {analyticsData.investmentStatusBreakdown.active.percentage}%
+                      </div>
+                      <div className="text-sm text-slate-400">Active</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                    <div>
+                      <div className="text-white font-medium">Active Investments</div>
+                      <div className="text-slate-400 text-sm">{analyticsData.investmentStatusBreakdown.active.count} investments</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+                    <div>
+                      <div className="text-white font-medium">Completed</div>
+                      <div className="text-slate-400 text-sm">{analyticsData.investmentStatusBreakdown.completed.count} investments</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                    <div>
+                      <div className="text-white font-medium">Cancelled</div>
+                      <div className="text-slate-400 text-sm">{analyticsData.investmentStatusBreakdown.cancelled.count} investments</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Revenue and Engagement Analysis */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Revenue Breakdown Pie Chart */}
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <PieChart className="h-5 w-5 text-cyan-400" />
+                Revenue Breakdown
+              </CardTitle>
+              <CardDescription className="text-slate-400">
+                Revenue sources distribution
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between mb-6">
+                <div className="relative w-40 h-40">
+                  <svg className="w-40 h-40 transform -rotate-90" viewBox="0 0 36 36">
+                    {getRevenueData().map((item, index) => {
+                      const startAngle = getRevenueData().slice(0, index).reduce((sum, prev) => sum + prev.percentage, 0);
+                      const circumference = 2 * Math.PI * 15.9155;
+                      const strokeDasharray = `${(item.percentage / 100) * circumference} ${circumference}`;
+                      const strokeDashoffset = `-${(startAngle / 100) * circumference}`;
+                      
+                      return (
+                        <path
+                          key={index}
+                          className={item.color.replace('bg-', 'text-')}
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          fill="transparent"
+                          strokeDasharray={strokeDasharray}
+                          strokeDashoffset={strokeDashoffset}
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        />
+                      );
+                    })}
+                  </svg>
+                </div>
+                <div className="space-y-3">
+                  {getRevenueData().map((item, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div className={`w-4 h-4 rounded-full ${item.color}`}></div>
+                      <div>
+                        <div className="text-white font-medium">{item.type}</div>
+                        <div className="text-slate-400 text-sm">{formatCurrency(item.amount)}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Engagement Metrics */}
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Activity className="h-5 w-5 text-cyan-400" />
+                Engagement Metrics
+              </CardTitle>
+              <CardDescription className="text-slate-400">
+                Fan interaction and reach
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="text-center p-4 rounded-lg bg-slate-700/50">
+                  <Heart className="h-8 w-8 text-red-400 mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-white">{formatNumber(analyticsData.likes)}</p>
+                  <p className="text-slate-400 text-sm">Total Likes</p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-slate-700/50">
+                  <Users className="h-8 w-8 text-green-400 mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-white">{formatNumber(analyticsData.followers)}</p>
+                  <p className="text-slate-400 text-sm">Followers</p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-slate-700/50">
+                  <TrendingUp className="h-8 w-8 text-purple-400 mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-white">{analyticsData.totalEngagement.toFixed(1)}%</p>
+                  <p className="text-slate-400 text-sm">Engagement Rate</p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-slate-700/50">
+                  <DollarSign className="h-8 w-8 text-yellow-400 mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-white">{formatCurrency(analyticsData.totalRevenue)}</p>
+                  <p className="text-slate-400 text-sm">Total Revenue</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
       </div>
+      {/* Bottom padding to prevent content from hiding behind navigation bar */}
+      <div className="h-20"></div>
     </div>
   );
 }
