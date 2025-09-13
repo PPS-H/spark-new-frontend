@@ -20,6 +20,7 @@ export interface CreateProjectRequest {
   expectedReleaseDate: string;
   fundingDeadline: string;
   distrokidFile?: File | null;
+  projectImage?: File | null;
 }
 
 export interface PlatformData {
@@ -142,6 +143,7 @@ export interface UpdateProjectRequest {
   fundingGoal: number;
   description: string;
   duration: string;
+  image?: File | null;
 }
 
 export interface UpdateProjectResponse {
@@ -216,6 +218,11 @@ export const projectApi = createApi({
           formData.append('file', emptyFile);
         }
         
+        // Add project image
+        if (projectData.projectImage) {
+          formData.append('image', projectData.projectImage);
+        }
+        
         return {
           url: '/api/v1/project/',
           method: 'POST',
@@ -225,16 +232,26 @@ export const projectApi = createApi({
       invalidatesTags: ['Project'],
     }),
     updateProject: builder.mutation<UpdateProjectResponse, UpdateProjectRequest>({
-      query: (updateData) => ({
-        url: `/api/v1/project/${updateData.projectId}`,
-        method: 'PUT',
-        body: {
-          title: updateData.title,
-          fundingGoal: updateData.fundingGoal,
-          description: updateData.description,
-          duration: updateData.duration,
-        },
-      }),
+      query: (updateData) => {
+        const formData = new FormData();
+        
+        // Add text fields
+        formData.append('title', updateData.title);
+        formData.append('fundingGoal', updateData.fundingGoal.toString());
+        formData.append('description', updateData.description);
+        formData.append('duration', updateData.duration);
+        
+        // Add image if provided
+        if (updateData.image) {
+          formData.append('image', updateData.image);
+        }
+        
+        return {
+          url: `/api/v1/project/${updateData.projectId}`,
+          method: 'PUT',
+          body: formData,
+        };
+      },
       invalidatesTags: ['Project'],
     }),
   }),

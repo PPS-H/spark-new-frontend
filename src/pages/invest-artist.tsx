@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Heart,
-  MessageCircle,
   DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -141,13 +140,6 @@ export default function InvestArtistPage() {
     }
   };
 
-  const handleMessage = () => {
-    toast({
-      title: "Message Sent",
-      description: `Your message to ${project.artistName} has been sent successfully.`,
-    });
-  };
-
   // Loading state
   if (isProjectLoading) {
     return (
@@ -180,6 +172,12 @@ export default function InvestArtistPage() {
   const minInvestment = investmentLimits.min;
   const maxInvestment = Math.min(investmentLimits.max, investmentLimits.remaining);
 
+  // Debug logging for project image
+  console.log('🎯 InvestArtistPage project:', { 
+    title: project.title, 
+    image: project.image 
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
       {/* Header */}
@@ -206,6 +204,20 @@ export default function InvestArtistPage() {
         {/* Artist Hero */}
         <Card className="bg-slate-800 border-slate-700 overflow-hidden">
           <div className="relative h-48 bg-gradient-to-r from-purple-500/20 to-pink-500/20">
+            {/* Project Image Background */}
+            {project.image && (
+              <div className="absolute inset-0">
+                <img
+                  src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${project.image}`}
+                  alt={project.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/40" />
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-slate-800 via-slate-800/50 to-transparent" />
             <div className="absolute bottom-4 left-4 right-4">
               <div className="flex items-end justify-between">
@@ -242,14 +254,14 @@ export default function InvestArtistPage() {
                       />
                     )}
                   </Button>
-                  <Button
+                  {/* <Button
                     size="sm"
                     variant="outline"
                     onClick={handleMessage}
                     className="border-green-400 text-green-400 hover:bg-green-400 hover:text-white"
                   >
                     <MessageCircle className="w-4 h-4" />
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </div>

@@ -29,6 +29,7 @@ export interface Project {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
+  image?: string; // Add image field
   __v: number;
 }
 
@@ -55,6 +56,7 @@ export interface ProjectDetails {
   title: string;
   songTitle: string;
   artistName: string;
+  image?: string; // Add image field
   artist: {
     _id: string;
     username: string;
@@ -170,6 +172,7 @@ export interface InvestedProject {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
+  image?: string; // Add image field
   __v: number;
 }
 

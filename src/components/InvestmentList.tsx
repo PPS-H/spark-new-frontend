@@ -85,6 +85,12 @@ export default function InvestmentList() {
   const projects = investedProjectsData.data.projects;
   const pagination = investedProjectsData.pagination;
 
+  // Debug logging for project images
+  console.log('🎯 InvestmentList projects:', projects.map(p => ({ 
+    title: p.title, 
+    image: p.image 
+  })));
+
   return (
     <div className="space-y-6">
       {/* Projects Grid */}
@@ -92,6 +98,20 @@ export default function InvestmentList() {
         {projects.map((project) => (
           <Card key={project._id} className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 hover:border-slate-600/50 transition-all duration-300">
             <CardContent className="p-6">
+              {/* Project Image */}
+              {project.image && (
+                <div className="mb-4">
+                  <img
+                    src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${project.image}`}
+                    alt={project.title}
+                    className="w-full h-48 object-cover rounded-lg"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+              
               {/* Header with Artist Info and Status */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">

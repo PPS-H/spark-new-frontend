@@ -198,7 +198,7 @@ export function AnalyticsUnified() {
                       <div className="flex items-center gap-2 md:gap-3">
                         <Badge variant="secondary" className="text-xs">#{index + 1}</Badge>
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium text-sm md:text-base truncate">{track.name}</p>
+                         <p className="font-medium text-sm md:text-base truncate">{track.name}</p>
                           <p className="text-xs md:text-sm text-muted-foreground">{formatNumber(track.streams)} streams</p>
                         </div>
                       </div>

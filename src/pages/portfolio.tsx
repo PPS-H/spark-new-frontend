@@ -1,4 +1,4 @@
-import InvestmentList from "@/components/InvestmentList";
+  import InvestmentList from "@/components/InvestmentList";
 
 export default function PortfolioPage() {
   return (

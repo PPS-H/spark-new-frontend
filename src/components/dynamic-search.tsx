@@ -4,7 +4,6 @@ import {
   Search,
   ArrowLeft,
   Play,
-  Pause,
   Volume2,
   Heart,
   Users,
@@ -88,15 +87,12 @@ export default function DynamicSearch({
   const [showSearchHistory, setShowSearchHistory] = useState(false);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   
-  // Music player state
-  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [songDurations, setSongDurations] = useState<{[key: string]: number}>({});
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
-  const [isAudioLoading, setIsAudioLoading] = useState(false);
-  const [audioLoadSuccess, setAudioLoadSuccess] = useState(false);
+  // Song durations for display
+  const [songDurations] = useState<{[key: string]: number}>({});
+  
+  // Image modal state
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<{ url: string, title: string } | null>(null);
 
   // Mock songs data for when API returns empty
   const mockSongs: ContentItem[] = [
@@ -180,28 +176,6 @@ export default function DynamicSearch({
     }
   ];
 
-  // Audio sources - using real music samples and API data
-  const getAudioSource = (item: ContentItem): string => {
-    // First try to use the file from the API data
-    if (item.file && item.file.startsWith('http')) {
-      return item.file;
-    }
-    
-    // If file is a local path, construct the full URL
-    if (item.file) {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-      return `${baseUrl}/${item.file}`;
-    }
-    
-    // Fallback to demo audio based on song ID - using free music samples
-    const demoAudioSources: {[key: string]: string} = {
-      'mock-song-1': 'https://www.bensound.com/bensound-music/bensound-sunny.mp3',
-      'mock-song-2': 'https://www.bensound.com/bensound-music/bensound-creativeminds.mp3',
-      'mock-song-3': 'https://www.bensound.com/bensound-music/bensound-ukulele.mp3',
-    };
-    
-    return demoAudioSources[item._id] || 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav';
-  };
 
   // Like/Dislike mutations
   const [likeDislikeContent, { isLoading: isLikeDislikeContentLoading }] = useLikeDislikeContentMutation();
@@ -262,224 +236,11 @@ export default function DynamicSearch({
     }
   };
 
-  // Music player functions
-  const handlePlayPause = (contentId: string) => {
-    if (currentlyPlaying === contentId) {
-      // Same song - toggle play/pause
-      if (audioElement) {
-        if (isPlaying) {
-          audioElement.pause();
-          setIsPlaying(false);
-        } else {
-          audioElement.play();
-          setIsPlaying(true);
-        }
-      }
-    } else {
-      // Different song - stop current and start new
-      if (audioElement) {
-        audioElement.pause();
-        audioElement.currentTime = 0;
-        // Remove all event listeners to prevent memory leaks
-        audioElement.removeEventListener('loadstart', () => {});
-        audioElement.removeEventListener('loadedmetadata', () => {});
-        audioElement.removeEventListener('canplay', () => {});
-        audioElement.removeEventListener('canplaythrough', () => {});
-        audioElement.removeEventListener('timeupdate', () => {});
-        audioElement.removeEventListener('ended', () => {});
-        audioElement.removeEventListener('play', () => {});
-        audioElement.removeEventListener('pause', () => {});
-        audioElement.removeEventListener('error', () => {});
-        audioElement.src = ''; // Clear the source
-        audioElement.load(); // Reset the audio element
-      }
-
-      // Find the song item to get the correct audio source
-      const songItem = mockSongs.find(song => song._id === contentId) || 
-                      (trendingData?.data && Array.isArray(trendingData.data) ? 
-                        trendingData.data.find(song => song._id === contentId) : null);
-      
-      if (!songItem) {
-        console.error('Song not found:', contentId);
-        return;
-      }
-      
-      // Set loading state
-      setIsAudioLoading(true);
-      setIsPlaying(false);
-      setCurrentTime(0);
-      setCurrentlyPlaying(contentId);
-      setAudioLoadSuccess(false);
-      
-      // Create new audio element with the correct source
-      const audioSource = getAudioSource(songItem);
-      console.log('Playing audio from:', audioSource);
-      const audio = new Audio(audioSource);
-      
-      // Set up event listeners
-      audio.addEventListener('loadstart', () => {
-        console.log('Audio loading started...');
-      });
-
-      audio.addEventListener('loadedmetadata', () => {
-        console.log('Audio metadata loaded, duration:', audio.duration);
-        setDuration(audio.duration);
-        setSongDurations(prev => ({
-          ...prev,
-          [contentId]: audio.duration
-        }));
-      });
-
-      audio.addEventListener('canplay', () => {
-        console.log('Audio can start playing');
-        setAudioLoadSuccess(true);
-        setIsAudioLoading(false);
-        // Try to play the audio now that it's ready
-        audio.play().catch(error => {
-          console.error('Error playing audio after canplay:', error);
-          setIsAudioLoading(false);
-          // Try fallback audio if the original fails
-          const fallbackAudio = new Audio('https://www.bensound.com/bensound-music/bensound-sunny.mp3');
-          fallbackAudio.addEventListener('canplay', () => {
-            console.log('Using fallback audio');
-            setAudioElement(fallbackAudio);
-            setAudioLoadSuccess(true);
-            fallbackAudio.play().catch(err => {
-              console.error('Fallback audio also failed:', err);
-              alert('Audio playback not available. Please check your internet connection.');
-            });
-          });
-          fallbackAudio.addEventListener('error', () => {
-            alert('Could not load audio. Please check your internet connection or try a different song.');
-          });
-        });
-      });
-
-      audio.addEventListener('canplaythrough', () => {
-        console.log('Audio can play through without stopping');
-        setAudioLoadSuccess(true);
-        setIsAudioLoading(false);
-      });
-
-      audio.addEventListener('timeupdate', () => {
-        setCurrentTime(audio.currentTime);
-      });
-
-      audio.addEventListener('ended', () => {
-        setIsPlaying(false);
-        setCurrentTime(0);
-        setCurrentlyPlaying(null);
-        setIsAudioLoading(false);
-      });
-
-      audio.addEventListener('play', () => {
-        console.log('Audio started playing');
-        setIsPlaying(true);
-        setIsAudioLoading(false);
-      });
-
-      audio.addEventListener('pause', () => {
-        console.log('Audio paused');
-        setIsPlaying(false);
-      });
-
-      // Add error handling for audio loading
-      audio.addEventListener('error', (e) => {
-        console.error('Audio loading error:', e);
-        setIsAudioLoading(false);
-        // Don't show alert immediately - let the timeout handle it
-      });
-
-      // Set the audio element first
-      setAudioElement(audio);
-      
-      // Set up a timeout to check if audio loaded successfully
-      const loadTimeout = setTimeout(() => {
-        if (!audioLoadSuccess && isAudioLoading) {
-          console.log('Audio loading timeout - showing error');
-          setIsAudioLoading(false);
-          alert('Could not load audio. Please check your internet connection or try a different song.');
-        }
-      }, 5000); // 5 second timeout
-      
-      // Clear timeout if audio loads successfully
-      const clearTimeoutOnSuccess = () => {
-        clearTimeout(loadTimeout);
-      };
-      
-      audio.addEventListener('canplay', clearTimeoutOnSuccess);
-      audio.addEventListener('canplaythrough', clearTimeoutOnSuccess);
-      
-      // Load the audio (this will trigger the canplay event)
-      audio.load();
-    }
-  };
-
+  // Format time helper
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleProgressChange = (newTime: number) => {
-    if (audioElement) {
-      audioElement.currentTime = newTime;
-      setCurrentTime(newTime);
-    }
-  };
-
-  // Cleanup audio element on unmount
-  useEffect(() => {
-    return () => {
-      if (audioElement) {
-        audioElement.pause();
-        audioElement.currentTime = 0;
-        // Remove all event listeners
-        audioElement.removeEventListener('loadstart', () => {});
-        audioElement.removeEventListener('loadedmetadata', () => {});
-        audioElement.removeEventListener('canplay', () => {});
-        audioElement.removeEventListener('canplaythrough', () => {});
-        audioElement.removeEventListener('timeupdate', () => {});
-        audioElement.removeEventListener('ended', () => {});
-        audioElement.removeEventListener('play', () => {});
-        audioElement.removeEventListener('pause', () => {});
-        audioElement.removeEventListener('error', () => {});
-        audioElement.src = '';
-        audioElement.load();
-      }
-    };
-  }, [audioElement]);
-
-  // Custom Progress Bar Component
-  const ProgressBar = ({ 
-    currentTime, 
-    duration, 
-    onTimeChange 
-  }: { 
-    currentTime: number; 
-    duration: number; 
-    onTimeChange: (time: number) => void;
-  }) => {
-    const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-
-    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const newTime = (clickX / rect.width) * duration;
-      onTimeChange(Math.max(0, Math.min(duration, newTime)));
-    };
-
-    return (
-      <div 
-        className="w-full h-1 bg-gray-600 rounded-full cursor-pointer group"
-        onClick={handleClick}
-      >
-        <div 
-          className="h-full bg-white rounded-full transition-all duration-200 group-hover:bg-green-400"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-    );
   };
 
   // Handle search input change
@@ -559,6 +320,17 @@ export default function DynamicSearch({
     return `https://ui-avatars.com/api/?name=${username}&background=${color}&color=fff&size=128&rounded=true`;
   };
 
+  // Handle image click to open full screen
+  const handleImageClick = (imageUrl: string, imageTitle: string) => {
+    setSelectedImage({ url: imageUrl, title: imageTitle });
+    setShowImageModal(true);
+  };
+
+  const closeImageModal = () => {
+    setShowImageModal(false);
+    setSelectedImage(null);
+  };
+
   // Render content based on type
   const renderContent = (item: ContentItem) => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
@@ -567,11 +339,18 @@ export default function DynamicSearch({
 
     if (item.type === 'image') {
       return (
-        <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#17153f00' }}>
+        <div 
+          className="w-full h-full flex items-center justify-center cursor-pointer" 
+          style={{ backgroundColor: '#17153f00' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleImageClick(fileUrl, item.title);
+          }}
+        >
           <img
             src={fileUrl}
             alt={item.title}
-            className="max-w-full max-h-full object-contain"
+            className="max-w-full max-h-full object-contain hover:opacity-90 transition-opacity"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
@@ -942,49 +721,17 @@ export default function DynamicSearch({
                 console.log('trendingData:', trendingData);
                 
                 return songsData.map((item: ContentItem, index: number) => {
-                  const isCurrentlyPlaying = currentlyPlaying === item._id;
-                  const isPlayingThis = isCurrentlyPlaying && isPlaying;
-                  
                   return (
                     <div
                       key={item._id}
-                      className={`group flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-800/50 transition-all duration-200 ${
-                        isCurrentlyPlaying ? 'bg-gray-800/70' : ''
-                      }`}
+                      className="group flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-800/50 transition-all duration-200 cursor-pointer"
+                      onClick={() => navigate(`/song/${item._id}`)}
                     >
-                      {/* Track Number / Play Button */}
+                      {/* Track Number */}
                       <div className="w-8 flex justify-center">
-                        {isCurrentlyPlaying ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="p-0 w-8 h-8 hover:bg-transparent"
-                            onClick={() => handlePlayPause(item._id)}
-                            disabled={isAudioLoading}
-                          >
-                            {isAudioLoading ? (
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            ) : isPlayingThis ? (
-                              <Pause className="w-4 h-4 text-white" />
-                            ) : (
-                              <Play className="w-4 h-4 text-white" />
-                            )}
-                          </Button>
-                        ) : (
-                          <span className="text-gray-400 text-sm group-hover:hidden">
-                            {index + 1}
-                          </span>
-                        )}
-                        {!isCurrentlyPlaying && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="p-0 w-8 h-8 hover:bg-transparent hidden group-hover:flex items-center justify-center"
-                            onClick={() => handlePlayPause(item._id)}
-                          >
-                            <Play className="w-4 h-4 text-white" />
-                          </Button>
-                        )}
+                        <span className="text-gray-400 text-sm">
+                          {index + 1}
+                        </span>
                       </div>
 
                       {/* Album Art / Thumbnail */}
@@ -1005,9 +752,7 @@ export default function DynamicSearch({
                       {/* Song Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2">
-                          <h4 className={`font-medium truncate ${
-                            isCurrentlyPlaying ? 'text-white' : 'text-gray-100'
-                          }`}>
+                          <h4 className="font-medium truncate text-gray-100">
                             {item.title}
                           </h4>
                           {((item as any).verified) && (
@@ -1021,34 +766,10 @@ export default function DynamicSearch({
                         </p>
                       </div>
 
-                      {/* Progress Bar (only for currently playing) */}
-                      {isCurrentlyPlaying && (
-                        <div className="flex-1 max-w-32">
-                          {isAudioLoading ? (
-                            <div className="flex items-center justify-center space-x-2">
-                              <div className="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-                              <span className="text-xs text-cyan-400">Loading...</span>
-                            </div>
-                          ) : (
-                            <>
-                              <ProgressBar
-                                currentTime={currentTime}
-                                duration={duration}
-                                onTimeChange={handleProgressChange}
-                              />
-                              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                <span>{formatTime(currentTime)}</span>
-                                <span>{formatTime(duration)}</span>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      )}
-
                       {/* Duration */}
                       <div className="w-12 text-right">
                         <span className="text-sm text-gray-400">
-                          {isCurrentlyPlaying ? formatTime(duration) : formatTime(songDurations[item._id] || 180)}
+                          {formatTime(songDurations[item._id] || 180)}
                         </span>
                       </div>
 
@@ -1522,6 +1243,46 @@ export default function DynamicSearch({
           >
             +
           </Button>
+        </div>
+      )}
+
+      {/* Full Screen Image Modal */}
+      {showImageModal && selectedImage && (
+        <div
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+          onClick={closeImageModal}
+        >
+          <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center">
+            {/* Close Button */}
+            <button
+              onClick={closeImageModal}
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-all"
+            >
+              <span className="text-2xl">&times;</span>
+            </button>
+
+            {/* Image Container */}
+            <div
+              className="relative max-w-full max-h-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={selectedImage.url}
+                alt={selectedImage.title}
+                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                onError={(e) => {
+                  console.error('Full screen image loading error:', e);
+                  // Fallback to a placeholder
+                  e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjMzc0MTUxIi8+CjxwYXRoIGQ9Ik0xNzUgMTI1SDIyNVYxNzVIMTc1VjEyNVoiIGZpbGw9IiM2QjcyODAiLz4KPHN2Zz4K';
+                }}
+              />
+
+              {/* Image Title */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 rounded-b-lg">
+                <h3 className="text-white text-lg font-semibold">{selectedImage.title}</h3>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, TrendingUp, Users, DollarSign, Play, Settings, Crown, LogOut, MessageCircle } from "lucide-react";
+import { Plus, TrendingUp, Users, DollarSign, Play, Settings, Crown, LogOut } from "lucide-react";
 import SLogo from "@/components/s-logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,10 @@ import { useNavigate } from "react-router-dom";
 export default function ArtistHome() {
   const navigate = useNavigate();
   const { user, logout, isLogoutLoading } = useAuth();
-  const [showProfessionalInbox, setShowProfessionalInbox] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
   const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
 
   // Get user profile data
-  const { data: profileData, isLoading: profileLoading, error: profileError } = useGetUserProfileQuery();
+  const { data: profileData, isLoading: profileLoading } = useGetUserProfileQuery();
 
   // Get projects from API
   const { data: projectsData, isLoading: campaignsLoading, error: campaignsError } = useGetAllProjectsQuery({
@@ -46,49 +44,50 @@ export default function ArtistHome() {
     duration: campaign.duration,
     releaseType: campaign.releaseType,
     isVerified: campaign.isVerified,
-    createdAt: campaign.createdAt
+    createdAt: campaign.createdAt,
+    image: (campaign as any).image // Add image field
   }));
 
   // Log for debugging (keeping original)
   useEffect(() => {
     console.log('🎯 Dashboard campaigns:', campaigns);
     console.log('🎯 Dashboard projects:', projects);
+    console.log('🎯 Project images:', projects.map(p => ({ title: p.title, image: p.image })));
   }, [campaigns, projects]);
-
+  
 
   // Get financial data from user profile
   const totalFundsRaised = profileData?.data?.user?.totalFundsRaised || 0;
   const totalFundingGoal = profileData?.data?.user?.totalFundingGoal || 0;
   const totalProjects = profileData?.data?.user?.totalProjects || 0;
-  const activeCampaigns = projects.filter(project => project.status === 'Active').length;
 
   // Calculate average progress based on total funds raised and funding goal
   const averageProgress = totalFundingGoal > 0 ? (totalFundsRaised / totalFundingGoal) * 100 : 0;
 
   const quickStats = [
-    {
-      label: "Total Raised",
+    { 
+      label: "Total Raised", 
       value: `$${totalFundsRaised.toLocaleString()}`,
-      icon: DollarSign,
-      color: "text-green-400"
+      icon: DollarSign, 
+      color: "text-green-400" 
     },
-    {
+    { 
       label: "Total Projects",
       value: totalProjects.toString(),
-      icon: TrendingUp,
-      color: "text-blue-400"
+      icon: TrendingUp, 
+      color: "text-blue-400" 
     },
-    {
-      label: "Total Goal",
+    { 
+      label: "Total Goal", 
       value: `$${totalFundingGoal.toLocaleString()}`,
-      icon: Users,
-      color: "text-purple-400"
+      icon: Users, 
+      color: "text-purple-400" 
     },
-    {
-      label: "Avg Progress",
-      value: `${averageProgress.toFixed(1)}%`,
-      icon: Play,
-      color: "text-cyan-400"
+    { 
+      label: "Avg Progress", 
+      value: `${averageProgress.toFixed(1)}%`, 
+      icon: Play, 
+      color: "text-cyan-400" 
     }
   ];
 
@@ -142,17 +141,17 @@ export default function ArtistHome() {
             ))
           ) : (
             quickStats.map((stat, index) => (
-              <Card key={index} className="artist-metric-card">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <stat.icon className={`w-8 h-8 ${stat.color}`} />
-                    <div>
-                      <div className="text-2xl font-bold text-white">{stat.value}</div>
-                      <div className="text-sm text-gray-400">{stat.label}</div>
-                    </div>
+            <Card key={index} className="artist-metric-card">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <stat.icon className={`w-8 h-8 ${stat.color}`} />
+                  <div>
+                    <div className="text-2xl font-bold text-white">{stat.value}</div>
+                    <div className="text-sm text-gray-400">{stat.label}</div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </CardContent>
+            </Card>
             ))
           )}
         </div>
@@ -167,7 +166,7 @@ export default function ArtistHome() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button
+              <Button 
                 onClick={() => setShowNewCampaignModal(true)}
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 h-20 flex-col"
               >
@@ -186,9 +185,9 @@ export default function ArtistHome() {
                 <TrendingUp className="w-6 h-6 mb-2" />
                 View Analytics
               </Button>
-              <Button
+              <Button 
                 onClick={() => navigate('/settings')}
-                variant="outline"
+                variant="outline" 
                 className="border-gray-500/30 text-gray-300 h-20 flex-col hover:bg-gray-500/10"
               >
                 <Settings className="w-6 h-6 mb-2" />
@@ -217,7 +216,7 @@ export default function ArtistHome() {
             ) : projects.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-400 mb-4">No active campaigns yet</p>
-                <Button
+                <Button 
                   onClick={() => setShowNewCampaignModal(true)}
                   className="bg-gradient-to-r from-purple-500 to-pink-500"
                 >
@@ -232,6 +231,20 @@ export default function ArtistHome() {
                     key={project.id}
                     className="p-4 bg-slate-700/30 rounded-lg hover:bg-slate-600/40 transition-all duration-300 group"
                   >
+                    {/* Project Image */}
+                    {project.image && (
+                      <div className="mb-4">
+                        <img
+                          src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${project.image}`}
+                          alt={project.title}
+                          className="w-full h-48 object-cover rounded-lg"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
@@ -246,8 +259,8 @@ export default function ArtistHome() {
                                   : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
                               }`}
                           >
-                            {project.status}
-                          </Badge>
+                    {project.status}
+                  </Badge>
                           {project.isVerified && (
                             <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
                               Verified
@@ -267,7 +280,7 @@ export default function ArtistHome() {
                             <span>{new Date(project.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
-                      </div>
+                </div>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -289,29 +302,29 @@ export default function ArtistHome() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between">
                       <div className="text-sm text-gray-400">
                         <p>Deadline: {project.deadline}</p>
                         <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
                       </div>
                       {/* <div className="flex space-x-2">
-                        <Button
-                          size="sm"
+                    <Button 
+                      size="sm" 
                           className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
                         >
                           View Details
-                        </Button>
+                    </Button>
                       </div> */}
                     </div>
                   </div>
                 ))}
               </div>
             )}
-
+            
             {!campaignsLoading && (
-              <Button
+              <Button 
                 onClick={() => setShowNewCampaignModal(true)}
-                variant="outline"
+                variant="outline" 
                 className="w-full border-dashed border-purple-500/50 text-purple-300 hover:bg-purple-500/10"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -361,7 +374,7 @@ export default function ArtistHome() {
 
       {/* New Campaign Modal */}
       {showNewCampaignModal && (
-        <CreateNewCampaign onClose={() => setShowNewCampaignModal(false)} />
+          <CreateNewCampaign onClose={() => setShowNewCampaignModal(false)} />
       )}
 
       {/* Artist Profile Page - Full Screen */}

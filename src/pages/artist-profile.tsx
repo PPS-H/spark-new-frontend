@@ -246,7 +246,7 @@ export default function ArtistProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-48">
+    <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
       {/* Hero Section */}
       <div className="relative h-80 bg-gradient-to-r from-purple-900/80 to-pink-900/80 overflow-hidden">
         <div 
@@ -585,7 +585,7 @@ export default function ArtistProfile() {
         </div>
 
         {/* Content Tabs */}
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6 flex-1 flex flex-col">
           <TabsList className="grid grid-cols-4 w-full max-w-md mx-auto bg-slate-800 border-slate-700">
             <TabsTrigger value="portfolio" className="text-white">Portfolio</TabsTrigger>
             <TabsTrigger value="projects" className="text-white">Projects</TabsTrigger>
@@ -593,7 +593,7 @@ export default function ArtistProfile() {
             <TabsTrigger value="about" className="text-white">About</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="portfolio" className="space-y-4 pb-16">
+          <TabsContent value="portfolio" className="space-y-4">
             <div className="flex flex-col space-y-4 mb-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-white">Artist Portfolio</h2>
@@ -655,32 +655,117 @@ export default function ArtistProfile() {
             </div>
           </TabsContent>
 
-          <TabsContent value="projects" className="space-y-4 pb-24">
+          <TabsContent value="projects" className="space-y-4 h-full flex flex-col">
             <h2 className="text-2xl font-bold text-white mb-4">Active Projects</h2>
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <Card className="bg-slate-800 border-slate-700">
-                <CardHeader>
-                  <CardTitle className="text-white">New Album Production</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-400 mb-4">Working on a 12-track album with collaborators from around the world.</p>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Progress</span>
-                      <span className="text-white">75%</span>
+            <div className="flex-1 overflow-y-auto pr-2">
+              <div className="grid md:grid-cols-2 gap-6 pb-4">
+                {/* <Card className="bg-slate-800 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">New Album Production</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-400 mb-4">Working on a 12-track album with collaborators from around the world.</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Progress</span>
+                        <span className="text-white">75%</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-3/4"></div>
+                      </div>
                     </div>
-                    <div className="w-full bg-slate-700 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-3/4"></div>
+                  </CardContent>
+                </Card> */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">Single Release</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-400 mb-4">New single track ready for release and promotion.</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Progress</span>
+                        <span className="text-white">90%</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-[90%]"></div>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">Music Video</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-400 mb-4">Professional music video production for latest single.</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Progress</span>
+                        <span className="text-white">60%</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-3/5"></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">EP Collection</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-400 mb-4">5-track EP with acoustic versions and remixes.</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Progress</span>
+                        <span className="text-white">40%</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-2/5"></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">Live Performance</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-400 mb-4">Preparing for upcoming live concert series.</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Progress</span>
+                        <span className="text-white">25%</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-1/4"></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">Collaboration Project</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-400 mb-4">Working with international artists on cross-genre track.</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Progress</span>
+                        <span className="text-white">15%</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-[15%]"></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-            {/* Extra bottom spacing to ensure content is not hidden behind navigation */}
-            <div className="h-20"></div>
           </TabsContent>
 
-          <TabsContent value="events" className="space-y-4 pb-16">
+          {/* <TabsContent value="events" className="space-y-4">
             <h2 className="text-2xl font-bold text-white mb-4">Upcoming Events</h2>
             <div className="space-y-4">
               <Card className="bg-slate-800 border-slate-700">
@@ -698,9 +783,9 @@ export default function ArtistProfile() {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
+          </TabsContent> */}
 
-          <TabsContent value="about" className="space-y-4 pb-16">
+          <TabsContent value="about" className="space-y-4">
             <h2 className="text-2xl font-bold text-white mb-4">About {artist.name}</h2>
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="p-6">

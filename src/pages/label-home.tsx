@@ -8,7 +8,6 @@ import {
   Search,
   Crown,
   LogOut,
-  MessageCircle,
   BarChart3,
   Calendar,
   Music,
@@ -39,6 +38,12 @@ export default function LabelHome() {
     page: currentPage,
     limit: 10,
   });
+
+  // Debug logging for project images
+  console.log('🎯 LabelHome projects:', projectsData?.data?.projects?.map(p => ({ 
+    title: p.title, 
+    image: p.image 
+  })));
 
   const labelStats = [
     {
@@ -191,6 +196,20 @@ export default function LabelHome() {
                     key={project._id}
                     className="p-4 bg-slate-700/30 rounded-lg hover:bg-slate-600/40 transition-all duration-300 group"
                   >
+                    {/* Project Image */}
+                    {project.image && (
+                      <div className="mb-4">
+                        <img
+                          src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${project.image}`}
+                          alt={project.title}
+                          className="w-full h-48 object-cover rounded-lg"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">

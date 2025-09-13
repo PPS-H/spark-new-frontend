@@ -24,6 +24,7 @@ import RosterManagement from "@/pages/roster-management";
 import { AnalyticsDashboard } from "@/pages/analytics-dashboard";
 import ArtistProfile from "@/pages/artist-profile";
 import InvestArtistPage from "@/pages/invest-artist";
+import SongDetail from "@/pages/song-detail";
 import DownloadProject from "@/pages/download-project";
 import NotFound from "@/pages/not-found";
 import RoleBasedNavigation from "@/components/role-based-navigation";
@@ -101,6 +102,7 @@ function AppRoutes() {
         <Route path="/analytics-dashboard" element={<AnalyticsDashboard />} />
         <Route path="/artist/:artistId" element={<ArtistProfile />} />
         <Route path="/invest/:projectId" element={<InvestArtistPage />} />
+        <Route path="/song/:songId" element={<SongDetail />} />
         <Route path="/checkout/:artistId/:amount" element={<CheckoutPage />} />
         <Route path="/download-project" element={<DownloadProject />} />
         <Route

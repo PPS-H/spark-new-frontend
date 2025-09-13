@@ -52,7 +52,9 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
 
     // File upload
     const [distrokidFile, setDistrokidFile] = useState<File | null>(null);
+    const [projectImage, setProjectImage] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
+    const [isImageDragOver, setIsImageDragOver] = useState(false);
 
 
     const handleCreateCampaign = async () => {
@@ -103,7 +105,8 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                     deezerTrackLink,
                     deezerTrackId
                 }),
-                distrokidFile
+                distrokidFile,
+                projectImage
             };
             console.log("projectData::::::", projectData);
             const result = await createProject(projectData).unwrap();
@@ -161,6 +164,7 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
         setExpectedReleaseDate("");
         setFundingDeadline("");
         setDistrokidFile(null);
+        setProjectImage(null);
     };
 
     const handleClose = () => {
@@ -182,6 +186,22 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
         const files = e.target.files;
         if (files && files.length > 0) {
             setDistrokidFile(files[0]);
+        }
+    };
+
+    const handleImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsImageDragOver(false);
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            setProjectImage(files[0]);
+        }
+    };
+
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            setProjectImage(files[0]);
         }
     };
 
@@ -519,6 +539,52 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
                                 className="w-full bg-slate-700 text-white border-gray-600"
                                 disabled={isLoading}
                             />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                Project Image
+                            </label>
+                            <div
+                                className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${isImageDragOver
+                                        ? "border-blue-500 bg-blue-500/10"
+                                        : "border-gray-600 hover:border-gray-500"
+                                    }`}
+                                onDragOver={(e) => {
+                                    e.preventDefault();
+                                    setIsImageDragOver(true);
+                                }}
+                                onDragLeave={() => setIsImageDragOver(false)}
+                                onDrop={handleImageDrop}
+                            >
+                                <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                {projectImage ? (
+                                    <div className="text-white">
+                                        <p className="font-medium">{projectImage.name}</p>
+                                        <p className="text-sm text-gray-400">
+                                            {(projectImage.size / 1024 / 1024).toFixed(2)} MB
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <p className="text-white mb-2">Drop your project image here</p>
+                                        <p className="text-sm text-gray-400">or click to browse</p>
+                                        <input
+                                            type="file"
+                                            onChange={handleImageSelect}
+                                            className="hidden"
+                                            id="project-image"
+                                            accept="image/*"
+                                        />
+                                        <label
+                                            htmlFor="project-image"
+                                            className="inline-block mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700"
+                                        >
+                                            Choose Image
+                                        </label>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div>
