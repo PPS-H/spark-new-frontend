@@ -6,6 +6,7 @@ import { searchApi } from './features/api/searchApi';
 import { labelApi } from './features/api/labelApi';
 import { projectApi } from './features/api/projectApi';
 import { analyticsApi } from './features/api/analyticsApi';
+import { stripeApi } from './features/api/stripeApi';
 import { setupListeners } from '@reduxjs/toolkit/query';
 
 export const store = configureStore({
@@ -17,9 +18,10 @@ export const store = configureStore({
     [projectApi.reducerPath]: projectApi.reducer,
     [labelApi.reducerPath]: labelApi.reducer,
     [analyticsApi.reducerPath]: analyticsApi.reducer,
+    [stripeApi.reducerPath]: stripeApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authApi.middleware, socialMediaApi.middleware, fanApi.middleware, searchApi.middleware, labelApi.middleware, projectApi.middleware, analyticsApi.middleware),
+    getDefaultMiddleware().concat(authApi.middleware, socialMediaApi.middleware, fanApi.middleware, searchApi.middleware, labelApi.middleware, projectApi.middleware, analyticsApi.middleware, stripeApi.middleware),
 });
 
 setupListeners(store.dispatch);

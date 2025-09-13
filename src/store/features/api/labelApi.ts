@@ -135,6 +135,14 @@ interface CreateCheckoutSessionResponse {
   };
 }
 
+// Stripe Connect interfaces
+interface ConnectStripeResponse {
+  success: boolean;
+  accountLink: {
+    url: string;
+  };
+}
+
 // Invested Projects interfaces
 export interface InvestedProjectUser {
   _id: string;
@@ -250,6 +258,13 @@ export const labelApi = createApi({
       }),
       providesTags: ['InvestedProjects'],
     }),
+    // Connect Stripe
+    connectStripe: builder.mutation<ConnectStripeResponse, void>({
+      query: () => ({
+        url: 'payment/connect-stripe',
+        method: 'POST',
+      }),
+    }),
   }),
 });
 
@@ -260,4 +275,5 @@ export const {
   useLikeDislikeArtistMutation,
   useCreateCheckoutSessionMutation,
   useGetInvestedProjectsQuery,
+  useConnectStripeMutation,
 } = labelApi;

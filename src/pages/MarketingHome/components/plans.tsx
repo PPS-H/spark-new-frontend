@@ -2,83 +2,82 @@ import ArtistRegistration from "@/components/artist-registration";
 import FanRegistration from "@/components/fan-registration";
 import LabelRegistration from "@/components/label-registration";
 import React from "react";
+import { useGetStripeProductsQuery } from "@/store/features/api/stripeApi";
+import type { StripeProduct } from "@/store/features/api/stripeApi";
 
-const plans = [
-  {
-    id: "fan",
-    name: "Free Fan",
-    description: "Explore and discover artists.",
-    price: "Free",
-    period: "",
+// Static free plan
+const freePlan = {
+  id: "fan",
+  name: "Free Fan",
+  description: "Explore and discover artists.",
+  price: "Free",
+  period: "",
+  icon: "images/icon-diverse.png",
+  popular: false,
+  startColor: "#4CAF50",
+  endColor: "#8BC34A",
+  buttonText: "Join for Free",
+  features: [
+    "Access to artist profiles",
+    "Follow artists and get updates",
+    "Curated playlists",
+  ],
+};
+
+// Function to convert Stripe product to plan format
+const convertStripeProductToPlan = (product: StripeProduct) => {
+  const price = product.price;
+  const priceAmount = price ? (price.amount / 100).toFixed(0) : "0";
+  const pricePeriod = price?.interval === 'month' ? "/month" : `/${price?.interval}`;
+  
+  // Default colors based on type
+  const colors = {
+    artist: { start: "#E91E63", end: "#9C27B0" },
+    label: { start: "#FF9800", end: "#FF5722" }
+  };
+  
+  const typeColors = colors[product.type] || { start: "#6366F1", end: "#8B5CF6" };
+  
+  return {
+    id: product.type,
+    name: product.name,
+    description: product.description,
+    price: `$${priceAmount}`,
+    period: pricePeriod,
     icon: "images/icon-diverse.png",
     popular: false,
-    startColor: "#4CAF50",
-    endColor: "#8BC34A",
-    buttonText: "Join for Free",
-    features: [
-      "Access to artist profiles",
-      "Follow artists and get updates",
-      "Curated playlists",
-    ],
-  },
-  {
-    id: "artist",
-    name: "Artist Pro",
-    description: "Fund your projects and connect with investors.",
-    price: "$19",
-    period: "/month",
-    icon: "images/icon-diverse.png",
-    popular: false,
-    startColor: "#E91E63",
-    endColor: "#9C27B0",
-    buttonText: "Get Funded",
-    features: [
-      "Create unlimited campaigns",
-      "Direct fan engagement tools",
-      "Performance analytics",
-      "Exclusive artist community",
-    ],
-  },
-  //   {
-  //     id: "premium-investor",
-  //     name: "Premium Investor",
-  //     description: "Invest in emerging artists and share success.",
-  //     price: "$29",
-  //     period: "/month",
-  //     icon: "images/icon-diverse.png",
-  //     popular: true,
-  //     startColor: "#00C6FF",
-  //     endColor: "#007BFF",
-  //     buttonText: "Start Investing",
-  //     features: [
-  //       "Early access to new artist campaigns",
-  //       "Exclusive investor insights",
-  //       "Voting rights on artist development",
-  //       "Higher revenue share",
-  //     ],
-  //   },
-  {
-    id: "label",
-    name: "Label Suite",
-    description: "Manage multiple artists and large scale investments.",
-    price: "$99",
-    period: "/month",
-    icon: "images/icon-diverse.png",
-    popular: false,
-    startColor: "#FF9800",
-    endColor: "#FF5722",
-    buttonText: "Explore Suite",
-    features: [
-      "Multi-artist dashboard",
-      "Advanced market analysis",
-      "Dedicated account manager",
-      "White-label branding options",
-    ],
-  },
-];
+    startColor: typeColors.start,
+    endColor: typeColors.end,
+    buttonText: product.type === 'artist' ? "Get Funded" : "Explore Suite",
+    features: product.features.length > 0 ? product.features : (
+      // Fallback features if none provided
+      product.type === 'artist' 
+        ? ["Create unlimited campaigns", "Direct fan engagement tools", "Performance analytics", "Exclusive artist community"]
+        : ["Multi-artist dashboard", "Advanced market analysis", "Dedicated account manager", "White-label branding options"]
+    ),
+    stripeProductId: product.id,
+    stripePriceId: price?.id,
+  };
+};
+
+interface Plan {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  period: string;
+  icon: string;
+  popular: boolean;
+  startColor: string;
+  endColor: string;
+  buttonText: string;
+  features: string[];
+  stripeProductId?: string;
+  stripePriceId?: string;
+}
 
 interface PlanCardProps {
-  plan: (typeof plans)[0];
+  plan: Plan;
   onPlanSelect: (planId: string) => void;
 }
 
@@ -120,7 +119,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ plan, onPlanSelect }) => {
       </div>
 
       <ul className="plan-features">
-        {plan.features.map((feature, index) => (
+        {plan.features.map((feature: string, index: number) => (
           <li key={index}>
             <span className="feature-diamond"></span> {feature}
           </li>
@@ -143,6 +142,10 @@ const Plans: React.FC = () => {
     "fan" | "artist" | "label" | null
   >(null);
 
+  
+  // Fetch Stripe products
+  const { data: stripeProductsData, isLoading: isLoadingProducts, error: productsError } = useGetStripeProductsQuery();
+
   const handlePlanSelect = (planId: any) => {
     // Handle plan selection logic here
     console.log(`Selected plan: ${planId}`);
@@ -150,6 +153,21 @@ const Plans: React.FC = () => {
     // You can navigate to registration page or handle the selection as needed
     // For example: navigate(`/register?plan=${planId}`);
   };
+
+  // Combine free plan with Stripe products
+  const plans = React.useMemo(() => {
+    const allPlans = [freePlan];
+    
+    if (stripeProductsData?.data) {
+      const stripePlans = stripeProductsData.data.map(convertStripeProductToPlan);
+      allPlans.push(...stripePlans);
+    }
+    
+    return allPlans;
+  }, [stripeProductsData]);
+
+
+  console.log("stripeProductsData:::", plans);
 
   return (
     <section
@@ -186,18 +204,33 @@ const Plans: React.FC = () => {
           Choose the plan that suits your goals and start your journey with
           SPARK.
         </p>
-        <div
-          id="homepagePlansContainer"
-          className="plan-cards-container loaded"
-        >
-          {plans.map((plan) => (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              onPlanSelect={handlePlanSelect}
-            />
-          ))}
-        </div>
+        
+        {isLoadingProducts ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            <span className="ml-3 text-white">Loading plans...</span>
+          </div>
+        ) : productsError ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="text-center">
+              <p className="text-red-400 mb-2">Failed to load plans</p>
+              <p className="text-gray-400 text-sm">Please try refreshing the page</p>
+            </div>
+          </div>
+        ) : (
+          <div
+            id="homepagePlansContainer"
+            className="plan-cards-container loaded"
+          >
+            {plans.map((plan) => (
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                onPlanSelect={handlePlanSelect}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

@@ -26,6 +26,8 @@ import ArtistProfile from "@/pages/artist-profile";
 import InvestArtistPage from "@/pages/invest-artist";
 import SongDetail from "@/pages/song-detail";
 import DownloadProject from "@/pages/download-project";
+import StripeConnectSuccess from "@/pages/stripe-connect-success";
+import StripeConnectFailed from "@/pages/stripe-connect-failed";
 import NotFound from "@/pages/not-found";
 import RoleBasedNavigation from "@/components/role-based-navigation";
 import CheckoutPage from "@/pages/checkout";
@@ -105,6 +107,8 @@ function AppRoutes() {
         <Route path="/song/:songId" element={<SongDetail />} />
         <Route path="/checkout/:artistId/:amount" element={<CheckoutPage />} />
         <Route path="/download-project" element={<DownloadProject />} />
+        <Route path="/stripe-connect-success" element={<StripeConnectSuccess />} />
+        <Route path="/stripe-connect-failed" element={<StripeConnectFailed />} />
         <Route
           path="/download"
           element={

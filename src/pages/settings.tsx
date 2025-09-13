@@ -8,13 +8,13 @@ import { useAuth } from "@/hooks/useAuthRTK";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUpdateUserMutation, useChangePasswordMutation } from "@/store/features/api/authApi";
 import { useConnectSpotifyMutation } from "@/store/features/api/socialMediaApi";
+import { useConnectStripeMutation } from "@/store/features/api/labelApi";
 import { useToast } from "@/hooks/use-toast";
 import {
   Settings,
   User,
   Bell,
   Shield,
-  CreditCard,
   Globe,
   Moon,
   Volume2,
@@ -25,6 +25,7 @@ import {
   Crown,
   Zap,
   Lock,
+  CreditCard,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -34,6 +35,7 @@ export default function SettingsPage() {
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
   const [connectSpotify, { isLoading: isConnectingSpotify }] = useConnectSpotifyMutation();
+  const [connectStripe, { isLoading: isConnectingStripe }] = useConnectStripeMutation();
   
   // Local state for form fields
   const [displayName, setDisplayName] = useState(user?.username || "");
@@ -295,6 +297,25 @@ export default function SettingsPage() {
       toast({
         title: "Connection Failed",
         description: error?.data?.message || "Failed to connect Spotify. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle Stripe Connect
+  const handleConnectStripe = async () => {
+    try {
+      const result = await connectStripe().unwrap();
+      
+      if (result.success && result.accountLink?.url) {
+        // Redirect to Stripe Connect page
+        window.location.href = result.accountLink.url;
+      }
+    } catch (error: any) {
+      console.error("Stripe connection error:", error);
+      toast({
+        title: "Connection Failed",
+        description: error?.data?.message || "Failed to connect to Stripe. Please try again.",
         variant: "destructive",
       });
     }
@@ -760,6 +781,19 @@ export default function SettingsPage() {
                     </svg>
                   </div>
                   <span className="text-white text-sm font-medium">Deezer</span>
+                </div>
+
+                {/* Stripe Connect Icon */}
+                <div 
+                  className="flex flex-col items-center space-y-2 cursor-pointer hover:scale-105 transition-transform duration-200"
+                  onClick={handleConnectStripe}
+                >
+                  <div className={`w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center ${isConnectingStripe ? 'opacity-75' : ''}`}>
+                    <CreditCard className="w-8 h-8 text-white" />
+                  </div>
+                  <span className="text-white text-sm font-medium">
+                    {isConnectingStripe ? "Connecting..." : user?.isStripeAccountConnected ? "Stripe Connected" : "Connect Stripe"}
+                  </span>
                 </div>
               </div>
             </CardContent>
