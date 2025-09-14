@@ -571,75 +571,47 @@ export default function ArtistProfilePage({
             <ArrowLeft className="w-5 h-5" />
           </Button>
 
-          <div className="absolute bottom-0 left-0 right-0 p-6">
-            <div className="flex items-end justify-between">
-              <div className="flex items-end space-x-6">
-                <div className="relative">
-                  {/* <button
-                    onClick={() => setShowEditProfile(true)}
-                    className="group focus:outline-none focus:ring-2 focus:ring-white/50 rounded-full"
-                  > */}
-                  <Avatar className="w-24 h-24 border-4 border-white/20 cursor-pointer group-hover:scale-105 transition-transform">
-                    <AvatarImage
-                      src={artist.imageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"}
-                      alt={artist.name}
-                      className="object-cover"
-                      onError={(e) => {
-                        console.error('Avatar image failed to load:', artist.imageUrl);
-                        console.error('Error event:', e);
-                      }}
-                      onLoad={() => {
-                        console.log('Avatar image loaded successfully:', artist.imageUrl);
-                      }}
-                    />
-                    <AvatarFallback className="bg-gray-600 text-2xl">
-                      {artist.name[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  {/* </button> */}
-
-                  {/* {isOwner && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setShowEditProfile(true)}
-                      className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm p-0"
-                    >
-                      <Edit3 className="w-4 h-4 text-white" />
-                    </Button>
-                  )} */}
-                </div>
-
-                <div>
-                  <h1 className="text-4xl font-bold text-white mb-2">{artist.name}</h1>
-                  <div className="flex items-center space-x-4 text-gray-300">
-                    <Badge className="bg-purple-500/20 text-purple-300 capitalize">
-                      {artist.genre}
-                    </Badge>
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="w-4 h-4" />
-                      <span className="capitalize">{artist.country}</span>
-                    </div>
+          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6">
+            <div className="flex flex-col space-y-4">
+              {/* Top row: Avatar and basic info */}
+              <div className="flex flex-col sm:flex-row sm:items-end space-y-3 sm:space-y-0 sm:space-x-6">
+                <div className="flex items-center space-x-4">
+                  <div className="relative">
+                    <Avatar className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 border-4 border-white/20 cursor-pointer group-hover:scale-105 transition-transform">
+                      <AvatarImage
+                        src={artist.imageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"}
+                        alt={artist.name}
+                        className="object-cover"
+                        onError={(e) => {
+                          console.error('Avatar image failed to load:', artist.imageUrl);
+                          console.error('Error event:', e);
+                        }}
+                        onLoad={() => {
+                          console.log('Avatar image loaded successfully:', artist.imageUrl);
+                        }}
+                      />
+                      <AvatarFallback className="bg-gray-600 text-lg sm:text-xl lg:text-2xl">
+                        {artist.name[0]}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
 
-                  <div className="flex items-center space-x-6 mt-4">
-                    <div className="text-center">
-                      <div className="text-white font-bold text-lg">${totalRaisedFromCampaigns.toLocaleString()}</div>
-                      <div className="text-gray-400 text-xs">Total Raised</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-white font-bold text-lg">${totalGoalFromCampaigns.toLocaleString()}</div>
-                      <div className="text-gray-400 text-xs">Funding Goal</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-green-400 font-bold text-lg">{monthlyROI.toFixed(1)}%</div>
-                      <div className="text-gray-400 text-xs">Monthly ROI</div>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 truncate">{artist.name}</h1>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-gray-300">
+                      <Badge className="bg-purple-500/20 text-purple-300 capitalize text-xs sm:text-sm">
+                        {artist.genre}
+                      </Badge>
+                      <div className="flex items-center space-x-1 text-xs sm:text-sm">
+                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="capitalize">{artist.country}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center space-x-3">
+                {/* Action buttons - only show on larger screens or move to bottom */}
+                <div className="flex items-center space-x-2 sm:space-x-3 sm:ml-auto">
                 {isOwner ? (
                   <>
                     {/* <Button
@@ -677,12 +649,12 @@ export default function ArtistProfilePage({
                       size="sm"
                       onClick={handleFollow}
                       disabled={isFollowUnfollowLoading}
-                      className={`backdrop-blur-sm ${isFollowing
+                      className={`backdrop-blur-sm text-xs sm:text-sm ${isFollowing
                         ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300'
                         : 'bg-white/10 hover:bg-white/20 text-white'
                         } ${isFollowUnfollowLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                      <Heart className={`w-4 h-4 mr-2 ${isFollowing ? 'fill-current' : ''}`} />
+                      <Heart className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${isFollowing ? 'fill-current' : ''}`} />
                       {isFollowUnfollowLoading ? 'Loading...' : (isFollowing ? 'Following' : 'Follow')}
                     </Button>
                     {/* <Button
@@ -695,6 +667,23 @@ export default function ArtistProfilePage({
                     </Button> */}
                   </>
                 )}
+                </div>
+              </div>
+
+              {/* Stats section - responsive grid */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
+                <div className="text-center p-2 sm:p-3 bg-black/20 rounded-lg backdrop-blur-sm">
+                  <div className="text-white font-bold text-sm sm:text-lg">${totalRaisedFromCampaigns.toLocaleString()}</div>
+                  <div className="text-gray-400 text-xs">Total Raised</div>
+                </div>
+                <div className="text-center p-2 sm:p-3 bg-black/20 rounded-lg backdrop-blur-sm">
+                  <div className="text-white font-bold text-sm sm:text-lg">${totalGoalFromCampaigns.toLocaleString()}</div>
+                  <div className="text-gray-400 text-xs">Funding Goal</div>
+                </div>
+                <div className="text-center p-2 sm:p-3 bg-black/20 rounded-lg backdrop-blur-sm">
+                  <div className="text-green-400 font-bold text-sm sm:text-lg">{monthlyROI.toFixed(1)}%</div>
+                  <div className="text-gray-400 text-xs">Monthly ROI</div>
+                </div>
               </div>
             </div>
           </div>

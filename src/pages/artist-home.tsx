@@ -94,46 +94,46 @@ export default function ArtistHome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-20">
-      <div className="max-w-7xl mx-auto p-4 space-y-8">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 space-y-6 sm:space-y-8">
         {/* Welcome Header */}
-        <div className="text-center space-y-4 pt-8">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <SLogo className="text-purple-400 animate-neon-pulse" size={48} />
-            <Crown className="text-yellow-400 text-2xl" />
+        <div className="text-center space-y-4 pt-4 sm:pt-8">
+          <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-4">
+            <SLogo className="text-purple-400 animate-neon-pulse" size={32} />
+            <Crown className="text-yellow-400 text-xl sm:text-2xl" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white px-4">
             WELCOME {user?.username?.toUpperCase() || 'ARTIST'}
           </h1>
-          <p className="text-xl text-gray-400">Your creative and business cockpit</p>
-          <div className="flex items-center space-x-4">
-            <Badge className="bg-purple-500/20 text-purple-300 px-4 py-2">
-              <Crown className="w-4 h-4 mr-2" />
+          <p className="text-lg sm:text-xl text-gray-400 px-4">Your creative and business cockpit</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
+            <Badge className="bg-purple-500/20 text-purple-300 px-3 sm:px-4 py-2 text-xs sm:text-sm">
+              <Crown className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
               Artist Pro - €39.99/month
             </Badge>
             <Button
               variant="outline"
               onClick={() => logout()}
               disabled={isLogoutLoading}
-              className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+              className="border-red-500/50 text-red-400 hover:bg-red-500/20 text-xs sm:text-sm px-3 sm:px-4"
             >
-              <LogOut className="w-4 h-4 mr-2" />
+              <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
               {isLogoutLoading ? "Signing out..." : "Sign Out"}
             </Button>
           </div>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {profileLoading ? (
             // Loading state for all cards
             Array.from({ length: 4 }).map((_, index) => (
-              <Card key={index} className="artist-metric-card">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gray-600 rounded animate-pulse"></div>
-                    <div className="flex-1">
-                      <div className="h-6 bg-gray-600 rounded animate-pulse mb-2"></div>
-                      <div className="h-4 bg-gray-600 rounded animate-pulse w-3/4"></div>
+              <Card key={index} className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-600 rounded animate-pulse"></div>
+                    <div className="flex-1 text-center sm:text-left">
+                      <div className="h-5 sm:h-6 bg-gray-600 rounded animate-pulse mb-2"></div>
+                      <div className="h-3 sm:h-4 bg-gray-600 rounded animate-pulse w-3/4 mx-auto sm:mx-0"></div>
                     </div>
                   </div>
                 </CardContent>
@@ -141,13 +141,13 @@ export default function ArtistHome() {
             ))
           ) : (
             quickStats.map((stat, index) => (
-            <Card key={index} className="artist-metric-card">
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <stat.icon className={`w-8 h-8 ${stat.color}`} />
-                  <div>
-                    <div className="text-2xl font-bold text-white">{stat.value}</div>
-                    <div className="text-sm text-gray-400">{stat.label}</div>
+            <Card key={index} className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                  <stat.icon className={`w-6 h-6 sm:w-8 sm:h-8 ${stat.color} group-hover:scale-110 transition-transform duration-300`} />
+                  <div className="text-center sm:text-left">
+                    <div className="text-lg sm:text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors">{stat.value}</div>
+                    <div className="text-xs sm:text-sm text-gray-400">{stat.label}</div>
                   </div>
                 </div>
               </CardContent>
@@ -157,40 +157,32 @@ export default function ArtistHome() {
         </div>
 
         {/* Quick Actions */}
-        <Card className="artist-metric-card">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
+        <Card className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white flex items-center text-lg sm:text-xl">
               <Plus className="w-5 h-5 mr-2 text-cyan-400" />
               Quick Actions
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               <Button 
                 onClick={() => setShowNewCampaignModal(true)}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 h-20 flex-col"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 h-16 sm:h-20 flex-col text-xs sm:text-sm font-medium"
               >
-                <Plus className="w-6 h-6 mb-2" />
+                <Plus className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
                 New Campaign
               </Button>
-              {/* <Button 
-                onClick={() => setShowProfessionalInbox(true)}
-                variant="outline" 
-                className="border-green-500/30 text-green-300 h-20 flex-col hover:bg-green-500/10"
-              >
-                <MessageCircle className="w-6 h-6 mb-2" />
-                Professional Inbox
-              </Button> */}
-              <Button variant="outline" className="border-blue-500/30 text-blue-300 h-20 flex-col" onClick={() => navigate('/analytics')}>
-                <TrendingUp className="w-6 h-6 mb-2" />
+              <Button variant="outline" className="border-blue-500/30 text-blue-300 h-16 sm:h-20 flex-col hover:bg-blue-500/10 text-xs sm:text-sm font-medium" onClick={() => navigate('/analytics')}>
+                <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
                 View Analytics
               </Button>
               <Button 
                 onClick={() => navigate('/settings')}
                 variant="outline" 
-                className="border-gray-500/30 text-gray-300 h-20 flex-col hover:bg-gray-500/10"
+                className="border-gray-500/30 text-gray-300 h-16 sm:h-20 flex-col hover:bg-gray-500/10 text-xs sm:text-sm font-medium sm:col-span-2 lg:col-span-1"
               >
-                <Settings className="w-6 h-6 mb-2" />
+                <Settings className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
                 Manage Profile
               </Button>
             </div>
@@ -198,9 +190,9 @@ export default function ArtistHome() {
         </Card>
 
         {/* Active Projects */}
-        <Card className="artist-metric-card">
-          <CardHeader>
-            <CardTitle className="text-white">Active Projects</CardTitle>
+        <Card className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white text-lg sm:text-xl">Active Projects</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {campaignsLoading ? (
@@ -229,15 +221,15 @@ export default function ArtistHome() {
                 {projects.map((project) => (
                   <div
                     key={project.id}
-                    className="p-4 bg-slate-700/30 rounded-lg hover:bg-slate-600/40 transition-all duration-300 group"
+                    className="p-3 sm:p-4 bg-gradient-to-br from-slate-700/40 to-slate-600/30 rounded-lg hover:from-slate-600/50 hover:to-slate-500/40 transition-all duration-300 group border border-slate-600/30 hover:border-cyan-500/30 shadow-lg hover:shadow-xl"
                   >
                     {/* Project Image */}
                     {project.image && (
-                      <div className="mb-4">
+                      <div className="mb-3 sm:mb-4 overflow-hidden rounded-lg">
                         <img
                           src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${project.image}`}
                           alt={project.title}
-                          className="w-full h-48 object-cover rounded-lg"
+                          className="w-full h-40 sm:h-48 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
@@ -245,10 +237,10 @@ export default function ArtistHome() {
                       </div>
                     )}
                     
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
                       <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h4 className="text-white font-semibold text-lg group-hover:text-cyan-400 transition-colors capitalize">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <h4 className="text-white font-semibold text-base sm:text-lg group-hover:text-cyan-400 transition-colors capitalize">
                             {project.title}
                           </h4>
                           <Badge
@@ -267,43 +259,43 @@ export default function ArtistHome() {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-gray-300 text-sm mb-3 line-clamp-2 capitalize">
+                        <p className="text-gray-300 text-xs sm:text-sm mb-3 line-clamp-2 capitalize">
                           {project.description}
                         </p>
-                        <div className="flex items-center space-x-4 text-sm text-gray-400">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
                           <div className="flex items-center space-x-1">
-                            <Music className="w-4 h-4" />
-                            <span>{project.songTitle} - {project.artistName}</span>
+                            <Music className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span className="truncate">{project.songTitle} - {project.artistName}</span>
                           </div>
                           <div className="flex items-center space-x-1">
-                            <Calendar className="w-4 h-4" />
+                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                             <span>{new Date(project.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
                 </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-white">${project.goal.toLocaleString()}</p>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
+                      <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                        <p className="text-lg sm:text-2xl font-bold text-white">${project.goal.toLocaleString()}</p>
                         <p className="text-xs text-gray-400">Funding Goal</p>
                       </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-cyan-400">{project.expectedROIPercentage}%</p>
+                      <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                        <p className="text-lg sm:text-2xl font-bold text-cyan-400">{project.expectedROIPercentage}%</p>
                         <p className="text-xs text-gray-400">Expected ROI</p>
                       </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-purple-400">{project.duration} days</p>
+                      <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                        <p className="text-lg sm:text-2xl font-bold text-purple-400">{project.duration} days</p>
                         <p className="text-xs text-gray-400">Duration</p>
                       </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-orange-400 capitalize">{project.releaseType}</p>
+                      <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                        <p className="text-lg sm:text-2xl font-bold text-orange-400 capitalize">{project.releaseType}</p>
                         <p className="text-xs text-gray-400">Release Type</p>
                       </div>
                     </div>
 
-                  <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-400">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-slate-600/30">
+                      <div className="text-xs sm:text-sm text-gray-400 space-y-1">
                         <p>Deadline: {project.deadline}</p>
                         <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
                       </div>
@@ -325,7 +317,7 @@ export default function ArtistHome() {
               <Button 
                 onClick={() => setShowNewCampaignModal(true)}
                 variant="outline" 
-                className="w-full border-dashed border-purple-500/50 text-purple-300 hover:bg-purple-500/10"
+                className="w-full border-dashed border-purple-500/50 text-purple-300 hover:bg-purple-500/10 h-12 sm:h-14 text-sm sm:text-base font-medium"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create New Project
