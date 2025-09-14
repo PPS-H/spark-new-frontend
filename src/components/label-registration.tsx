@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/select";
 import {
   Building2,
-  User,
   Mail,
   Lock,
   Target,
@@ -67,56 +66,67 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
     description: "",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.labelName.trim()) {
-      newErrors.labelName = "Label name is required";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    if (!formData.companyType) {
-      newErrors.companyType = "Company type is required";
-    }
-
-    if (!formData.genreFocus) {
-      newErrors.genreFocus = "Genre focus is required";
-    }
-
-    if (!formData.teamSize) {
-      newErrors.teamSize = "Team size is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    // Validation
+    if (!formData.labelName || !formData.email || !formData.password) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Password Mismatch",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast({
+        title: "Password Too Short",
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.companyType) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a company type",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.genreFocus) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a genre focus",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.teamSize) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a team size",
+        variant: "destructive",
+      });
       return;
     }
 
     try {
-      const result = await register({
+      await register({
         username: formData.labelName,
         email: formData.email,
         password: formData.password,
@@ -128,7 +138,6 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
         website: formData.website,
         companyDescription: formData.description,
       }).unwrap();
-      // window.location.href = result.checkoutUrl;
       toast({
         title: "Registration Successful!",
         description: "Welcome to SPARK! Your label account has been created.",
@@ -164,34 +173,27 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-slate-800/90 backdrop-blur-xl border-purple-500/20 shadow-2xl">
-        <CardHeader className="text-center space-y-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center mx-auto">
+    <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader className="text-center space-y-2">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
             <Building2 className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="text-3xl font-bold text-white">
+          <CardTitle className="text-2xl font-bold">
             Join SPARK as a Label
           </CardTitle>
-          <p className="text-gray-300 text-sm">
+          <p className="text-muted-foreground">
             Discover and sign the next generation of artists
           </p>
         </CardHeader>
 
-        <CardContent className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label
-                htmlFor="labelName"
-                className="text-white text-sm font-medium flex items-center"
-              >
-                <Building2 className="w-4 h-4 mr-2" />
+              <Label htmlFor="labelName" className="flex items-center gap-2">
+                <Building2 className="w-4 h-4" />
                 Label Name *
               </Label>
               <Input
@@ -199,19 +201,12 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
                 value={formData.labelName}
                 onChange={(e) => handleInputChange("labelName", e.target.value)}
                 placeholder="Your record label name"
-                className="bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-400"
               />
-              {errors.labelName && (
-                <p className="text-red-400 text-xs mt-1">{errors.labelName}</p>
-              )}
             </div>
 
             <div>
-              <Label
-                htmlFor="email"
-                className="text-white text-sm font-medium flex items-center"
-              >
-                <Mail className="w-4 h-4 mr-2" />
+              <Label htmlFor="email" className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
                 Email Address *
               </Label>
               <Input
@@ -220,19 +215,12 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="your.email@example.com"
-                className="bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-400"
               />
-              {errors.email && (
-                <p className="text-red-400 text-xs mt-1">{errors.email}</p>
-              )}
             </div>
 
             <div>
-              <Label
-                htmlFor="password"
-                className="text-white text-sm font-medium flex items-center"
-              >
-                <Lock className="w-4 h-4 mr-2" />
+              <Label htmlFor="password" className="flex items-center gap-2">
+                <Lock className="w-4 h-4" />
                 Password *
               </Label>
               <Input
@@ -241,19 +229,15 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
                 placeholder="Minimum 6 characters"
-                className="bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-400"
               />
-              {errors.password && (
-                <p className="text-red-400 text-xs mt-1">{errors.password}</p>
-              )}
             </div>
 
             <div>
               <Label
                 htmlFor="confirmPassword"
-                className="text-white text-sm font-medium flex items-center"
+                className="flex items-center gap-2"
               >
-                <Lock className="w-4 h-4 mr-2" />
+                <Lock className="w-4 h-4" />
                 Confirm Password *
               </Label>
               <Input
@@ -264,22 +248,16 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
                   handleInputChange("confirmPassword", e.target.value)
                 }
                 placeholder="Confirm your password"
-                className="bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-400"
               />
-              {errors.confirmPassword && (
-                <p className="text-red-400 text-xs mt-1">
-                  {errors.confirmPassword}
-                </p>
-              )}
             </div>
 
             {/* Country */}
             <div>
               <Label
                 htmlFor="country"
-                className="text-white text-sm font-medium flex items-center"
+                className="flex items-center gap-2"
               >
-                <Globe className="w-4 h-4 mr-2" />
+                <Globe className="w-4 h-4" />
                 Country
               </Label>
               <Select
@@ -304,9 +282,9 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
             <div>
               <Label
                 htmlFor="companyType"
-                className="text-white text-sm font-medium flex items-center"
+                className="flex items-center gap-2"
               >
-                <Briefcase className="w-4 h-4 mr-2" />
+                <Briefcase className="w-4 h-4" />
                 Company Type *
               </Label>
               <Select
@@ -327,19 +305,14 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.companyType && (
-                <p className="text-red-400 text-xs mt-1">
-                  {errors.companyType}
-                </p>
-              )}
             </div>
 
             <div>
               <Label
                 htmlFor="genreFocus"
-                className="text-white text-sm font-medium flex items-center"
+                className="flex items-center gap-2"
               >
-                <Target className="w-4 h-4 mr-2" />
+                <Target className="w-4 h-4" />
                 Primary Genre Focus *
               </Label>
               <Select
@@ -365,17 +338,14 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
                   <SelectItem value="all">All Genres</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.genreFocus && (
-                <p className="text-red-400 text-xs mt-1">{errors.genreFocus}</p>
-              )}
             </div>
 
             <div>
               <Label
                 htmlFor="teamSize"
-                className="text-white text-sm font-medium flex items-center"
+                className="flex items-center gap-2"
               >
-                <Users className="w-4 h-4 mr-2" />
+                <Users className="w-4 h-4" />
                 Team Size *
               </Label>
               <Select
@@ -395,17 +365,14 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
                   </SelectItem>
                 </SelectContent>
               </Select>
-              {errors.teamSize && (
-                <p className="text-red-400 text-xs mt-1">{errors.teamSize}</p>
-              )}
             </div>
 
             <div>
               <Label
                 htmlFor="website"
-                className="text-white text-sm font-medium flex items-center"
+                className="flex items-center gap-2"
               >
-                <Globe className="w-4 h-4 mr-2" />
+                <Globe className="w-4 h-4" />
                 Website (Optional)
               </Label>
               <Input
@@ -413,16 +380,15 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
                 value={formData.website}
                 onChange={(e) => handleInputChange("website", e.target.value)}
                 placeholder="https://yourwebsite.com"
-                className="bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-400"
               />
             </div>
 
             <div>
               <Label
                 htmlFor="description"
-                className="text-white text-sm font-medium flex items-center"
+                className="flex items-center gap-2"
               >
-                <Target className="w-4 h-4 mr-2" />
+                <Target className="w-4 h-4" />
                 Company Description (Optional)
               </Label>
               <Textarea
@@ -432,31 +398,43 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
                   handleInputChange("description", e.target.value)
                 }
                 placeholder="Brief description of your label and mission..."
-                className="bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-purple-400"
                 rows={3}
               />
             </div>
 
-            <Button
-              type="submit"
-              disabled={isRegisterLoading}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200"
-            >
-              {isRegisterLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Creating Account...
-                </>
-              ) : (
-                <>
-                  <Building2 className="w-5 h-5 mr-2" />
-                  Create Label Account
-                </>
+            <div className="space-y-3">
+              <Button
+                type="submit"
+                disabled={isRegisterLoading}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200"
+              >
+                {isRegisterLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    <Building2 className="w-5 h-5 mr-2" />
+                    Create Label Account
+                  </>
+                )}
+              </Button>
+
+              {onClose && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  disabled={isRegisterLoading}
+                  className="w-full"
+                >
+                  Cancel
+                </Button>
               )}
-            </Button>
+            </div>
           </form>
         </CardContent>
-      </Card>
-    </div>
+    </Card>
   );
 }

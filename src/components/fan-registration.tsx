@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { User, Globe, Heart, X } from "lucide-react";
+import { User, Globe, Heart } from "lucide-react";
 import SLogo from "@/components/s-logo";
 import { useRegisterMutation } from "@/store/features/api/authApi";
 
@@ -93,14 +93,6 @@ export default function FanRegistration({ onClose }: FanRegistrationProps) {
     }));
   };
 
-  const handlePlatformToggle = (platform: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      musicPlatforms: prev.musicPlatforms.includes(platform)
-        ? prev.musicPlatforms.filter((p) => p !== platform)
-        : [...prev.musicPlatforms, platform],
-    }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,7 +205,6 @@ export default function FanRegistration({ onClose }: FanRegistrationProps) {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, username: e.target.value }))
                 }
-                required
               />
             </div>
 
@@ -227,7 +218,7 @@ export default function FanRegistration({ onClose }: FanRegistrationProps) {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, email: e.target.value }))
                 }
-                required
+                
               />
             </div>
           </div>
@@ -243,7 +234,6 @@ export default function FanRegistration({ onClose }: FanRegistrationProps) {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, password: e.target.value }))
                 }
-                required
               />
             </div>
 
@@ -260,7 +250,6 @@ export default function FanRegistration({ onClose }: FanRegistrationProps) {
                     confirmPassword: e.target.value,
                   }))
                 }
-                required
               />
             </div>
           </div>
@@ -391,7 +380,7 @@ export default function FanRegistration({ onClose }: FanRegistrationProps) {
                 onClick={onClose}
                 disabled={isSubmitting}
               >
-                <X className="w-4 h-4" />
+                Cancle
               </Button>
             )}
           </div>

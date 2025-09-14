@@ -185,7 +185,6 @@ export default function ArtistRegistration({
                     artistName: e.target.value,
                   }))
                 }
-                required
               />
             </div>
 
@@ -202,7 +201,6 @@ export default function ArtistRegistration({
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, email: e.target.value }))
                 }
-                required
               />
             </div>
           </div>
@@ -221,7 +219,6 @@ export default function ArtistRegistration({
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, password: e.target.value }))
                 }
-                required
               />
             </div>
 
@@ -244,7 +241,6 @@ export default function ArtistRegistration({
                     confirmPassword: e.target.value,
                   }))
                 }
-                required
               />
             </div>
           </div>
