@@ -246,9 +246,9 @@ export default function ArtistProfile() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
       {/* Hero Section */}
-      <div className="relative h-80 bg-gradient-to-r from-purple-900/80 to-pink-900/80 overflow-hidden">
+      <div className="relative h-64 sm:h-80 bg-gradient-to-r from-purple-900/80 to-pink-900/80 overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center transition-all duration-500 ease-in-out"
           style={{ backgroundImage: `url(${displayBackgroundImage})` }}
@@ -328,12 +328,12 @@ export default function ArtistProfile() {
         </div>
         
         <div className="relative z-10 max-w-7xl mx-auto p-4 h-full flex items-end">
-          <div className="flex items-center justify-between w-full mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full mb-4 sm:mb-8 gap-4">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/')}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-white/20 self-start"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -403,9 +403,9 @@ export default function ArtistProfile() {
       </div>
 
       {/* Artist Info */}
-      <div className="max-w-7xl mx-auto p-4 -mt-16 relative z-20">
-        <div className="flex flex-col md:flex-row items-start md:items-end space-y-4 md:space-y-0 md:space-x-6 mb-8">
-          <div className="relative">
+      <div className="max-w-7xl mx-auto p-4 -mt-12 sm:-mt-16 relative z-20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end space-y-4 sm:space-y-0 sm:space-x-6 mb-6 sm:mb-8">
+          <div className="relative mx-auto sm:mx-0">
             <button 
               onClick={() => setShowProfileEdit(true)}
               className="group relative focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-full"
@@ -413,7 +413,7 @@ export default function ArtistProfile() {
               <img 
                 src={displayProfileImage} 
                 alt={artist.name}
-                className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover transition-all duration-500 ease-in-out group-hover:scale-105 cursor-pointer"
+                className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg object-cover transition-all duration-500 ease-in-out group-hover:scale-105 cursor-pointer"
               />
             </button>
             {isOwner && (
@@ -477,47 +477,47 @@ export default function ArtistProfile() {
               </Dialog>
             )}
           </div>
-          <div className="flex-1">
-            <h1 className="text-4xl font-bold text-white mb-2">{artist.name}</h1>
-            <div className="flex items-center space-x-4 mb-4">
-              <Badge className="bg-purple-500/20 text-purple-400">{artist.genre}</Badge>
-              <Badge className="bg-blue-500/20 text-blue-400">{artist.country}</Badge>
+          <div className="flex-1 text-center sm:text-left">
+            <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">{artist.name}</h1>
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-4 mb-4">
+              <Badge className="bg-purple-500/20 text-purple-400 text-xs sm:text-sm">{artist.genre}</Badge>
+              <Badge className="bg-blue-500/20 text-blue-400 text-xs sm:text-sm">{artist.country}</Badge>
             </div>
-            <p className="text-gray-300 mb-4">{artist.bio}</p>
+            <p className="text-gray-300 mb-4 text-sm sm:text-base">{artist.bio}</p>
             
             {/* Stats Row */}
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-4">
-              <div className="text-center">
-                <p className="text-white font-semibold">{artist.stats.streams}</p>
-                <p className="text-gray-400 text-sm">Streams</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-4">
+              <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                <p className="text-white font-semibold text-sm sm:text-base">{artist.stats.streams}</p>
+                <p className="text-gray-400 text-xs sm:text-sm">Streams</p>
               </div>
-              <div className="text-center">
-                <p className="text-white font-semibold" id="follower-count">
+              <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                <p className="text-white font-semibold text-sm sm:text-base" id="follower-count">
                   <RealFollowerCount artistId={artistId} />
                 </p>
-                <p className="text-gray-400 text-sm">Followers</p>
+                <p className="text-gray-400 text-xs sm:text-sm">Followers</p>
               </div>
-              <div className="text-center">
-                <p className="text-green-400 font-semibold">{artist.stats.revenue}</p>
-                <p className="text-gray-400 text-sm">Revenue</p>
+              <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                <p className="text-green-400 font-semibold text-sm sm:text-base">{artist.stats.revenue}</p>
+                <p className="text-gray-400 text-xs sm:text-sm">Revenue</p>
               </div>
-              <div className="text-center">
-                <p className="text-white font-semibold">{artist.stats.investmentRaised}</p>
-                <p className="text-gray-400 text-sm">Raised</p>
+              <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                <p className="text-white font-semibold text-sm sm:text-base">{artist.stats.investmentRaised}</p>
+                <p className="text-gray-400 text-xs sm:text-sm">Raised</p>
               </div>
-              <div className="text-center">
-                <p className="text-white font-semibold">{artist.stats.activeProjects}</p>
-                <p className="text-gray-400 text-sm">Projects</p>
+              <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                <p className="text-white font-semibold text-sm sm:text-base">{artist.stats.activeProjects}</p>
+                <p className="text-gray-400 text-xs sm:text-sm">Projects</p>
               </div>
-              <div className="text-center">
-                <p className="text-cyan-400 font-semibold">{artist.stats.roi}</p>
-                <p className="text-gray-400 text-sm">ROI</p>
+              <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                <p className="text-cyan-400 font-semibold text-sm sm:text-base">{artist.stats.roi}</p>
+                <p className="text-gray-400 text-xs sm:text-sm">ROI</p>
               </div>
             </div>
           </div>
           
           {/* Action Buttons */}
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             {!isOwner ? (
               <>
                 <Button 
@@ -530,7 +530,7 @@ export default function ArtistProfile() {
                       setShowProfessionalInbox(true);
                     }
                   }}
-                  className="border-green-400 text-green-400 hover:bg-green-400 hover:text-white"
+                  className="border-green-400 text-green-400 hover:bg-green-400 hover:text-white text-xs sm:text-sm"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Message
@@ -538,7 +538,7 @@ export default function ArtistProfile() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-white"
+                  className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-white text-xs sm:text-sm"
                   onClick={() => {
                     // Mock follow functionality
                     const newFollowerCount = parseInt(artistId) * 1234 + 1;
@@ -565,7 +565,7 @@ export default function ArtistProfile() {
                       alert("L'investissement est réservé aux Investisseurs et Labels. Créez un compte Investisseur pour commencer à investir!");
                     }
                   }}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs sm:text-sm"
                 >
                   <DollarSign className="w-4 h-4 mr-2" />
                   Invest Now
@@ -575,7 +575,7 @@ export default function ArtistProfile() {
               <Button 
                 variant="outline" 
                 size="sm"
-                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-white"
+                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-white text-xs sm:text-sm"
               >
                 <Edit className="w-4 h-4 mr-2" />
                 Manage Profile
@@ -585,21 +585,21 @@ export default function ArtistProfile() {
         </div>
 
         {/* Content Tabs */}
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6 flex-1 flex flex-col">
-          <TabsList className="grid grid-cols-4 w-full max-w-md mx-auto bg-slate-800 border-slate-700">
-            <TabsTrigger value="portfolio" className="text-white">Portfolio</TabsTrigger>
-            <TabsTrigger value="projects" className="text-white">Projects</TabsTrigger>
-            <TabsTrigger value="events" className="text-white">Events</TabsTrigger>
-            <TabsTrigger value="about" className="text-white">About</TabsTrigger>
+        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4 sm:space-y-6 flex-1 flex flex-col">
+          <TabsList className="grid grid-cols-4 w-full max-w-lg mx-auto bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+            <TabsTrigger value="portfolio" className="text-white text-xs sm:text-sm data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">Portfolio</TabsTrigger>
+            <TabsTrigger value="projects" className="text-white text-xs sm:text-sm data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">Projects</TabsTrigger>
+            <TabsTrigger value="events" className="text-white text-xs sm:text-sm data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">Events</TabsTrigger>
+            <TabsTrigger value="about" className="text-white text-xs sm:text-sm data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">About</TabsTrigger>
           </TabsList>
 
           <TabsContent value="portfolio" className="space-y-4">
-            <div className="flex flex-col space-y-4 mb-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">Artist Portfolio</h2>
+            <div className="flex flex-col space-y-4 mb-4 sm:mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-white">Artist Portfolio</h2>
                 {isOwner && (
                   <Button 
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs sm:text-sm"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Content
@@ -608,30 +608,30 @@ export default function ArtistProfile() {
               </div>
               
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" className="border-gray-500 text-gray-400 flex-shrink-0">All</Button>
-                <Button variant="outline" size="sm" className="border-gray-500 text-gray-400 flex-shrink-0">Audio</Button>
-                <Button variant="outline" size="sm" className="border-gray-500 text-gray-400 flex-shrink-0">Video</Button>
-                <Button variant="outline" size="sm" className="border-gray-500 text-gray-400 flex-shrink-0">Photos</Button>
+                <Button variant="outline" size="sm" className="border-gray-500 text-gray-400 flex-shrink-0 text-xs sm:text-sm">All</Button>
+                <Button variant="outline" size="sm" className="border-gray-500 text-gray-400 flex-shrink-0 text-xs sm:text-sm">Audio</Button>
+                <Button variant="outline" size="sm" className="border-gray-500 text-gray-400 flex-shrink-0 text-xs sm:text-sm">Video</Button>
+                <Button variant="outline" size="sm" className="border-gray-500 text-gray-400 flex-shrink-0 text-xs sm:text-sm">Photos</Button>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {artist.portfolio.map((item, index) => (
-                <Card key={index} className="bg-slate-800 border-slate-700 hover:scale-105 transition-all duration-300 group">
-                  <CardContent className="p-4">
-                    <div className="relative mb-4">
+                <Card key={index} className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 hover:scale-105 transition-all duration-300 group shadow-lg hover:shadow-xl">
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="relative mb-3 sm:mb-4 overflow-hidden rounded-lg">
                       <img 
                         src={item.thumbnail} 
                         alt={item.title}
-                        className="w-full h-48 object-cover rounded-lg"
+                        className="w-full h-40 sm:h-48 object-cover rounded-lg group-hover:scale-110 transition-transform duration-300"
                       />
                       <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        {item.type === "audio" && <Play className="w-12 h-12 text-white" />}
-                        {item.type === "video" && <Play className="w-12 h-12 text-white" />}
-                        {item.type === "image" && <ImageIcon className="w-12 h-12 text-white" />}
+                        {item.type === "audio" && <Play className="w-10 h-10 sm:w-12 sm:h-12 text-white" />}
+                        {item.type === "video" && <Play className="w-10 h-10 sm:w-12 sm:h-12 text-white" />}
+                        {item.type === "image" && <ImageIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />}
                       </div>
                       <div className="absolute top-2 right-2">
-                        <Badge className={`${
+                        <Badge className={`text-xs ${
                           item.type === "audio" ? "bg-green-500/20 text-green-400" :
                           item.type === "video" ? "bg-blue-500/20 text-blue-400" :
                           "bg-purple-500/20 text-purple-400"
@@ -640,13 +640,13 @@ export default function ArtistProfile() {
                         </Badge>
                       </div>
                     </div>
-                    <h3 className="text-white font-semibold mb-2">{item.title}</h3>
-                    <div className="flex justify-between items-center text-sm text-gray-400">
+                    <h3 className="text-white font-semibold mb-2 text-sm sm:text-base truncate">{item.title}</h3>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 text-xs sm:text-sm text-gray-400">
                       <span>{new Date(item.date).toLocaleDateString()}</span>
                       <span>
-                        {"plays" in item && `${item.plays} plays`}
-                        {"views" in item && `${item.views} views`}
-                        {"likes" in item && `${item.likes} likes`}
+                        {"plays" in item && item.plays && `${item.plays.toLocaleString()} plays`}
+                        {"views" in item && item.views && `${item.views.toLocaleString()} views`}
+                        {"likes" in item && item.likes && `${item.likes.toLocaleString()} likes`}
                       </span>
                     </div>
                   </CardContent>
@@ -656,9 +656,9 @@ export default function ArtistProfile() {
           </TabsContent>
 
           <TabsContent value="projects" className="space-y-4 h-full flex flex-col">
-            <h2 className="text-2xl font-bold text-white mb-4">Active Projects</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">Active Projects</h2>
             <div className="flex-1 overflow-y-auto pr-2">
-              <div className="grid md:grid-cols-2 gap-6 pb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pb-4">
                 {/* <Card className="bg-slate-800 border-slate-700">
                   <CardHeader>
                     <CardTitle className="text-white">New Album Production</CardTitle>
@@ -676,87 +676,87 @@ export default function ArtistProfile() {
                     </div>
                   </CardContent>
                 </Card> */}
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Single Release</CardTitle>
+                <Card className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-white text-sm sm:text-base">Single Release</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-400 mb-4">New single track ready for release and promotion.</p>
+                  <CardContent className="pt-0">
+                    <p className="text-gray-400 mb-4 text-xs sm:text-sm">New single track ready for release and promotion.</p>
                     <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs sm:text-sm">
                         <span className="text-gray-400">Progress</span>
-                        <span className="text-white">90%</span>
+                        <span className="text-white font-semibold">90%</span>
                       </div>
                       <div className="w-full bg-slate-700 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-[90%]"></div>
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-[90%] transition-all duration-500"></div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Music Video</CardTitle>
+                <Card className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-white text-sm sm:text-base">Music Video</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-400 mb-4">Professional music video production for latest single.</p>
+                  <CardContent className="pt-0">
+                    <p className="text-gray-400 mb-4 text-xs sm:text-sm">Professional music video production for latest single.</p>
                     <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs sm:text-sm">
                         <span className="text-gray-400">Progress</span>
-                        <span className="text-white">60%</span>
+                        <span className="text-white font-semibold">60%</span>
                       </div>
                       <div className="w-full bg-slate-700 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-3/5"></div>
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-3/5 transition-all duration-500"></div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">EP Collection</CardTitle>
+                <Card className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-white text-sm sm:text-base">EP Collection</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-400 mb-4">5-track EP with acoustic versions and remixes.</p>
+                  <CardContent className="pt-0">
+                    <p className="text-gray-400 mb-4 text-xs sm:text-sm">5-track EP with acoustic versions and remixes.</p>
                     <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs sm:text-sm">
                         <span className="text-gray-400">Progress</span>
-                        <span className="text-white">40%</span>
+                        <span className="text-white font-semibold">40%</span>
                       </div>
                       <div className="w-full bg-slate-700 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-2/5"></div>
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-2/5 transition-all duration-500"></div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Live Performance</CardTitle>
+                <Card className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-white text-sm sm:text-base">Live Performance</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-400 mb-4">Preparing for upcoming live concert series.</p>
+                  <CardContent className="pt-0">
+                    <p className="text-gray-400 mb-4 text-xs sm:text-sm">Preparing for upcoming live concert series.</p>
                     <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs sm:text-sm">
                         <span className="text-gray-400">Progress</span>
-                        <span className="text-white">25%</span>
+                        <span className="text-white font-semibold">25%</span>
                       </div>
                       <div className="w-full bg-slate-700 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-1/4"></div>
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-1/4 transition-all duration-500"></div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Collaboration Project</CardTitle>
+                <Card className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-white text-sm sm:text-base">Collaboration Project</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-400 mb-4">Working with international artists on cross-genre track.</p>
+                  <CardContent className="pt-0">
+                    <p className="text-gray-400 mb-4 text-xs sm:text-sm">Working with international artists on cross-genre track.</p>
                     <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs sm:text-sm">
                         <span className="text-gray-400">Progress</span>
-                        <span className="text-white">15%</span>
+                        <span className="text-white font-semibold">15%</span>
                       </div>
                       <div className="w-full bg-slate-700 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-[15%]"></div>
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-[15%] transition-all duration-500"></div>
                       </div>
                     </div>
                   </CardContent>
@@ -786,10 +786,10 @@ export default function ArtistProfile() {
           </TabsContent> */}
 
           <TabsContent value="about" className="space-y-4">
-            <h2 className="text-2xl font-bold text-white mb-4">About {artist.name}</h2>
-            <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-6">
-                <p className="text-gray-300 leading-relaxed">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">About {artist.name}</h2>
+            <Card className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg">
+              <CardContent className="p-4 sm:p-6">
+                <p className="text-gray-300 leading-relaxed text-sm sm:text-base">
                   {artist.bio} Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
                   Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
                   Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
