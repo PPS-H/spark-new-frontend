@@ -560,7 +560,12 @@ export default function ArtistProfile() {
                       return;
                     }
                     if (user?.role === 'investor' || user?.role === 'label') {
-                      setShowInvestmentModal(true);
+                      // Check if user has Pro subscription
+                      if ((user as any)?.isProMember) {
+                        setShowInvestmentModal(true);
+                      } else {
+                        alert("Pro subscription required to make investments. Please upgrade to Pro to access this feature.");
+                      }
                     } else {
                       alert("L'investissement est réservé aux Investisseurs et Labels. Créez un compte Investisseur pour commencer à investir!");
                     }
@@ -659,7 +664,7 @@ export default function ArtistProfile() {
             <h2 className="text-2xl font-bold text-white mb-4">Active Projects</h2>
             <div className="flex-1 overflow-y-auto pr-2">
               <div className="grid md:grid-cols-2 gap-6 pb-4">
-                {/* <Card className="bg-slate-800 border-slate-700">
+                <Card className="bg-slate-800 border-slate-700">
                   <CardHeader>
                     <CardTitle className="text-white">New Album Production</CardTitle>
                   </CardHeader>
@@ -675,7 +680,7 @@ export default function ArtistProfile() {
                       </div>
                     </div>
                   </CardContent>
-                </Card> */}
+                </Card>
                 <Card className="bg-slate-800 border-slate-700">
                   <CardHeader>
                     <CardTitle className="text-white">Single Release</CardTitle>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, TrendingUp, Users, DollarSign, Play, Settings, Crown, LogOut } from "lucide-react";
+import { Plus, TrendingUp, Users, DollarSign, Play, Settings, Crown, LogOut, Lock } from "lucide-react";
 import SLogo from "@/components/s-logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -322,14 +322,34 @@ export default function ArtistHome() {
             )}
             
             {!campaignsLoading && (
-              <Button 
-                onClick={() => setShowNewCampaignModal(true)}
-                variant="outline" 
-                className="w-full border-dashed border-purple-500/50 text-purple-300 hover:bg-purple-500/10"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create New Project
-              </Button>
+              (user as any)?.isProMember ? (
+                <Button 
+                  onClick={() => setShowNewCampaignModal(true)}
+                  variant="outline" 
+                  className="w-full border-dashed border-purple-500/50 text-purple-300 hover:bg-purple-500/10"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create New Project
+                </Button>
+              ) : (
+                <div className="w-full p-4 bg-gray-800/50 border border-gray-600 rounded-lg text-center">
+                  <div className="flex items-center justify-center mb-2">
+                    <Lock className="w-5 h-5 text-gray-400 mr-2" />
+                    <span className="text-gray-400 font-medium">Pro Required</span>
+                  </div>
+                  <p className="text-gray-500 text-sm mb-3">
+                    Upgrade to Pro to create projects and start campaigns
+                  </p>
+                  <Button 
+                    onClick={() => navigate('/settings')}
+                    size="sm"
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  >
+                    <Crown className="w-4 h-4 mr-2" />
+                    Upgrade to Pro
+                  </Button>
+                </div>
+              )
             )}
           </CardContent>
         </Card>

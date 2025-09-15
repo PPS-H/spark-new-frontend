@@ -4,17 +4,21 @@ import {
   ArrowLeft,
   Heart,
   DollarSign,
+  Lock,
+  Crown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useGetProjectDetailsQuery, useLikeDislikeArtistMutation, useCreateCheckoutSessionMutation } from "@/store/features/api/labelApi";
+import { useAuth } from "@/hooks/useAuthRTK";
 
 
 export default function InvestArtistPage() {
   const { projectId } = useParams();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
 
   // Mock toast function (replacing useToast)
   const toast = ({ title, description }: { 
@@ -171,6 +175,53 @@ export default function InvestArtistPage() {
   const fundingProgressPercentage = fundingProgress.funded;
   const minInvestment = investmentLimits.min;
   const maxInvestment = Math.min(investmentLimits.max, investmentLimits.remaining);
+
+  // Check if user is authenticated
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+        <div className="text-center">
+          <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">Authentication Required</h2>
+          <p className="text-gray-400 mb-6">Please log in to invest in projects</p>
+          <Button onClick={() => navigate("/")} variant="outline">
+            Go to Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user has Pro subscription for labels and investors
+  if ((user.role === 'label' || user.role === 'investor') && !(user as any)?.isProMember) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">Pro Subscription Required</h2>
+          <p className="text-gray-400 mb-6">
+            Pro subscription required to make investments. Please upgrade to Pro to access this feature.
+          </p>
+          <div className="space-y-3">
+            <Button 
+              onClick={() => navigate('/settings')}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Upgrade to Pro
+            </Button>
+            <Button 
+              onClick={() => navigate("/")} 
+              variant="outline"
+              className="w-full"
+            >
+              Go to Home
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Debug logging for project image
   console.log('🎯 InvestArtistPage project:', { 

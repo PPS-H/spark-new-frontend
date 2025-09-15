@@ -141,6 +141,8 @@ export interface User {
   isDeleted: boolean;
   isStripeAccountConnected: boolean;
   isPaymentMethodAdded: boolean;
+  subscriptionId?: string;
+  isProMember: boolean;
   createdAt: string;
   updatedAt: string;
   __v: number;

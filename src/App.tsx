@@ -28,6 +28,8 @@ import SongDetail from "@/pages/song-detail";
 import DownloadProject from "@/pages/download-project";
 import StripeConnectSuccess from "@/pages/stripe-connect-success";
 import StripeConnectFailed from "@/pages/stripe-connect-failed";
+import SubscriptionSuccess from "@/pages/subscription-success";
+import SubscriptionCanceled from "@/pages/subscription-canceled";
 import NotFound from "@/pages/not-found";
 import RoleBasedNavigation from "@/components/role-based-navigation";
 import CheckoutPage from "@/pages/checkout";
@@ -109,6 +111,8 @@ function AppRoutes() {
         <Route path="/download-project" element={<DownloadProject />} />
         <Route path="/stripe-connect-success" element={<StripeConnectSuccess />} />
         <Route path="/stripe-connect-failed" element={<StripeConnectFailed />} />
+        <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+        <Route path="/subscription-canceled" element={<SubscriptionCanceled />} />
         <Route
           path="/download"
           element={

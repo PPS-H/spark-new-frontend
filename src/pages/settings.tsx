@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useUpdateUserMutation, useChangePasswordMutation } from "@/store/features/api/authApi";
 import { useConnectSpotifyMutation } from "@/store/features/api/socialMediaApi";
 import { useConnectStripeMutation } from "@/store/features/api/labelApi";
+import { useGetStripeProductsQuery, useCreateSubscriptionCheckoutMutation, useGetUserSubscriptionQuery } from "@/store/features/api/stripeApi";
 import { useToast } from "@/hooks/use-toast";
 import {
   Settings,
@@ -26,6 +27,8 @@ import {
   Zap,
   Lock,
   CreditCard,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -36,6 +39,13 @@ export default function SettingsPage() {
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
   const [connectSpotify, { isLoading: isConnectingSpotify }] = useConnectSpotifyMutation();
   const [connectStripe, { isLoading: isConnectingStripe }] = useConnectStripeMutation();
+  
+  // Subscription-related API calls
+  const { data: stripeProducts, isLoading: isLoadingProducts } = useGetStripeProductsQuery({ 
+    type: user?.role === 'artist' ? 'artist' : user?.role === 'label' ? 'label' : undefined 
+  });
+  const [createSubscriptionCheckout, { isLoading: isCreatingCheckout }] = useCreateSubscriptionCheckoutMutation();
+  const { data: subscriptionData, isLoading: isLoadingSubscription } = useGetUserSubscriptionQuery(user?._id || '');
   
   // Local state for form fields
   const [displayName, setDisplayName] = useState(user?.username || "");
@@ -316,6 +326,37 @@ export default function SettingsPage() {
       toast({
         title: "Connection Failed",
         description: error?.data?.message || "Failed to connect to Stripe. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle subscription upgrade
+  const handleUpgradeToPro = async (priceId: string) => {
+    if (!user?._id) {
+      toast({
+        title: "Error",
+        description: "User ID not found. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const result = await createSubscriptionCheckout({
+        priceId,
+        userId: user._id
+      }).unwrap();
+
+      if (result.success && result.data?.url) {
+        // Redirect to Stripe checkout
+        window.location.href = result.data.url;
+      }
+    } catch (error: any) {
+      console.error("Subscription checkout error:", error);
+      toast({
+        title: "Checkout Failed",
+        description: error?.data?.message || "Failed to create checkout session. Please try again.",
         variant: "destructive",
       });
     }
@@ -737,7 +778,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Connect Your Accounts - Artist Only */}
+        {/* Connect Your Accounts - Artist Only (Music Platforms + Stripe) */}
         {user?.role === "artist" && (
           <Card className="artist-metric-card">
             <CardHeader>
@@ -783,19 +824,181 @@ export default function SettingsPage() {
                   <span className="text-white text-sm font-medium">Deezer</span>
                 </div>
 
-                {/* Stripe Connect Icon */}
-                <div 
-                  className="flex flex-col items-center space-y-2 cursor-pointer hover:scale-105 transition-transform duration-200"
-                  onClick={handleConnectStripe}
-                >
-                  <div className={`w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center ${isConnectingStripe ? 'opacity-75' : ''}`}>
-                    <CreditCard className="w-8 h-8 text-white" />
+                {/* Stripe Connect Icon - Only show for Pro users */}
+                {user?.isProMember ? (
+                  <div 
+                    className="flex flex-col items-center space-y-2 cursor-pointer hover:scale-105 transition-transform duration-200"
+                    onClick={handleConnectStripe}
+                  >
+                    <div className={`w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center ${isConnectingStripe ? 'opacity-75' : ''}`}>
+                      <CreditCard className="w-8 h-8 text-white" />
+                    </div>
+                    <span className="text-white text-sm font-medium">
+                      {isConnectingStripe ? "Connecting..." : user?.isStripeAccountConnected ? "Stripe Connected" : "Connect Stripe"}
+                    </span>
                   </div>
-                  <span className="text-white text-sm font-medium">
-                    {isConnectingStripe ? "Connecting..." : user?.isStripeAccountConnected ? "Stripe Connected" : "Connect Stripe"}
-                  </span>
-                </div>
+                ) : (
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center opacity-50">
+                      <Lock className="w-8 h-8 text-white" />
+                    </div>
+                    <span className="text-gray-400 text-sm font-medium">
+                      Pro Required
+                    </span>
+                    <span className="text-xs text-gray-500 text-center">
+                      Upgrade to Pro to connect Stripe
+                    </span>
+                  </div>
+                )}
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Connect Stripe Account - Label Only */}
+        {user?.role === "label" && (
+          <Card className="artist-metric-card">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <CreditCard className="w-5 h-5 mr-2 text-cyan-400" />
+                Connect Stripe Account
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center py-6">
+                {/* Stripe Connect Icon - Only show for Pro users */}
+                {user?.isProMember ? (
+                  <div 
+                    className="flex flex-col items-center space-y-2 cursor-pointer hover:scale-105 transition-transform duration-200"
+                    onClick={handleConnectStripe}
+                  >
+                    <div className={`w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center ${isConnectingStripe ? 'opacity-75' : ''}`}>
+                      <CreditCard className="w-10 h-10 text-white" />
+                    </div>
+                    <span className="text-white text-lg font-medium">
+                      {isConnectingStripe ? "Connecting..." : user?.isStripeAccountConnected ? "Stripe Connected" : "Connect Stripe"}
+                    </span>
+                    <span className="text-gray-400 text-sm text-center max-w-xs">
+                      Connect your Stripe account to receive payments from investments
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="w-20 h-20 bg-gray-600 rounded-full flex items-center justify-center opacity-50">
+                      <Lock className="w-10 h-10 text-white" />
+                    </div>
+                    <span className="text-gray-400 text-lg font-medium">
+                      Pro Required
+                    </span>
+                    <span className="text-xs text-gray-500 text-center max-w-xs">
+                      Upgrade to Pro to connect Stripe and receive payments
+                    </span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Subscription Section - Only show for artists and labels */}
+        {(user?.role === 'artist' || user?.role === 'label') && (
+          <Card className="artist-metric-card">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Crown className="w-5 h-5 mr-2 text-cyan-400" />
+                Subscription & Pro Features
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Current Subscription Status */}
+              {subscriptionData?.data ? (
+                <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <CheckCircle className="w-5 h-5 text-green-400" />
+                      <div>
+                        <h4 className="text-white font-medium">Pro Member</h4>
+                        <p className="text-green-400 text-sm">
+                          {subscriptionData.data.planType === 'artist' ? 'Artist Pro' : 'Label Pro'} - ${(subscriptionData.data.amount / 100).toFixed(0)}/{subscriptionData.data.interval}
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          Next billing: {new Date(subscriptionData.data.currentPeriodEnd).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge className="bg-green-500/20 text-green-300">
+                      {subscriptionData.data.status}
+                    </Badge>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <XCircle className="w-5 h-5 text-yellow-400" />
+                      <div>
+                        <h4 className="text-white font-medium">Free Plan</h4>
+                        <p className="text-yellow-400 text-sm">
+                          Upgrade to Pro for premium features
+                        </p>
+                      </div>
+                    </div>
+                    <Badge className="bg-yellow-500/20 text-yellow-300">
+                      Free
+                    </Badge>
+                  </div>
+                </div>
+              )}
+
+              {/* Available Plans */}
+              {!subscriptionData?.data && stripeProducts?.data && (
+                <div className="space-y-3">
+                  <h4 className="text-white font-medium">Available Plans</h4>
+                  {stripeProducts.data.map((product) => (
+                    <div key={product.id} className="bg-slate-800/50 border border-slate-600 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h5 className="text-white font-medium">{product.name}</h5>
+                          <p className="text-gray-400 text-sm">{product.description}</p>
+                          {product.price && (
+                            <p className="text-cyan-400 font-semibold">
+                              ${(product.price.amount / 100).toFixed(0)}/{product.price.interval}
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          onClick={() => product.price && handleUpgradeToPro(product.price.id)}
+                          disabled={!product.price || isCreatingCheckout}
+                          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                        >
+                          {isCreatingCheckout ? "Processing..." : "Upgrade to Pro"}
+                        </Button>
+                      </div>
+                      {product.features.length > 0 && (
+                        <div className="mt-3">
+                          <h6 className="text-white text-sm font-medium mb-2">Features:</h6>
+                          <ul className="text-gray-400 text-sm space-y-1">
+                            {product.features.map((feature, index) => (
+                              <li key={index} className="flex items-center">
+                                <CheckCircle className="w-3 h-3 text-green-400 mr-2" />
+                                {feature}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Loading State */}
+              {(isLoadingProducts || isLoadingSubscription) && (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-400"></div>
+                  <span className="ml-3 text-gray-400">Loading subscription details...</span>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}

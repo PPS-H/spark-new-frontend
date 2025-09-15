@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Plus, Upload, Trash2, Image, ChevronLeft, ChevronRight, Music } from "lucide-react";
+import { Heart, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Plus, Upload, Trash2, Image, ChevronLeft, ChevronRight, Music, Lock, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -833,13 +833,30 @@ export default function ArtistProfilePage({
                       Refresh
                     </Button> */}
                     {isOwner && (
-                      <Button
-                        onClick={() => setShowCreateCampaign(true)}
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Create New Project
-                      </Button>
+                      (user as any)?.isProMember ? (
+                        <Button
+                          onClick={() => setShowCreateCampaign(true)}
+                          className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create New Project
+                        </Button>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg">
+                            <Lock className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-400 text-sm">Pro Required</span>
+                          </div>
+                          <Button
+                            onClick={() => navigate('/settings')}
+                            size="sm"
+                            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                          >
+                            <Crown className="w-4 h-4 mr-2" />
+                            Upgrade
+                          </Button>
+                        </div>
+                      )
                     )}
                   </div>
                 </div>

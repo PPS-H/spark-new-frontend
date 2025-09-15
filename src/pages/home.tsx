@@ -20,10 +20,12 @@ import PremiumDashboard from "@/components/premium-dashboard";
 import ArtistDashboard from "@/components/artist-dashboard";
 import SLogo from "@/components/s-logo";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuthRTK";
 
 export default function Home() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const { user: authUser, isAuthenticated } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<{ id: number; username: string; email: string } | null>(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -88,6 +90,22 @@ export default function Home() {
   };
 
   const openInvestmentModal = (artist: any) => {
+    // Check if user is authenticated
+    if (!isAuthenticated || !authUser) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    // Check if user has Pro subscription for labels and investors
+    if ((authUser.role === 'label' || authUser.role === 'investor') && !(authUser as any)?.isProMember) {
+      toast({
+        title: "Pro Subscription Required",
+        description: "Pro subscription required to make investments. Please upgrade to Pro to access this feature.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSelectedArtist(artist);
     setShowInvestmentModal(true);
   };

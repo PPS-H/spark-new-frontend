@@ -31,6 +31,50 @@ export interface GetStripeProductsResponse {
   data: StripeProduct[];
 }
 
+export interface CreateSubscriptionCheckoutRequest {
+  priceId: string;
+  userId: string;
+}
+
+export interface CreateSubscriptionCheckoutResponse {
+  success: boolean;
+  message: string;
+  data: {
+    sessionId: string;
+    url: string;
+  };
+}
+
+export interface SubscriptionDetails {
+  _id: string;
+  userId: string;
+  stripeSubscriptionId: string;
+  stripeCustomerId: string;
+  stripePriceId: string;
+  stripeProductId: string;
+  status: string;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  cancelAtPeriodEnd: boolean;
+  canceledAt?: string;
+  trialStart?: string;
+  trialEnd?: string;
+  planType: 'artist' | 'label';
+  amount: number;
+  currency: string;
+  interval: string;
+  intervalCount: number;
+  metadata: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetUserSubscriptionResponse {
+  success: boolean;
+  message: string;
+  data: SubscriptionDetails | null;
+}
+
 // Create the API slice
 export const stripeApi = createApi({
   reducerPath: 'stripeApi',
@@ -45,15 +89,32 @@ export const stripeApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['StripeProducts'],
+  tagTypes: ['StripeProducts', 'UserSubscription'],
   endpoints: (builder) => ({
-    // Get Stripe products
-    getStripeProducts: builder.query<GetStripeProductsResponse, void>({
-      query: () => ({
+    // Get Stripe products with optional type filter
+    getStripeProducts: builder.query<GetStripeProductsResponse, { type?: string } | void>({
+      query: (params) => ({
         url: '/api/v1/payment/products',
         method: 'GET',
+        params: params || {},
       }),
       providesTags: ['StripeProducts'],
+    }),
+    // Create subscription checkout
+    createSubscriptionCheckout: builder.mutation<CreateSubscriptionCheckoutResponse, CreateSubscriptionCheckoutRequest>({
+      query: (checkoutData) => ({
+        url: '/api/v1/payment/create-subscription-checkout',
+        method: 'POST',
+        body: checkoutData,
+      }),
+    }),
+    // Get user subscription details
+    getUserSubscription: builder.query<GetUserSubscriptionResponse, string>({
+      query: (userId) => ({
+        url: `/api/v1/payment/subscription/${userId}`,
+        method: 'GET',
+      }),
+      providesTags: ['UserSubscription'],
     }),
   }),
 });
@@ -61,4 +122,6 @@ export const stripeApi = createApi({
 // Export hooks for usage in functional components
 export const {
   useGetStripeProductsQuery,
+  useCreateSubscriptionCheckoutMutation,
+  useGetUserSubscriptionQuery,
 } = stripeApi;

@@ -92,9 +92,19 @@ export default function ProjectCreation({ onClose, onProjectCreated }: ProjectCr
       onClose?.();
     },
     onError: (error: any) => {
+      let errorMessage = "Failed to create project. Please try again.";
+      
+      if (error.message?.includes("Pro subscription required")) {
+        errorMessage = "Pro subscription required to create projects. Please upgrade to Pro to access this feature.";
+      } else if (error.message?.includes("subscription")) {
+        errorMessage = "Active subscription required. Please check your subscription status.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Creation Failed",
-        description: error.message || "Failed to create project",
+        description: errorMessage,
         variant: "destructive"
       });
     }

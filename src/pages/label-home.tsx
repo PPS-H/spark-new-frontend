@@ -14,6 +14,7 @@ import {
   Target,
   ChevronLeft,
   ChevronRight,
+  Lock,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -274,13 +275,30 @@ export default function LabelHome() {
                         <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
                       </div>
                       <div className="flex space-x-2">
-                        <Button
-                          size="sm"
-                          className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
-                          onClick={() => navigate(`/invest/${project._id}`)}
-                        >
-                          Invest
-                        </Button>
+                        {(user as any)?.isProMember ? (
+                          <Button
+                            size="sm"
+                            className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+                            onClick={() => navigate(`/invest/${project._id}`)}
+                          >
+                            Invest
+                          </Button>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-1 px-2 py-1 bg-gray-800/50 border border-gray-600 rounded text-xs">
+                              <Lock className="w-3 h-3 text-gray-400" />
+                              <span className="text-gray-400">Pro Required</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              onClick={() => navigate('/settings')}
+                              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                            >
+                              <Crown className="w-3 h-3 mr-1" />
+                              Upgrade
+                            </Button>
+                          </div>
+                        )}
                         {/* <Button
                           size="sm"
                           variant="outline"
