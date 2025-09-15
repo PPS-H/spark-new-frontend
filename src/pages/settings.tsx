@@ -425,49 +425,51 @@ export default function SettingsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <div
-                className={`w-16 h-16 bg-gradient-to-br ${
-                  roleInfo.color === "purple"
-                    ? "from-purple-500 to-pink-500"
-                    : roleInfo.color === "blue"
-                    ? "from-blue-500 to-cyan-500"
-                    : roleInfo.color === "green"
-                    ? "from-green-500 to-emerald-500"
-                    : roleInfo.color === "red"
-                    ? "from-red-500 to-orange-500"
-                    : "from-gray-500 to-gray-600"
-                } rounded-full flex items-center justify-center`}
-              >
-                <roleInfo.icon className="w-8 h-8 text-white" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-white font-semibold">
-                  {user?.username || "User"}
-                </h3>
-                <p className="text-gray-400">
-                  {user?.email || "email@example.com"}
-                </p>
-                <Badge
-                  className={`${
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex items-center space-x-4 flex-1">
+                <div
+                  className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${
                     roleInfo.color === "purple"
-                      ? "bg-purple-500/20 text-purple-300"
+                      ? "from-purple-500 to-pink-500"
                       : roleInfo.color === "blue"
-                      ? "bg-blue-500/20 text-blue-300"
+                      ? "from-blue-500 to-cyan-500"
                       : roleInfo.color === "green"
-                      ? "bg-green-500/20 text-green-300"
+                      ? "from-green-500 to-emerald-500"
                       : roleInfo.color === "red"
-                      ? "bg-red-500/20 text-red-300"
-                      : "bg-gray-500/20 text-gray-300"
-                  } mt-1`}
+                      ? "from-red-500 to-orange-500"
+                      : "from-gray-500 to-gray-600"
+                  } rounded-full flex items-center justify-center flex-shrink-0`}
                 >
-                  <roleInfo.icon className="w-3 h-3 mr-1" />
-                  {roleInfo.name}
-                </Badge>
+                  <roleInfo.icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-white font-semibold text-sm sm:text-base truncate">
+                    {user?.username || "User"}
+                  </h3>
+                  <p className="text-gray-400 text-xs sm:text-sm truncate">
+                    {user?.email || "email@example.com"}
+                  </p>
+                  <Badge
+                    className={`${
+                      roleInfo.color === "purple"
+                        ? "bg-purple-500/20 text-purple-300"
+                        : roleInfo.color === "blue"
+                        ? "bg-blue-500/20 text-blue-300"
+                        : roleInfo.color === "green"
+                        ? "bg-green-500/20 text-green-300"
+                        : roleInfo.color === "red"
+                        ? "bg-red-500/20 text-red-300"
+                        : "bg-gray-500/20 text-gray-300"
+                    } mt-1 text-xs`}
+                  >
+                    <roleInfo.icon className="w-3 h-3 mr-1" />
+                    {roleInfo.name}
+                  </Badge>
+                </div>
               </div>
               <Button
                 variant="outline"
-                className="border-cyan-500/30 text-cyan-300"
+                className="border-cyan-500/30 text-cyan-300 text-xs sm:text-sm px-3 sm:px-4 py-2 w-full sm:w-auto flex-shrink-0"
                 onClick={() => setIsEditingProfile(!isEditingProfile)}
               >
                 {isEditingProfile ? "Cancel" : "Edit Profile"}

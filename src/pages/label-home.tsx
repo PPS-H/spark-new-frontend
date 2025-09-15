@@ -81,21 +81,21 @@ export default function LabelHome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-20">
-      <div className="max-w-7xl mx-auto p-4 space-y-8">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 space-y-6 sm:space-y-8">
         {/* Welcome Header */}
-        <div className="text-center space-y-4 pt-8">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <Building className="text-purple-400 text-3xl animate-neon-pulse" />
-            <Crown className="text-yellow-400 text-2xl" />
+        <div className="text-center space-y-4 pt-4 sm:pt-8">
+          <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-4">
+            <Building className="text-purple-400 text-2xl sm:text-3xl animate-neon-pulse" />
+            <Crown className="text-yellow-400 text-xl sm:text-2xl" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white px-4">
             WELCOME {user?.username?.toUpperCase() || "LABEL"}
           </h1>
-          <p className="text-xl text-gray-400">
+          <p className="text-lg sm:text-xl text-gray-400 px-4">
             Your label management headquarters
           </p>
-          <div className="flex items-center justify-center space-x-4">
-            <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
+            <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs sm:text-sm px-3 sm:px-4 py-2">
               Label Executive
             </Badge>
             <Button
@@ -103,31 +103,31 @@ export default function LabelHome() {
               size="sm"
               onClick={logout}
               disabled={isLogoutLoading}
-              className="border-gray-500 text-gray-300 hover:bg-red-500/20"
+              className="border-gray-500 text-gray-300 hover:bg-red-500/20 text-xs sm:text-sm px-3 sm:px-4"
             >
-              <LogOut className="w-4 h-4 mr-2" />
+              <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
               {isLogoutLoading ? "Signing out..." : "Sign Out"}
             </Button>
           </div>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {labelStats.map((stat, index) => (
             <Card
               key={index}
-              className="artist-metric-card group hover:scale-105 transition-all duration-300"
+              className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg group hover:scale-105 transition-all duration-300 hover:shadow-xl"
             >
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-slate-700 rounded-lg group-hover:bg-slate-600 transition-colors">
-                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+              <CardContent className="p-3 sm:p-4 lg:p-6">
+                <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                  <div className="p-2 bg-slate-700/50 rounded-lg group-hover:bg-slate-600/50 transition-colors">
+                    <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${stat.color} group-hover:scale-110 transition-transform`} />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">
+                  <div className="text-center sm:text-left">
+                    <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors">
                       {stat.value}
                     </p>
-                    <p className="text-sm text-gray-400">{stat.label}</p>
+                    <p className="text-xs sm:text-sm text-gray-400">{stat.label}</p>
                     <p className={`text-xs ${stat.color} font-medium`}>
                       {stat.change}
                     </p>
@@ -139,10 +139,10 @@ export default function LabelHome() {
         </div>
 
         {/* Latest Projects */}
-        <Card className="artist-metric-card">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center justify-between">
-              <div className="flex items-center">
+        <Card className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center text-lg sm:text-xl">
                 <Target className="w-5 h-5 mr-2 text-cyan-400" />
                 Latest Projects/Campaigns
               </div>
@@ -151,23 +151,23 @@ export default function LabelHome() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-gray-500 text-gray-300 hover:bg-gray-600"
+                    className="border-gray-500 text-gray-300 hover:bg-gray-600 text-xs sm:text-sm"
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
-                  <span className="text-sm text-gray-400">
+                  <span className="text-xs sm:text-sm text-gray-400">
                     {currentPage} / {projectsData.pagination.totalPages}
                   </span>
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-gray-500 text-gray-300 hover:bg-gray-600"
+                    className="border-gray-500 text-gray-300 hover:bg-gray-600 text-xs sm:text-sm"
                     onClick={() => setCurrentPage(prev => Math.min(projectsData.pagination.totalPages, prev + 1))}
                     disabled={currentPage === projectsData.pagination.totalPages}
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
                 </div>
               )}
@@ -195,15 +195,15 @@ export default function LabelHome() {
                 {projectsData?.data?.projects?.map((project) => (
                   <div
                     key={project._id}
-                    className="p-4 bg-slate-700/30 rounded-lg hover:bg-slate-600/40 transition-all duration-300 group"
+                    className="p-3 sm:p-4 bg-gradient-to-br from-slate-700/40 to-slate-600/30 rounded-lg hover:from-slate-600/50 hover:to-slate-500/40 transition-all duration-300 group border border-slate-600/30 hover:border-cyan-500/30 shadow-lg hover:shadow-xl"
                   >
                     {/* Project Image */}
                     {project.image && (
-                      <div className="mb-4">
+                      <div className="mb-3 sm:mb-4 overflow-hidden rounded-lg">
                         <img
                           src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${project.image}`}
                           alt={project.title}
-                          className="w-full h-48 object-cover rounded-lg"
+                          className="w-full h-40 sm:h-48 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
@@ -211,10 +211,10 @@ export default function LabelHome() {
                       </div>
                     )}
                     
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
                       <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h4 className="text-white font-semibold text-lg group-hover:text-cyan-400 transition-colors capitalize">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <h4 className="text-white font-semibold text-base sm:text-lg group-hover:text-cyan-400 transition-colors capitalize">
                             {project.title}
                           </h4>
                           <Badge 
@@ -234,43 +234,43 @@ export default function LabelHome() {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-gray-300 text-sm mb-3 line-clamp-2 capitalize">
+                        <p className="text-gray-300 text-xs sm:text-sm mb-3 line-clamp-2 capitalize">
                           {project.description}
                         </p>
-                        <div className="flex items-center space-x-4 text-sm text-gray-400">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
                           <div className="flex items-center space-x-1">
-                            <Music className="w-4 h-4" />
-                            <span>{project.songTitle} - {project.artistName}</span>
+                            <Music className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span className="truncate">{project.songTitle} - {project.artistName}</span>
                           </div>
                           <div className="flex items-center space-x-1">
-                            <Calendar className="w-4 h-4" />
+                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                             <span>{new Date(project.expectedReleaseDate).toLocaleDateString()}</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-white">${project.fundingGoal.toLocaleString()}</p>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
+                      <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                        <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white">${project.fundingGoal.toLocaleString()}</p>
                         <p className="text-xs text-gray-400">Funding Goal</p>
                       </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-cyan-400">{project.expectedROIPercentage}%</p>
+                      <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                        <p className="text-lg sm:text-xl lg:text-2xl font-bold text-cyan-400">{project.expectedROIPercentage}%</p>
                         <p className="text-xs text-gray-400">Expected ROI</p>
                       </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-purple-400">{project.duration} days</p>
+                      <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                        <p className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-400">{project.duration} days</p>
                         <p className="text-xs text-gray-400">Duration</p>
                       </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-orange-400 capitalize">{project.releaseType}</p>
+                      <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
+                        <p className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-400 capitalize">{project.releaseType}</p>
                         <p className="text-xs text-gray-400">Release Type</p>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-400">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-slate-600/30">
+                      <div className="text-xs sm:text-sm text-gray-400 space-y-1">
                         <p>Deadline: {new Date(project.fundingDeadline).toLocaleDateString()}</p>
                         <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
                       </div>
@@ -356,54 +356,54 @@ export default function LabelHome() {
         </Card> */}
 
         {/* Action Buttons */}
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card
-            className="artist-metric-card group hover:scale-105 transition-all duration-300 cursor-pointer"
+            className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg group hover:scale-105 transition-all duration-300 cursor-pointer hover:shadow-xl hover:border-purple-500/30"
             onClick={() => navigate("/search")}
           >
-            <CardContent className="p-6 text-center">
-              <Search className="w-12 h-12 text-purple-400 mx-auto mb-4 group-hover:animate-pulse" />
-              <h3 className="text-xl font-bold text-white mb-2">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <Search className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400 mx-auto mb-3 sm:mb-4 group-hover:animate-pulse group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
                 Discover Talent
               </h3>
-              <p className="text-gray-300">Find and scout new artists</p>
+              <p className="text-gray-300 text-sm sm:text-base">Find and scout new artists</p>
             </CardContent>
           </Card>
 
           {/* <Card
-            className="artist-metric-card group hover:scale-105 transition-all duration-300 cursor-pointer"
+            className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg group hover:scale-105 transition-all duration-300 cursor-pointer hover:shadow-xl hover:border-green-500/30"
             onClick={() => setShowProfessionalInbox(true)}
           >
-            <CardContent className="p-6 text-center">
-              <MessageCircle className="w-12 h-12 text-green-400 mx-auto mb-4 group-hover:animate-pulse" />
-              <h3 className="text-xl font-bold text-white mb-2">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <MessageCircle className="w-10 h-10 sm:w-12 sm:h-12 text-green-400 mx-auto mb-3 sm:mb-4 group-hover:animate-pulse group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-green-300 transition-colors">
                 Artist Messages
               </h3>
-              <p className="text-gray-300">Professional communications</p>
+              <p className="text-gray-300 text-sm sm:text-base">Professional communications</p>
             </CardContent>
           </Card> */}
 
           <Card
-            className="artist-metric-card group hover:scale-105 transition-all duration-300 cursor-pointer"
+            className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg group hover:scale-105 transition-all duration-300 cursor-pointer hover:shadow-xl hover:border-cyan-500/30"
             onClick={() => navigate("/portfolio")}
           >
-            <CardContent className="p-6 text-center">
-              <Users className="w-12 h-12 text-cyan-400 mx-auto mb-4 group-hover:animate-pulse" />
-              <h3 className="text-xl font-bold text-white mb-2">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <Users className="w-10 h-10 sm:w-12 sm:h-12 text-cyan-400 mx-auto mb-3 sm:mb-4 group-hover:animate-pulse group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
                 Manage Roster
               </h3>
-              <p className="text-gray-300">Oversee your signed artists</p>
+              <p className="text-gray-300 text-sm sm:text-base">Oversee your signed artists</p>
             </CardContent>
           </Card>
 
           <Card
-            className="artist-metric-card group hover:scale-105 transition-all duration-300 cursor-pointer"
+            className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg group hover:scale-105 transition-all duration-300 cursor-pointer hover:shadow-xl hover:border-green-500/30 sm:col-span-2 lg:col-span-1"
             onClick={() => navigate("/analytics")}
           >
-            <CardContent className="p-6 text-center">
-              <BarChart3 className="w-12 h-12 text-green-400 mx-auto mb-4 group-hover:animate-pulse" />
-              <h3 className="text-xl font-bold text-white mb-2">Analytics</h3>
-              <p className="text-gray-300">Track performance metrics</p>
+            <CardContent className="p-4 sm:p-6 text-center">
+              <BarChart3 className="w-10 h-10 sm:w-12 sm:h-12 text-green-400 mx-auto mb-3 sm:mb-4 group-hover:animate-pulse group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-green-300 transition-colors">Analytics</h3>
+              <p className="text-gray-300 text-sm sm:text-base">Track performance metrics</p>
             </CardContent>
           </Card>
         </div>

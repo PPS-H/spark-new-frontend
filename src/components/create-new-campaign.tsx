@@ -4,6 +4,7 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { X, Upload, Music, Youtube, Headphones } from 'lucide-react';
 import { useCreateProjectMutation } from '@/store/features/api/projectApi';
+import { useToast } from '@/hooks/use-toast';
 
 interface Campaign {
     id: number;
@@ -21,6 +22,7 @@ interface CreateNewCampaignProps {
 
 const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampaignCreated }) => {
     const [createProject, { isLoading }] = useCreateProjectMutation();
+    const { toast } = useToast();
 
     // Basic campaign fields
     const [campaignTitle, setCampaignTitle] = useState("");
@@ -59,24 +61,126 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
 
     const handleCreateCampaign = async () => {
         // Basic validation
-        if (!campaignTitle || !fundingGoal || !campaignDescription || !campaignDuration ||
-            !songTitle || !artistName || !isrcCode || !upcCode || !releaseType ||
-            !expectedReleaseDate || !fundingDeadline) {
-            alert("Please fill in all required fields.");
+        if (!campaignTitle.trim()) {
+            toast({
+                title: "Validation Error",
+                description: "Campaign title is required.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!fundingGoal.trim()) {
+            toast({
+                title: "Validation Error",
+                description: "Funding goal is required.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (isNaN(parseInt(fundingGoal)) || parseInt(fundingGoal) <= 0) {
+            toast({
+                title: "Validation Error",
+                description: "Please enter a valid funding goal amount.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!campaignDescription.trim()) {
+            toast({
+                title: "Validation Error",
+                description: "Campaign description is required.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!campaignDuration.trim()) {
+            toast({
+                title: "Validation Error",
+                description: "Campaign duration is required.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!songTitle.trim()) {
+            toast({
+                title: "Validation Error",
+                description: "Song title is required.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!artistName.trim()) {
+            toast({
+                title: "Validation Error",
+                description: "Artist name is required.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!isrcCode.trim()) {
+            toast({
+                title: "Validation Error",
+                description: "ISRC code is required.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!upcCode.trim()) {
+            toast({
+                title: "Validation Error",
+                description: "UPC code is required.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!releaseType.trim()) {
+            toast({
+                title: "Validation Error",
+                description: "Release type is required.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!expectedReleaseDate.trim()) {
+            toast({
+                title: "Validation Error",
+                description: "Expected release date is required.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!fundingDeadline.trim()) {
+            toast({
+                title: "Validation Error",
+                description: "Funding deadline is required.",
+                variant: "destructive",
+            });
             return;
         }
 
         // Platform-specific validation
-        if (selectedPlatform === "spotify" && (!spotifyTrackLink || !spotifyTrackId)) {
-            alert("Please fill in Spotify track link and ID.");
+        if (selectedPlatform === "spotify" && (!spotifyTrackLink.trim() || !spotifyTrackId.trim())) {
+            toast({
+                title: "Validation Error",
+                description: "Please fill in both Spotify track link and track ID.",
+                variant: "destructive",
+            });
             return;
         }
-        if (selectedPlatform === "youtube" && (!youtubeMusicLink || !youtubeVideoId)) {
-            alert("Please fill in YouTube music link and video ID.");
+        if (selectedPlatform === "youtube" && (!youtubeMusicLink.trim() || !youtubeVideoId.trim())) {
+            toast({
+                title: "Validation Error",
+                description: "Please fill in both YouTube music link and video ID.",
+                variant: "destructive",
+            });
             return;
         }
-        if (selectedPlatform === "deezer" && (!deezerTrackLink || !deezerTrackId)) {
-            alert("Please fill in Deezer track link and ID.");
+        if (selectedPlatform === "deezer" && (!deezerTrackLink.trim() || !deezerTrackId.trim())) {
+            toast({
+                title: "Validation Error",
+                description: "Please fill in both Deezer track link and track ID.",
+                variant: "destructive",
+            });
             return;
         }
 
@@ -136,11 +240,19 @@ const CreateNewCampaign: React.FC<CreateNewCampaignProps> = ({ onClose, onCampai
             // Close modal
             onClose();
 
-            alert("Project created successfully!");
+            toast({
+                title: "Success",
+                description: "Project created successfully!",
+                variant: "default",
+            });
         } catch (error: any) {
             console.error("❌ Error creating project:", error);
             const errorMessage = error?.data?.message || error?.message || "Error creating project.";
-            alert(errorMessage);
+            toast({
+                title: "Error",
+                description: errorMessage,
+                variant: "destructive",
+            });
         }
     };
 
