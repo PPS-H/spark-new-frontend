@@ -221,7 +221,8 @@ export default function ArtistHome() {
                 {projects.map((project) => (
                   <div
                     key={project.id}
-                    className="p-3 sm:p-4 bg-gradient-to-br from-slate-700/40 to-slate-600/30 rounded-lg hover:from-slate-600/50 hover:to-slate-500/40 transition-all duration-300 group border border-slate-600/30 hover:border-cyan-500/30 shadow-lg hover:shadow-xl"
+                    onClick={() => navigate(`/project/${project.id}`)}
+                    className="p-3 sm:p-4 bg-gradient-to-br from-slate-700/40 to-slate-600/30 rounded-lg hover:from-slate-600/50 hover:to-slate-500/40 transition-all duration-300 group border border-slate-600/30 hover:border-cyan-500/30 shadow-lg hover:shadow-xl cursor-pointer"
                   >
                     {/* Project Image */}
                     {project.image && (

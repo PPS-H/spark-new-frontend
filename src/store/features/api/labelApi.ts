@@ -57,6 +57,7 @@ export interface ProjectDetails {
   songTitle: string;
   artistName: string;
   image?: string; // Add image field
+  fundingDeadline?: string; // Add funding deadline field
   artist: {
     _id: string;
     username: string;

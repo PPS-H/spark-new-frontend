@@ -16,7 +16,12 @@ import AnalyticsPage from "@/pages/analytics";
 import SettingsPage from "@/pages/settings";
 import CreatePage from "@/pages/create";
 import PortfolioPage from "@/pages/portfolio";
+import AdminLoginPage from "@/pages/admin-login";
 import AdminDashboardPage from "@/pages/admin-dashboard";
+import AdminProjectDetailsPage from "@/pages/admin-project-details";
+import AdminDraftProjectsPage from "@/pages/admin-draft-projects";
+import AdminProtectedRoute from "@/components/AdminProtectedRoute";
+import AdminLayout from "@/components/AdminLayout";
 import ArtistRegistrationPage from "@/pages/artist-registration-page";
 import InvestorRegistrationPage from "@/pages/investor-registration-page";
 import LabelRegistrationPage from "@/pages/label-registration-page";
@@ -25,6 +30,7 @@ import { AnalyticsDashboard } from "@/pages/analytics-dashboard";
 import ArtistProfile from "@/pages/artist-profile";
 import InvestArtistPage from "@/pages/invest-artist";
 import SongDetail from "@/pages/song-detail";
+import ProjectDetails from "@/pages/project-details";
 import DownloadProject from "@/pages/download-project";
 import StripeConnectSuccess from "@/pages/stripe-connect-success";
 import StripeConnectFailed from "@/pages/stripe-connect-failed";
@@ -100,11 +106,36 @@ function AppRoutes() {
         <Route path="/create" element={<CreatePage />} />
         <Route path="/artist/:userId" element={<CreatePage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
-        <Route path="/admin" element={<AdminDashboardPage />} />
+        
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin/dashboard" element={
+          <AdminProtectedRoute>
+            <AdminLayout>
+              <AdminDashboardPage />
+            </AdminLayout>
+          </AdminProtectedRoute>
+        } />
+        <Route path="/admin/draft-projects" element={
+          <AdminProtectedRoute>
+            <AdminLayout>
+              <AdminDraftProjectsPage />
+            </AdminLayout>
+          </AdminProtectedRoute>
+        } />
+        <Route path="/admin/project/:projectId" element={
+          <AdminProtectedRoute>
+            <AdminLayout>
+              <AdminProjectDetailsPage />
+            </AdminLayout>
+          </AdminProtectedRoute>
+        } />
+        
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/roster" element={<RosterManagement />} />
         <Route path="/analytics-dashboard" element={<AnalyticsDashboard />} />
         <Route path="/artist/:artistId" element={<ArtistProfile />} />
+        <Route path="/project/:projectId" element={<ProjectDetails />} />
         <Route path="/invest/:projectId" element={<InvestArtistPage />} />
         <Route path="/song/:songId" element={<SongDetail />} />
         <Route path="/checkout/:artistId/:amount" element={<CheckoutPage />} />

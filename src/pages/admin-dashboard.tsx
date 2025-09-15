@@ -1,91 +1,161 @@
-import AutomatedPaymentDashboard from "@/components/automated-payment-dashboard";
-import { useAuth } from "@/hooks/useAuthRTK";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, Shield, AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGetDraftProjectsQuery } from "@/store/features/api/adminApi";
+import { Shield, FileText, Users, DollarSign, TrendingUp, BarChart3 } from "lucide-react";
 
-export default function AdminDashboardPage() {
-  const { user, isAuthenticated } = useAuth();
+export default function AdminDashboard() {
+  const { data: draftProjects, isLoading } = useGetDraftProjectsQuery({
+    page: 1,
+    limit: 1,
+  });
 
-  // Redirect to login if not authenticated
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <Card className="max-w-md w-full mx-4 bg-slate-800 border-slate-700">
-          <CardHeader className="text-center">
-            <Lock className="w-12 h-12 text-red-400 mx-auto mb-4" />
-            <CardTitle className="text-white">Authentication Required</CardTitle>
+  return (
+    <div className="p-6">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
+        <p className="text-slate-400">Overview of platform activity and statistics</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-300">Draft Projects</CardTitle>
+            <FileText className="h-4 w-4 text-slate-400" />
           </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-gray-400 mb-4">
-              Please log in to access admin dashboard
+          <CardContent>
+            <div className="text-2xl font-bold text-white">
+              {isLoading ? '-' : (draftProjects?.pagination?.totalPages || 0)}
+            </div>
+            <p className="text-xs text-slate-400">
+              Awaiting approval
             </p>
-            <Button onClick={() => window.location.href = '/'} className="w-full">
-              Go to Login
-            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-300">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-slate-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">-</div>
+            <p className="text-xs text-slate-400">
+              Platform users
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-300">Total Revenue</CardTitle>
+            <DollarSign className="h-4 w-4 text-slate-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">-</div>
+            <p className="text-xs text-slate-400">
+              Platform revenue
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-300">Growth Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-slate-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">-</div>
+            <p className="text-xs text-slate-400">
+              Monthly growth
+            </p>
           </CardContent>
         </Card>
       </div>
-    );
-  }
 
-  // Restrict access to admin only
-  if (user?.role !== 'admin') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-20">
-        <div className="max-w-2xl mx-auto p-4 pt-16">
-          <Card className="bg-slate-800 border-red-700/50">
-            <CardHeader className="text-center">
-              <AlertTriangle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-              <CardTitle className="text-white text-2xl">Access Restricted</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center space-y-6">
-              <p className="text-gray-400 text-lg">
-                This area is restricted to system administrators only
-              </p>
-              
-              <div className="bg-slate-900 rounded-lg p-6 space-y-4">
-                <div className="flex items-center space-x-3">
-                  <Shield className="w-5 h-5 text-red-400" />
-                  <span className="text-white">Payment system management</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Shield className="w-5 h-5 text-red-400" />
-                  <span className="text-white">User account administration</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Shield className="w-5 h-5 text-red-400" />
-                  <span className="text-white">System monitoring and logs</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Shield className="w-5 h-5 text-red-400" />
-                  <span className="text-white">Compliance and security settings</span>
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <BarChart3 className="w-5 h-5 mr-2" />
+              Recent Activity
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              Latest platform activities
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3 p-3 bg-slate-700/30 rounded-lg">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-slate-300 text-sm">New project submitted</p>
+                  <p className="text-slate-500 text-xs">2 minutes ago</p>
                 </div>
               </div>
-
-              <div className="text-center">
-                <p className="text-sm text-gray-500 mb-4">
-                  Your current role: <span className="text-white capitalize">{user?.role}</span>
-                </p>
-                <p className="text-sm text-red-400">
-                  Contact system administrator for access requests
-                </p>
+              <div className="flex items-center space-x-3 p-3 bg-slate-700/30 rounded-lg">
+                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-slate-300 text-sm">Project approved</p>
+                  <p className="text-slate-500 text-xs">15 minutes ago</p>
+                </div>
               </div>
+              <div className="flex items-center space-x-3 p-3 bg-slate-700/30 rounded-lg">
+                <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-slate-300 text-sm">New user registered</p>
+                  <p className="text-slate-500 text-xs">1 hour ago</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-              <Button 
-                variant="outline" 
-                onClick={() => window.location.href = '/'}
-                className="w-full border-gray-600 text-gray-300 hover:bg-slate-700"
-              >
-                Back to Home
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Shield className="w-5 h-5 mr-2" />
+              System Status
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              Platform health and performance
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">API Status</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span className="text-green-400 text-sm">Operational</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">Database</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span className="text-green-400 text-sm">Connected</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">Payment Gateway</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span className="text-green-400 text-sm">Active</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">File Storage</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span className="text-green-400 text-sm">Available</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    );
-  }
-
-  // Show admin dashboard only for admin users
-  return <AutomatedPaymentDashboard />;
+    </div>
+  );
 }

@@ -171,11 +171,6 @@ export default function InvestArtistPage() {
     );
   }
 
-  const { project, artistPerformance, fundingProgress, investmentLimits } = projectData.data;
-  const fundingProgressPercentage = fundingProgress.funded;
-  const minInvestment = investmentLimits.min;
-  const maxInvestment = Math.min(investmentLimits.max, investmentLimits.remaining);
-
   // Check if user is authenticated
   if (!isAuthenticated || !user) {
     return (
@@ -223,6 +218,54 @@ export default function InvestArtistPage() {
     );
   }
 
+  // Check if funding deadline has been reached for labels and fans
+  const { project, artistPerformance, fundingProgress, investmentLimits } = projectData.data;
+  const isDeadlineReached = (project as any).fundingDeadline && new Date() > new Date((project as any).fundingDeadline);
+  
+  if ((user.role === 'label' || user.role === 'fan') && isDeadlineReached) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-red-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Investment Deadline Reached</h2>
+          <p className="text-gray-400 mb-4">
+            The funding deadline for this project has passed. You can no longer invest in this project.
+          </p>
+          <div className="bg-slate-800/50 rounded-lg p-4 mb-6">
+            <p className="text-sm text-gray-300">
+              <strong>Project:</strong> {project.title}
+            </p>
+            <p className="text-sm text-gray-300">
+              <strong>Artist:</strong> {project.artistName}
+            </p>
+            <p className="text-sm text-gray-300">
+              <strong>Deadline:</strong> {(project as any).fundingDeadline ? new Date((project as any).fundingDeadline).toLocaleDateString() : 'N/A'}
+            </p>
+          </div>
+          <div className="space-y-3">
+            <Button 
+              onClick={() => navigate("/")} 
+              variant="outline"
+              className="w-full"
+            >
+              Browse Other Projects
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate derived values
+  const fundingProgressPercentage = fundingProgress.funded;
+  const minInvestment = investmentLimits.min;
+  const maxInvestment = fundingProgress.goal; // Set max investment equal to funding goal
+  
+  // Check if funding goal has been reached
+  const isFundingGoalReached = fundingProgress.raised >= fundingProgress.goal;
+  
   // Debug logging for project image
   console.log('🎯 InvestArtistPage project:', { 
     title: project.title, 
@@ -511,27 +554,37 @@ export default function InvestArtistPage() {
                       </div>
                     </div>
 
-                    <Button
-                      onClick={handleProceedToPayment}
-                      className={`w-full ${
-                        isAlreadyInvested 
-                          ? "bg-gray-500 cursor-not-allowed" 
-                          : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                      }`}
-                      disabled={isAlreadyInvested || investmentAmount < minInvestment || investmentAmount > maxInvestment || investmentAmount === 0 || isCheckoutLoading}
-                    >
-                      {isCheckoutLoading 
-                        ? "Creating Checkout..." 
-                        : isAlreadyInvested 
-                          ? "Already Invested" 
-                          : "Continue to Payment"
-                      }
-                    </Button>
+                    {!isFundingGoalReached && (
+                      <Button
+                        onClick={handleProceedToPayment}
+                        className={`w-full ${
+                          isAlreadyInvested 
+                            ? "bg-gray-500 cursor-not-allowed" 
+                            : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                        }`}
+                        disabled={isAlreadyInvested || investmentAmount < minInvestment || investmentAmount > maxInvestment || investmentAmount === 0 || isCheckoutLoading}
+                      >
+                        {isCheckoutLoading 
+                          ? "Creating Checkout..." 
+                          : isAlreadyInvested 
+                            ? "Already Invested" 
+                            : "Continue to Payment"
+                        }
+                      </Button>
+                    )}
 
                     {isAlreadyInvested && (
                       <div className="mt-3 mb-20 p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
                         <p className="text-blue-300 text-sm text-center">
                           You have already invested in this project. Thank you for your support!
+                        </p>
+                      </div>
+                    )}
+
+                    {isFundingGoalReached && !isAlreadyInvested && (
+                      <div className="mt-3 mb-20 p-3 bg-green-900/20 border border-green-500/30 rounded-lg">
+                        <p className="text-green-300 text-sm text-center">
+                          🎉 This project has successfully reached its funding goal! You can no longer invest in this project.
                         </p>
                       </div>
                     )}
