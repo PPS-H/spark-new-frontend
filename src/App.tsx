@@ -31,6 +31,7 @@ import ArtistProfile from "@/pages/artist-profile";
 import InvestArtistPage from "@/pages/invest-artist";
 import SongDetail from "@/pages/song-detail";
 import ProjectDetails from "@/pages/project-details";
+import CreateProjectPage from "@/pages/create-project";
 import DownloadProject from "@/pages/download-project";
 import StripeConnectSuccess from "@/pages/stripe-connect-success";
 import StripeConnectFailed from "@/pages/stripe-connect-failed";
@@ -136,6 +137,7 @@ function AppRoutes() {
         <Route path="/analytics-dashboard" element={<AnalyticsDashboard />} />
         <Route path="/artist/:artistId" element={<ArtistProfile />} />
         <Route path="/project/:projectId" element={<ProjectDetails />} />
+        <Route path="/create-project" element={<CreateProjectPage />} />
         <Route path="/invest/:projectId" element={<InvestArtistPage />} />
         <Route path="/song/:songId" element={<SongDetail />} />
         <Route path="/checkout/:artistId/:amount" element={<CheckoutPage />} />

@@ -7,27 +7,21 @@ import {
   ArrowLeft, 
   Music, 
   Calendar, 
-  DollarSign, 
   Users, 
-  TrendingUp,
-  Clock,
   Target,
-  Globe,
-  FileText,
-  CheckCircle,
   XCircle
 } from "lucide-react";
 
 export default function ProjectDetails() {
-  const { projectId } = useParams<any>();
+  const { projectId } = useParams<{ projectId: string }>();
   console.log("projectId::::",projectId)
   const navigate = useNavigate();
 
-  const { data: projectData, isLoading, error } = useGetProjectDetailsQuery({projectId}!);
+  const { data: projectData, isLoading, error } = useGetProjectDetailsQuery({ projectId: projectId! });
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center pb-32">
         <div className="text-center">
           <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-slate-400">Loading project details...</p>
@@ -38,7 +32,7 @@ export default function ProjectDetails() {
 
   if (error || !projectData?.data) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center pb-32">
         <div className="text-center">
           <XCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-white mb-2">Project Not Found</h2>
@@ -60,7 +54,7 @@ export default function ProjectDetails() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pb-32">
         {/* Header */}
         <div className="mb-8">
           <Button
@@ -209,7 +203,7 @@ export default function ProjectDetails() {
             </Card>
 
             {/* Investment Limits */}
-            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+            {/* <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
               <CardHeader>
                 <CardTitle className="text-white">Investment Limits</CardTitle>
               </CardHeader>
@@ -227,7 +221,7 @@ export default function ProjectDetails() {
                   <span className="text-white font-medium">${investmentLimits.remaining.toLocaleString()}</span>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* ROI Explanation */}
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">

@@ -15,7 +15,6 @@ import { useFollowUnfollowArtistMutation } from "@/store/features/api/searchApi"
 import { useAuth } from "@/hooks/useAuthRTK";
 import { useToast } from "@/hooks/use-toast";
 import type { Artist } from "@/types/artist";
-import CreateNewCampaign from "./create-new-campaign";
 
 interface ArtistProfilePageProps {
   artist: Artist;
@@ -42,7 +41,6 @@ export default function ArtistProfilePage({
   const [isFollowing, setIsFollowing] = useState(artist.isFollowed || false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showAddContent, setShowAddContent] = useState(false);
-  const [showCreateCampaign, setShowCreateCampaign] = useState(false);
   const [showEditProject, setShowEditProject] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [showFundingSettings, setShowFundingSettings] = useState(false);
@@ -194,27 +192,16 @@ export default function ArtistProfilePage({
     console.log('📊 Campaigns loaded:', campaigns);
   }, [campaigns]);
 
-  // Mock refetch functions (replacing React Query)
-  const refetch = () => {
-    console.log('🔄 Mock refetch campaigns');
-  };
 
   useEffect(() => {
-    const handleCampaignCreated = () => {
-      console.log('🔄 Nouvelle campagne détectée - rafraîchissement instantané');
-      refetch();
-    };
-
     const handleContentUploaded = () => {
       console.log('🔄 Nouveau contenu détecté - rafraîchissement instantané');
       refetchContent();
     };
 
-    window.addEventListener('campaignCreated', handleCampaignCreated);
     window.addEventListener('contentUploaded', handleContentUploaded);
 
     return () => {
-      window.removeEventListener('campaignCreated', handleCampaignCreated);
       window.removeEventListener('contentUploaded', handleContentUploaded);
     };
   }, []);
@@ -334,12 +321,6 @@ export default function ArtistProfilePage({
     setProfileData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleCampaignCreated = (campaign: any) => {
-    console.log('Campaign created from profile page:', campaign);
-    // Here you could add the campaign to the campaigns list or trigger a refetch
-    // For now, just show success message
-    alert("Campaign created successfully!");
-  };
 
 
 
@@ -824,7 +805,7 @@ export default function ArtistProfilePage({
                     {isOwner && (
                       (user as any)?.isProMember ? (
                         <Button
-                          onClick={() => setShowCreateCampaign(true)}
+                          onClick={() => navigate('/create-project')}
                           className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
                         >
                           <Plus className="w-4 h-4 mr-2" />
@@ -1191,13 +1172,6 @@ export default function ArtistProfilePage({
           </div>
         )}
 
-        {/* Create Campaign Modal */}
-        {showCreateCampaign && (
-          <CreateNewCampaign
-            onClose={() => setShowCreateCampaign(false)}
-            onCampaignCreated={handleCampaignCreated}
-          />
-        )}
 
         {/* Content Upload Modal */}
         <ContentUploadModal

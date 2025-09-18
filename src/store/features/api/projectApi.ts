@@ -21,6 +21,13 @@ export interface CreateProjectRequest {
   fundingDeadline: string;
   distrokidFile?: File | null;
   projectImage?: File | null;
+  invoiceFile?: File | null;
+  milestones: Array<{
+    name: string;
+    amount: number;
+    description: string;
+    order: number;
+  }>;
 }
 
 export interface PlatformData {
@@ -222,6 +229,14 @@ export const projectApi = createApi({
         if (projectData.projectImage) {
           formData.append('image', projectData.projectImage);
         }
+        
+        // Add invoice file
+        if (projectData.invoiceFile) {
+          formData.append('invoice', projectData.invoiceFile);
+        }
+        
+        // Add milestones as JSON string
+        formData.append('milestones', JSON.stringify(projectData.milestones));
         
         return {
           url: '/api/v1/project/',

@@ -17,7 +17,9 @@ import {
   Clock,
   FileText,
   Download,
-  AlertCircle
+  AlertCircle,
+  Image,
+  Target
 } from "lucide-react";
 
 export default function AdminProjectDetails() {
@@ -101,7 +103,7 @@ export default function AdminProjectDetails() {
   const { project, fundingStats } = projectData.data;
 
   return (
-    <div className="p-6">
+    <div className="p-6 pb-32">
       {/* Header */}
       <div className="mb-8">
         <Button
@@ -324,6 +326,184 @@ export default function AdminProjectDetails() {
               </CardContent>
             </Card>
 
+            {/* Invoice File Information */}
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <FileText className="w-5 h-5 mr-2" />
+                  Invoice File
+                </CardTitle>
+                <CardDescription className="text-slate-400">
+                  Financial documentation for the project
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {project.invoiceFile ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <CheckCircle className="w-5 h-5 text-green-400" />
+                      <div className="flex-1">
+                        <p className="text-green-300 font-medium">Invoice File Available</p>
+                        <p className="text-green-400 text-sm">Financial documentation has been uploaded successfully</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg border border-slate-600">
+                      <div className="flex items-center space-x-3">
+                        <FileText className="w-4 h-4 text-slate-400" />
+                        <div>
+                          <p className="text-slate-300 text-sm font-medium">File Name</p>
+                          <p className="text-slate-400 text-xs">
+                            {project.invoiceFile.split('/').pop() || 'invoice-file'}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          const fileUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${project.invoiceFile}`;
+                          window.open(fileUrl, '_blank');
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                      >
+                        <Download className="w-4 h-4 mr-1" />
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                      <AlertCircle className="w-5 h-5 text-red-400" />
+                      <div className="flex-1">
+                        <p className="text-red-300 font-medium">Invoice File Not Available</p>
+                        <p className="text-red-400 text-sm">No financial documentation has been uploaded for this project</p>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 bg-slate-700/20 rounded-lg border border-slate-600">
+                      <p className="text-slate-400 text-sm">
+                        This project does not have an invoice file. The artist may need to upload 
+                        the required financial documentation before the project can be approved.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Project Image */}
+            {project.image && (
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <Image className="w-5 h-5 mr-2" />
+                    Project Image
+                  </CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Visual representation of the project
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <CheckCircle className="w-5 h-5 text-green-400" />
+                      <div className="flex-1">
+                        <p className="text-green-300 font-medium">Project Image Available</p>
+                        <p className="text-green-400 text-sm">Visual asset has been uploaded successfully</p>
+                      </div>
+                    </div>
+                    
+                    <div className="relative">
+                      <img
+                        src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${project.image}`}
+                        alt="Project Image"
+                        className="w-full h-64 object-cover rounded-lg border border-slate-600"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                      <div className="absolute top-2 right-2">
+                        <Button
+                          onClick={() => {
+                            const imageUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${project.image}`;
+                            window.open(imageUrl, '_blank');
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="bg-black/50 border-white/20 text-white hover:bg-white/10"
+                        >
+                          <Download className="w-4 h-4 mr-1" />
+                          View Full Size
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Project Milestones */}
+            {project.milestones && project.milestones.length > 0 && (
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                  <Target className="w-5 h-5 mr-2" />
+                  Project Milestones
+                </CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Breakdown of funding allocation
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {project.milestones.map((milestone: any, index: number) => (
+                    <div key={index} className="p-4 bg-slate-700/30 rounded-lg border border-slate-600">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-white font-medium">{milestone.name}</h4>
+                        <Badge className="bg-purple-500/20 text-purple-300">
+                          ${milestone.amount?.toLocaleString()}
+                        </Badge>
+                      </div>
+                      <p className="text-slate-400 text-sm">{milestone.description}</p>
+                      <div className="flex items-center justify-between mt-2 text-xs text-slate-500">
+                        <span>Order: {milestone.order}</span>
+                        <span>{((milestone.amount / project.fundingGoal) * 100).toFixed(1)}% of total</span>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <div className="mt-4 p-3 bg-slate-700/50 rounded-lg border border-slate-600">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-300 font-medium">Total Milestone Amount:</span>
+                      <span className="text-white font-bold">
+                        ${project.milestones.reduce((sum: number, m: any) => sum + (m.amount || 0), 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-slate-300 font-medium">Funding Goal:</span>
+                      <span className="text-white font-bold">${project.fundingGoal?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-600">
+                      <span className="text-slate-300 font-medium">Status:</span>
+                      <Badge 
+                        className={
+                          project.milestones.reduce((sum: number, m: any) => sum + (m.amount || 0), 0) === project.fundingGoal
+                            ? 'bg-green-500/20 text-green-300'
+                            : 'bg-red-500/20 text-red-300'
+                        }
+                      >
+                        {project.milestones.reduce((sum: number, m: any) => sum + (m.amount || 0), 0) === project.fundingGoal
+                          ? 'Balanced'
+                          : 'Unbalanced'
+                        }
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Project Metadata */}
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
               <CardHeader>
@@ -416,6 +596,67 @@ export default function AdminProjectDetails() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Project Files Summary */}
+            <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-white">Project Files</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Uploaded documents and assets
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300 text-sm">DistroKid File</span>
+                  <Badge 
+                    className={project.distrokidFile ? 
+                      'bg-green-500/20 text-green-300' : 
+                      'bg-red-500/20 text-red-300'
+                    }
+                  >
+                    {project.distrokidFile ? 'Available' : 'Missing'}
+                  </Badge>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300 text-sm">Invoice File</span>
+                  <Badge 
+                    className={project.invoiceFile ? 
+                      'bg-green-500/20 text-green-300' : 
+                      'bg-red-500/20 text-red-300'
+                    }
+                  >
+                    {project.invoiceFile ? 'Available' : 'Missing'}
+                  </Badge>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300 text-sm">Project Image</span>
+                  <Badge 
+                    className={project.image ? 
+                      'bg-green-500/20 text-green-300' : 
+                      'bg-yellow-500/20 text-yellow-300'
+                    }
+                  >
+                    {project.image ? 'Available' : 'Optional'}
+                  </Badge>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300 text-sm">Milestones</span>
+                  <Badge 
+                    className={project.milestones && project.milestones.length > 0 ? 
+                      'bg-green-500/20 text-green-300' : 
+                      'bg-red-500/20 text-red-300'
+                    }
+                  >
+                    {project.milestones && project.milestones.length > 0 ? 
+                      `${project.milestones.length} defined` : 'Missing'
+                    }
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Funding Stats */}
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
               <CardHeader>
