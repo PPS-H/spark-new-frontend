@@ -22,6 +22,9 @@ export default function RoleBasedNavigation() {
   // };
   const { t } = useLanguage();
 
+  // Hide navigation on admin pages
+  const isAdminPage = location.pathname.startsWith('/admin');
+
   const getNavigationItems = () => {
     if (!user) return [];
 
@@ -57,7 +60,7 @@ export default function RoleBasedNavigation() {
 
   const navItems = getNavigationItems();
 
-  if (!user) return null;
+  if (!user || isAdminPage) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800">

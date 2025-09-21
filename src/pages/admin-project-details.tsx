@@ -103,7 +103,7 @@ export default function AdminProjectDetails() {
   const { project, fundingStats } = projectData.data;
 
   return (
-    <div className="p-6 pb-32">
+    <div className="p-6 relative">
       {/* Header */}
       <div className="mb-8">
         <Button
@@ -119,9 +119,11 @@ export default function AdminProjectDetails() {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="flex gap-8">
+        {/* Main Content Area */}
+        <div className="flex-1 max-w-4xl">
           {/* Project Information */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6">
             {/* Basic Info */}
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
               <CardHeader>
@@ -594,8 +596,11 @@ export default function AdminProjectDetails() {
             </Card>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
+        </div>
+
+        {/* Fixed Sidebar */}
+        <div className="w-80 flex-shrink-0">
+          <div className="sticky top-6 space-y-6">
             {/* Project Files Summary */}
             <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
               <CardHeader>
@@ -743,6 +748,7 @@ export default function AdminProjectDetails() {
               </Card>
             )}
           </div>
+        </div>
       </div>
     </div>
   );

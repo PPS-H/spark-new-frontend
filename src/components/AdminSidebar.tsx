@@ -7,7 +7,8 @@ import {
   LogOut, 
   Menu,
   X,
-  Home
+  Home,
+  Unlock
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -30,6 +31,12 @@ export default function AdminSidebar({ onLogout }: AdminSidebarProps) {
       href: "/admin/draft-projects",
       icon: FileText,
       description: "Projects awaiting approval"
+    },
+    {
+      title: "Fund Unlock Requests",
+      href: "/admin/fund-unlock-requests",
+      icon: Unlock,
+      description: "Artist fund unlock requests"
     }
   ];
 
@@ -40,7 +47,7 @@ export default function AdminSidebar({ onLogout }: AdminSidebarProps) {
   return (
     <div className={`bg-slate-800/50 backdrop-blur-sm border-r border-slate-700 transition-all duration-300 ${
       isCollapsed ? 'w-16' : 'w-64'
-    }`}>
+    } max-h-screen`}>
       {/* Header */}
       <div className="p-4 border-b border-slate-700">
         <div className="flex items-center justify-between">

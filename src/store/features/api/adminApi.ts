@@ -70,12 +70,63 @@ export interface AdminGetProjectDetailsResponse {
   };
 }
 
+export interface AdminGetFundUnlockRequestsRequest {
+  page?: number;
+  limit?: number;
+  status?: 'pending' | 'approved' | 'rejected';
+}
+
+export interface AdminGetFundUnlockRequestsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    requests: any[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalRequests: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  };
+}
+
+export interface AdminGetFundRequestDetailsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    request: any;
+    projectFundingStats: {
+      totalRaised: number;
+      totalInvestors: number;
+      fundingProgress: number;
+      fundingGoal: number;
+    };
+  };
+}
+
+export interface AdminApproveRejectFundRequestRequest {
+  action: 'approve' | 'reject';
+  adminResponse?: string;
+  milestoneId?: string;
+}
+
+export interface AdminApproveRejectFundRequestResponse {
+  success: boolean;
+  message: string;
+  data: {
+    request: any;
+    action: string;
+    message: string;
+  };
+}
+
 // Create the admin API slice
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_BASE_URL +"/api/v1/admin"|| 'http://localhost:3000/api/v1/admin',
-    prepareHeaders: (headers, { getState }) => {
+    prepareHeaders: (headers) => {
       // Get admin token from sessionStorage
       const adminToken = sessionStorage.getItem('adminToken');
       if (adminToken) {
@@ -84,7 +135,7 @@ export const adminApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['AdminProjects', 'AdminProjectDetails'],
+  tagTypes: ['AdminProjects', 'AdminProjectDetails', 'AdminFundRequests', 'AdminFundRequestDetails'] as const,
   endpoints: (builder) => ({
     // Admin Login
     adminLogin: builder.mutation<AdminLoginResponse, AdminLoginRequest>({
@@ -127,6 +178,38 @@ export const adminApi = createApi({
       }),
       providesTags: ['AdminProjectDetails'],
     }),
+
+    // Get Fund Unlock Requests
+    getFundUnlockRequests: builder.query<AdminGetFundUnlockRequestsResponse, AdminGetFundUnlockRequestsRequest | void>({
+      query: (params = {}) => ({
+        url: '/fund-unlock-requests',
+        method: 'GET',
+        params: params ?? undefined,
+      }),
+      providesTags: ['AdminFundRequests'],
+    }),
+
+    // Get Fund Request Details
+    getFundRequestDetails: builder.query<AdminGetFundRequestDetailsResponse, string>({
+      query: (requestId) => ({
+        url: `/fund-unlock-request/${requestId}`,
+        method: 'GET',
+      }),
+      providesTags: ['AdminFundRequestDetails'],
+    }),
+
+    // Approve/Reject Fund Request
+    approveRejectFundRequest: builder.mutation<
+      AdminApproveRejectFundRequestResponse,
+      { requestId: string; data: AdminApproveRejectFundRequestRequest }
+    >({
+      query: ({ requestId, data }) => ({
+        url: `/fund-unlock-request/${requestId}/approve-reject`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['AdminFundRequests', 'AdminFundRequestDetails'],
+    }),
   }),
 });
 
@@ -136,4 +219,7 @@ export const {
   useGetDraftProjectsQuery,
   useApproveRejectProjectMutation,
   useGetProjectDetailsQuery,
+  useGetFundUnlockRequestsQuery,
+  useGetFundRequestDetailsQuery,
+  useApproveRejectFundRequestMutation,
 } = adminApi;

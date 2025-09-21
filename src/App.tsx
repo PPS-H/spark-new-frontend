@@ -20,6 +20,8 @@ import AdminLoginPage from "@/pages/admin-login";
 import AdminDashboardPage from "@/pages/admin-dashboard";
 import AdminProjectDetailsPage from "@/pages/admin-project-details";
 import AdminDraftProjectsPage from "@/pages/admin-draft-projects";
+import AdminFundUnlockRequestsPage from "@/pages/admin-fund-unlock-requests";
+import AdminFundRequestDetailsPage from "@/pages/admin-fund-request-details";
 import AdminProtectedRoute from "@/components/AdminProtectedRoute";
 import AdminLayout from "@/components/AdminLayout";
 import ArtistRegistrationPage from "@/pages/artist-registration-page";
@@ -128,6 +130,20 @@ function AppRoutes() {
           <AdminProtectedRoute>
             <AdminLayout>
               <AdminProjectDetailsPage />
+            </AdminLayout>
+          </AdminProtectedRoute>
+        } />
+        <Route path="/admin/fund-unlock-requests" element={
+          <AdminProtectedRoute>
+            <AdminLayout>
+              <AdminFundUnlockRequestsPage />
+            </AdminLayout>
+          </AdminProtectedRoute>
+        } />
+        <Route path="/admin/fund-unlock-request/:requestId" element={
+          <AdminProtectedRoute>
+            <AdminLayout>
+              <AdminFundRequestDetailsPage />
             </AdminLayout>
           </AdminProtectedRoute>
         } />

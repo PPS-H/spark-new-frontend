@@ -3,21 +3,58 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useGetProjectDetailsQuery } from "@/store/features/api/labelApi";
+import { useSubmitFundUnlockRequestMutation, useGetFundUnlockRequestStatusQuery } from "@/store/features/api/projectApi";
+import { useAuth } from "@/hooks/useAuthRTK";
+import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, 
   Music, 
   Calendar, 
   Users, 
   Target,
-  XCircle
+  XCircle,
+  Unlock,
+  Clock
 } from "lucide-react";
 
 export default function ProjectDetails() {
   const { projectId } = useParams<{ projectId: string }>();
   console.log("projectId::::",projectId)
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   const { data: projectData, isLoading, error } = useGetProjectDetailsQuery({ projectId: projectId! });
+  
+  // Fund unlock request hooks
+  const { data: fundRequestStatus, refetch: refetchFundStatus } = useGetFundUnlockRequestStatusQuery(projectId!, {
+    skip: !projectId || !user || user.role !== 'artist'
+  });
+  
+  const [submitFundUnlockRequest, { isLoading: isSubmittingRequest }] = useSubmitFundUnlockRequestMutation();
+
+  // Handle fund unlock request
+  const handleFundUnlockRequest = async () => {
+    if (!projectId) return;
+
+    try {
+      const result = await submitFundUnlockRequest({ projectId }).unwrap();
+      
+      toast({
+        title: "Fund Unlock Request Submitted",
+        description: `Your request for milestone "${result.data.milestoneName}" has been submitted successfully.`,
+      });
+      
+      // Refetch the status to update the UI
+      refetchFundStatus();
+    } catch (error: any) {
+      toast({
+        title: "Request Failed",
+        description: error?.data?.message || "Failed to submit fund unlock request",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -50,7 +87,7 @@ export default function ProjectDetails() {
     );
   }
 
-  const { project, artistPerformance, fundingProgress, investmentLimits, roiExplanation } = projectData.data;
+  const { project, artistPerformance, fundingProgress, roiExplanation } = projectData.data;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
@@ -273,6 +310,85 @@ export default function ProjectDetails() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Fund Unlock Section - Only for Artists */}
+            {user && user.role === 'artist' && project.artist._id === user._id && (
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <Unlock className="w-5 h-5 mr-2" />
+                    Fund Unlock
+                  </CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Request to unlock funds for your project milestones
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {fundRequestStatus?.data?.hasPendingRequest ? (
+                    <div className="flex items-center space-x-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                      <Clock className="w-5 h-5 text-yellow-400" />
+                      <div className="flex-1">
+                        <p className="text-yellow-300 font-medium">Request Pending</p>
+                        <p className="text-yellow-400 text-sm">
+                          Your fund unlock request is being reviewed by admin
+                        </p>
+                        <p className="text-yellow-500 text-xs mt-1">
+                          Requested: {new Date(fundRequestStatus.data.pendingRequest?.requestedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  ) : fundRequestStatus?.data?.fundingStats?.canRequestUnlock ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <div className="flex-1">
+                          <p className="text-green-300 font-medium">Ready to Unlock</p>
+                          <p className="text-green-400 text-sm">
+                            Your project has reached {fundRequestStatus.data.fundingStats.fundingPercentage.toFixed(1)}% funding
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <Button
+                        onClick={handleFundUnlockRequest}
+                        disabled={isSubmittingRequest}
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        {isSubmittingRequest ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                            Submitting Request...
+                          </>
+                        ) : (
+                          <>
+                            <Unlock className="w-4 h-4 mr-2" />
+                            Unlock My Funds
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-red-300 font-medium">Not Available</p>
+                        <p className="text-red-400 text-sm">
+                          Project needs to reach 50% funding goal to unlock funds
+                        </p>
+                        {fundRequestStatus?.data?.fundingStats && (
+                          <p className="text-red-500 text-xs mt-1">
+                            Current: {fundRequestStatus.data.fundingStats.fundingPercentage.toFixed(1)}% of goal
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

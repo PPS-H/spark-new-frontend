@@ -110,7 +110,7 @@ export default function InvestArtistPage() {
       const result = await createCheckoutSession({
         projectId: projectId,
         amount: investmentAmount,
-        currency: 'usd'
+        currency: 'eur'
       }).unwrap();
 
       if (result.success && result.data.url) {

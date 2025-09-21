@@ -269,10 +269,27 @@ export const projectApi = createApi({
       },
       invalidatesTags: ['Project'],
     }),
+
+    // Fund Unlock Request APIs
+    submitFundUnlockRequest: builder.mutation({
+      query: (data: { projectId: string }) => ({
+        url: '/api/v1/artist/fund-unlock-request',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Project'],
+    }),
+
+    getFundUnlockRequestStatus: builder.query({
+      query: (projectId: string) => `/api/v1/artist/fund-unlock-request/${projectId}/status`,
+      providesTags: ['Project'],
+    }),
   }),
 });
 
 export const {
   useCreateProjectMutation,
   useUpdateProjectMutation,
+  useSubmitFundUnlockRequestMutation,
+  useGetFundUnlockRequestStatusQuery,
 } = projectApi;
