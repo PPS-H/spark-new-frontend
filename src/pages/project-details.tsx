@@ -1,9 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useGetProjectDetailsQuery } from "@/store/features/api/labelApi";
-import { useSubmitFundUnlockRequestMutation, useGetFundUnlockRequestStatusQuery } from "@/store/features/api/projectApi";
+import { useSubmitFundUnlockRequestMutation, useGetFundUnlockRequestStatusQuery, useAddMilestoneProofMutation } from "@/store/features/api/projectApi";
 import { useAuth } from "@/hooks/useAuthRTK";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -14,7 +18,11 @@ import {
   Target,
   XCircle,
   Unlock,
-  Clock
+  Clock,
+  Upload,
+  FileText,
+  CheckCircle,
+  XCircle as XCircleIcon
 } from "lucide-react";
 
 export default function ProjectDetails() {
@@ -32,6 +40,12 @@ export default function ProjectDetails() {
   });
   
   const [submitFundUnlockRequest, { isLoading: isSubmittingRequest }] = useSubmitFundUnlockRequestMutation();
+  const [addMilestoneProof, { isLoading: isSubmittingProof }] = useAddMilestoneProofMutation();
+
+  // Milestone proof form state
+  const [showProofForm, setShowProofForm] = useState(false);
+  const [proofDescription, setProofDescription] = useState("");
+  const [proofFile, setProofFile] = useState<File | null>(null);
 
   // Handle fund unlock request
   const handleFundUnlockRequest = async () => {
@@ -51,6 +65,57 @@ export default function ProjectDetails() {
       toast({
         title: "Request Failed",
         description: error?.data?.message || "Failed to submit fund unlock request",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle milestone proof submission
+  const handleMilestoneProofSubmission = async () => {
+    if (!projectId || !proofFile || !proofDescription.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide both a description and proof file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const needsProofForMilestone = fundRequestStatus?.data?.milestoneProofs?.needsProofForMilestone;
+    if (!needsProofForMilestone) {
+      toast({
+        title: "No Milestone Available",
+        description: "No milestone requires proof at this time",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("projectId", projectId);
+      formData.append("milestoneId", needsProofForMilestone.milestoneId);
+      formData.append("description", proofDescription);
+      formData.append("proof", proofFile);
+
+      await addMilestoneProof(formData).unwrap();
+      
+      toast({
+        title: "Milestone Proof Submitted",
+        description: `Your proof for milestone "${needsProofForMilestone.name}" has been submitted successfully.`,
+      });
+      
+      // Reset form
+      setProofDescription("");
+      setProofFile(null);
+      setShowProofForm(false);
+      
+      // Refetch the status to update the UI
+      refetchFundStatus();
+    } catch (error: any) {
+      toast({
+        title: "Submission Failed",
+        description: error?.data?.message || "Failed to submit milestone proof",
         variant: "destructive",
       });
     }
@@ -340,6 +405,34 @@ export default function ProjectDetails() {
                         </p>
                       </div>
                     </div>
+                  ) : fundRequestStatus?.data?.milestoneProofs?.needsProofForMilestone ? (
+                    <div className="flex items-center space-x-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+                      <FileText className="w-5 h-5 text-orange-400" />
+                      <div className="flex-1">
+                        <p className="text-orange-300 font-medium">Proof Required</p>
+                        <p className="text-orange-400 text-sm">
+                          You must submit proof for the previous milestone before requesting more funds
+                        </p>
+                        <p className="text-orange-500 text-xs mt-1">
+                          Required for: {fundRequestStatus.data.milestoneProofs.needsProofForMilestone.name}
+                        </p>
+                      </div>
+                    </div>
+                  ) : fundRequestStatus?.data?.fundingStats?.nextMilestoneRequirement ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+                        <Target className="w-5 h-5 text-orange-400" />
+                        <div className="flex-1">
+                          <p className="text-orange-300 font-medium">More Funding Needed</p>
+                          <p className="text-orange-400 text-sm">
+                            You need to raise ${fundRequestStatus.data.fundingStats.nextMilestoneRequirement.amountNeeded.toLocaleString()} more to unlock the next milestone
+                          </p>
+                          <p className="text-orange-500 text-xs mt-1">
+                            Next: {fundRequestStatus.data.fundingStats.nextMilestoneRequirement.milestoneName} (${fundRequestStatus.data.fundingStats.nextMilestoneRequirement.milestoneAmount.toLocaleString()})
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   ) : fundRequestStatus?.data?.fundingStats?.canRequestUnlock ? (
                     <div className="space-y-3">
                       <div className="flex items-center space-x-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
@@ -369,7 +462,8 @@ export default function ProjectDetails() {
                           </>
                         )}
                       </Button>
-                    </div>
+                    </div>                        <div key={proof.proofId} className="p-3 bg-slate-700/50 rounded-lg border border-slate-600">
+
                   ) : (
                     <div className="flex items-center space-x-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
                       <div className="w-2 h-2 bg-red-400 rounded-full"></div>
@@ -383,6 +477,230 @@ export default function ProjectDetails() {
                             Current: {fundRequestStatus.data.fundingStats.fundingPercentage.toFixed(1)}% of goal
                           </p>
                         )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Milestone Proof Section - Only for Artists */}
+            {user && user.role === 'artist' && project.artist._id === user._id && (
+              <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <FileText className="w-5 h-5 mr-2" />
+                    Milestone Proof
+                  </CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Submit proof of milestone completion to unlock next funds
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {fundRequestStatus?.data?.milestoneProofs?.needsProofForMilestone ? (
+                    <div className="space-y-4">
+                      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                        <h4 className="text-blue-300 font-medium mb-2">
+                          Proof Required for: {fundRequestStatus.data.milestoneProofs.needsProofForMilestone.name}
+                        </h4>
+                        <p className="text-blue-400 text-sm mb-2">
+                          Amount: ${fundRequestStatus.data.milestoneProofs.needsProofForMilestone.amount.toLocaleString()}
+                        </p>
+                        <p className="text-blue-400 text-sm">
+                          {fundRequestStatus.data.milestoneProofs.needsProofForMilestone.description}
+                        </p>
+                      </div>
+
+                      {/* Check if there's already a proof for this milestone */}
+                      {(() => {
+                        const existingProof = fundRequestStatus.data.milestoneProofs.all.find((proof: any) => 
+                          proof.milestoneId === fundRequestStatus.data.milestoneProofs.needsProofForMilestone.milestoneId
+                        );
+                        
+                        if (existingProof) {
+                          if (existingProof.status === 'pending') {
+                            return (
+                              <div className="flex items-center space-x-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                                <Clock className="w-5 h-5 text-yellow-400" />
+                                <div className="flex-1">
+                                  <p className="text-yellow-300 font-medium">Proof Pending Review</p>
+                                  <p className="text-yellow-400 text-sm">
+                                    Your proof for this milestone is being reviewed by admin
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          } else if (existingProof.status === 'rejected') {
+                            return (
+                              <div className="space-y-3">
+                                <div className="flex items-center space-x-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                                  <XCircle className="w-5 h-5 text-red-400" />
+                                  <div className="flex-1">
+                                    <p className="text-red-300 font-medium">Proof Rejected</p>
+                                    <p className="text-red-400 text-sm">
+                                      Your previous proof was rejected. You can resubmit with new information.
+                                    </p>
+                                    {existingProof.adminResponse && (
+                                      <p className="text-red-500 text-xs mt-1">
+                                        Admin feedback: {existingProof.adminResponse}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                {!showProofForm ? (
+                                  <Button
+                                    onClick={() => setShowProofForm(true)}
+                                    className="w-full bg-red-600 hover:bg-red-700 text-white"
+                                  >
+                                    <Upload className="w-4 h-4 mr-2" />
+                                    Resubmit Proof
+                                  </Button>
+                                ) : null}
+                              </div>
+                            );
+                          } else if (existingProof.status === 'approved') {
+                            return (
+                              <div className="flex items-center space-x-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                                <CheckCircle className="w-5 h-5 text-green-400" />
+                                <div className="flex-1">
+                                  <p className="text-green-300 font-medium">Proof Approved</p>
+                                  <p className="text-green-400 text-sm">
+                                    Your proof for this milestone has been approved
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          }
+                        }
+                        
+                        return !showProofForm ? (
+                          <Button
+                            onClick={() => setShowProofForm(true)}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Add Milestone Proof
+                          </Button>
+                        ) : null;
+                      })()}
+                      
+                      {showProofForm && (
+                        <div className="space-y-4 p-4 bg-slate-700/50 rounded-lg border border-slate-600">
+                          <div>
+                            <Label htmlFor="proof-description" className="text-slate-300">
+                              Description *
+                            </Label>
+                            <Textarea
+                              id="proof-description"
+                              value={proofDescription}
+                              onChange={(e) => setProofDescription(e.target.value)}
+                              placeholder="Describe how you used the milestone funds..."
+                              className="mt-1 bg-slate-800 border-slate-600 text-white"
+                              rows={3}
+                            />
+                          </div>
+
+                          <div>
+                            <Label htmlFor="proof-file" className="text-slate-300">
+                              Proof File *
+                            </Label>
+                            <Input
+                              id="proof-file"
+                              type="file"
+                              accept="image/*,.pdf,.doc,.docx"
+                              onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                              className="mt-1 bg-slate-800 border-slate-600 text-white file:bg-slate-700 file:text-white file:border-0 file:rounded file:px-3 file:py-1"
+                            />
+                            {proofFile && (
+                              <p className="text-slate-400 text-sm mt-1">
+                                Selected: {proofFile.name}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex space-x-2">
+                            <Button
+                              onClick={handleMilestoneProofSubmission}
+                              disabled={isSubmittingProof || !proofFile || !proofDescription.trim()}
+                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                              {isSubmittingProof ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                  Submitting...
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="w-4 h-4 mr-2" />
+                                  Submit Proof
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                setShowProofForm(false);
+                                setProofDescription("");
+                                setProofFile(null);
+                              }}
+                              variant="outline"
+                              className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : fundRequestStatus?.data?.milestoneProofs?.all?.length > 0 ? (
+                    <div className="space-y-3">
+                      <h4 className="text-slate-300 font-medium">Previous Proofs</h4>
+                      {fundRequestStatus.data.milestoneProofs.all.map((proof: any) => (
+                        <div key={proof.proofId} className="p-3 bg-slate-700/50 rounded-lg border border-slate-600">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-slate-300 text-sm font-medium">
+                              Milestone Proof
+                            </span>
+                            <div className="flex items-center space-x-2">
+                              {proof.status === 'approved' && (
+                                <CheckCircle className="w-4 h-4 text-green-400" />
+                              )}
+                              {proof.status === 'rejected' && (
+                                <XCircleIcon className="w-4 h-4 text-red-400" />
+                              )}
+                              {proof.status === 'pending' && (
+                                <Clock className="w-4 h-4 text-yellow-400" />
+                              )}
+                              <Badge 
+                                className={`${
+                                  proof.status === 'approved' ? 'bg-green-500/20 text-green-300' :
+                                  proof.status === 'rejected' ? 'bg-red-500/20 text-red-300' :
+                                  'bg-yellow-500/20 text-yellow-300'
+                                }`}
+                              >
+                                {proof.status}
+                              </Badge>
+                            </div>
+                          </div>
+                          <p className="text-slate-400 text-sm mb-2">{proof.description}</p>
+                          {proof.adminResponse && (
+                            <p className="text-slate-500 text-xs italic">
+                              Admin: {proof.adminResponse}
+                            </p>
+                          )}
+                          <p className="text-slate-500 text-xs">
+                            Submitted: {new Date(proof.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-3 p-3 bg-slate-500/10 border border-slate-500/20 rounded-lg">
+                      <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-slate-300 font-medium">No Proof Required</p>
+                        <p className="text-slate-400 text-sm">
+                          No milestone proofs are needed at this time
+                        </p>
                       </div>
                     </div>
                   )}

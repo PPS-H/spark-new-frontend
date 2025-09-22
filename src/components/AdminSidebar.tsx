@@ -8,7 +8,8 @@ import {
   Menu,
   X,
   Home,
-  Unlock
+  Unlock,
+  CheckSquare
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -37,6 +38,12 @@ export default function AdminSidebar({ onLogout }: AdminSidebarProps) {
       href: "/admin/fund-unlock-requests",
       icon: Unlock,
       description: "Artist fund unlock requests"
+    },
+    {
+      title: "Milestone Proofs",
+      href: "/admin/milestone-proofs",
+      icon: CheckSquare,
+      description: "Artist milestone proofs"
     }
   ];
 

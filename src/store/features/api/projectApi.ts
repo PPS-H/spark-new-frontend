@@ -284,6 +284,15 @@ export const projectApi = createApi({
       query: (projectId: string) => `/api/v1/artist/fund-unlock-request/${projectId}/status`,
       providesTags: ['Project'],
     }),
+
+    addMilestoneProof: builder.mutation({
+      query: (data: FormData) => ({
+        url: '/api/v1/artist/milestone-proof',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Project'],
+    }),
   }),
 });
 
@@ -292,4 +301,5 @@ export const {
   useUpdateProjectMutation,
   useSubmitFundUnlockRequestMutation,
   useGetFundUnlockRequestStatusQuery,
+  useAddMilestoneProofMutation,
 } = projectApi;

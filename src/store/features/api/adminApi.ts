@@ -121,6 +121,69 @@ export interface AdminApproveRejectFundRequestResponse {
   };
 }
 
+export interface AdminGetMilestoneProofsRequest {
+  page?: number;
+  limit?: number;
+  status?: 'pending' | 'approved' | 'rejected';
+}
+
+export interface AdminGetMilestoneProofsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    milestoneProofs: any[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  };
+}
+
+export interface AdminGetMilestoneProofDetailsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    proof: {
+      proofId: string;
+      projectId: any;
+      artistId: any;
+      milestoneId: string;
+      milestone: {
+        name: string;
+        amount: number;
+        description: string;
+        status: string;
+        order: number;
+      };
+      description: string;
+      proof: string;
+      status: string;
+      adminId: any;
+      adminResponse: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+  };
+}
+
+export interface AdminApproveRejectMilestoneProofRequest {
+  action: 'approve' | 'reject';
+  adminResponse?: string;
+}
+
+export interface AdminApproveRejectMilestoneProofResponse {
+  success: boolean;
+  message: string;
+  data: {
+    proof: any;
+    action: string;
+    message: string;
+  };
+}
+
 // Create the admin API slice
 export const adminApi = createApi({
   reducerPath: 'adminApi',
@@ -135,7 +198,7 @@ export const adminApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['AdminProjects', 'AdminProjectDetails', 'AdminFundRequests', 'AdminFundRequestDetails'] as const,
+  tagTypes: ['AdminProjects', 'AdminProjectDetails', 'AdminFundRequests', 'AdminFundRequestDetails', 'AdminMilestoneProofs', 'AdminMilestoneProofDetails'] as const,
   endpoints: (builder) => ({
     // Admin Login
     adminLogin: builder.mutation<AdminLoginResponse, AdminLoginRequest>({
@@ -210,6 +273,38 @@ export const adminApi = createApi({
       }),
       invalidatesTags: ['AdminFundRequests', 'AdminFundRequestDetails'],
     }),
+
+    // Get Milestone Proofs
+    getMilestoneProofs: builder.query<AdminGetMilestoneProofsResponse, AdminGetMilestoneProofsRequest>({
+      query: (params) => ({
+        url: '/milestone-proofs',
+        method: 'GET',
+        params: params ?? undefined,
+      }),
+      providesTags: ['AdminMilestoneProofs'],
+    }),
+
+    // Get Milestone Proof Details
+    getMilestoneProofDetails: builder.query<AdminGetMilestoneProofDetailsResponse, string>({
+      query: (proofId) => ({
+        url: `/milestone-proof/${proofId}`,
+        method: 'GET',
+      }),
+      providesTags: ['AdminMilestoneProofDetails'],
+    }),
+
+    // Approve/Reject Milestone Proof
+    approveRejectMilestoneProof: builder.mutation<
+      AdminApproveRejectMilestoneProofResponse,
+      { proofId: string; data: AdminApproveRejectMilestoneProofRequest }
+    >({
+      query: ({ proofId, data }) => ({
+        url: `/milestone-proof/${proofId}/approve-reject`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['AdminMilestoneProofs', 'AdminMilestoneProofDetails'],
+    }),
   }),
 });
 
@@ -222,4 +317,7 @@ export const {
   useGetFundUnlockRequestsQuery,
   useGetFundRequestDetailsQuery,
   useApproveRejectFundRequestMutation,
+  useGetMilestoneProofsQuery,
+  useGetMilestoneProofDetailsQuery,
+  useApproveRejectMilestoneProofMutation,
 } = adminApi;

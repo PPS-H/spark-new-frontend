@@ -22,6 +22,8 @@ import AdminProjectDetailsPage from "@/pages/admin-project-details";
 import AdminDraftProjectsPage from "@/pages/admin-draft-projects";
 import AdminFundUnlockRequestsPage from "@/pages/admin-fund-unlock-requests";
 import AdminFundRequestDetailsPage from "@/pages/admin-fund-request-details";
+import AdminMilestoneProofsPage from "@/pages/admin-milestone-proofs";
+import AdminMilestoneProofDetailsPage from "@/pages/admin-milestone-proof-details";
 import AdminProtectedRoute from "@/components/AdminProtectedRoute";
 import AdminLayout from "@/components/AdminLayout";
 import ArtistRegistrationPage from "@/pages/artist-registration-page";
@@ -144,6 +146,20 @@ function AppRoutes() {
           <AdminProtectedRoute>
             <AdminLayout>
               <AdminFundRequestDetailsPage />
+            </AdminLayout>
+          </AdminProtectedRoute>
+        } />
+        <Route path="/admin/milestone-proofs" element={
+          <AdminProtectedRoute>
+            <AdminLayout>
+              <AdminMilestoneProofsPage />
+            </AdminLayout>
+          </AdminProtectedRoute>
+        } />
+        <Route path="/admin/milestone-proof/:proofId" element={
+          <AdminProtectedRoute>
+            <AdminLayout>
+              <AdminMilestoneProofDetailsPage />
             </AdminLayout>
           </AdminProtectedRoute>
         } />
