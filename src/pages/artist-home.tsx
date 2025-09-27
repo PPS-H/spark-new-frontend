@@ -96,17 +96,29 @@ export default function ArtistHome() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-20">
       <div className="max-w-7xl mx-auto p-3 sm:p-4 space-y-6 sm:space-y-8">
         {/* Welcome Header */}
-        <div className="text-center space-y-4 pt-4 sm:pt-8">
+        <div 
+          className="text-center space-y-4 pt-4 sm:pt-8 rounded-2xl mx-4 sm:mx-0 p-6 sm:p-8"
+          style={{
+            background: 'linear-gradient(135deg, #0B0B15 0%, #141428 70%, rgba(255,213,128,0.08) 100%)'
+          }}
+        >
           <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-4">
-            <SLogo className="text-purple-400 animate-neon-pulse" size={32} />
-            <Crown className="text-yellow-400 text-xl sm:text-2xl" />
+            <SLogo className="text-[#7A5AF8] animate-neon-pulse" size={32} />
+            <Crown className="text-[#FFD580] text-xl sm:text-2xl" />
           </div>
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white px-4">
             WELCOME {user?.username?.toUpperCase() || 'ARTIST'}
           </h1>
           <p className="text-lg sm:text-xl text-gray-400 px-4">Your creative and business cockpit</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
-            <Badge className="bg-purple-500/20 text-purple-300 px-3 sm:px-4 py-2 text-xs sm:text-sm">
+            <Badge 
+              className="px-3 sm:px-4 py-2 text-xs sm:text-sm"
+              style={{
+                backgroundColor: 'rgba(122, 90, 248, 0.2)',
+                color: '#7A5AF8',
+                border: '1px solid rgba(122, 90, 248, 0.3)'
+              }}
+            >
               <Crown className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
               Artist Pro - €39.99/month
             </Badge>

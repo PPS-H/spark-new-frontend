@@ -462,8 +462,7 @@ export default function ProjectDetails() {
                           </>
                         )}
                       </Button>
-                    </div>                        <div key={proof.proofId} className="p-3 bg-slate-700/50 rounded-lg border border-slate-600">
-
+                    </div>
                   ) : (
                     <div className="flex items-center space-x-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
                       <div className="w-2 h-2 bg-red-400 rounded-full"></div>

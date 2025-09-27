@@ -55,28 +55,28 @@ export default function UserHome() {
       <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800/50">
         <div className="flex items-center justify-between p-4 sm:p-6">
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <SLogo className="text-cyan-400" size={24} />
+          <SLogo className="text-cyan-400" size={24} />
             <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
               <span className="text-lg sm:text-xl font-bold text-white">
                 Welcome {user?.username}
-              </span>
+          </span>
               <span className="text-2xl">🔥</span>
             </div>
-          </div>
+        </div>
 
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <Button
-              size="sm"
+          <Button
+            size="sm"
               className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-medium px-3 sm:px-4 py-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
-              onClick={() => logout()}
-              disabled={isLogoutLoading}
-            >
+            onClick={() => logout()}
+            disabled={isLogoutLoading}
+          >
               {isLogoutLoading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 "Logout"
               )}
-            </Button>
+          </Button>
           </div>
         </div>
       </div>
@@ -108,30 +108,30 @@ export default function UserHome() {
                   <div className="flex items-center">
                     <Target className="w-5 h-5 mr-2 text-cyan-400" />
                     <span className="text-lg sm:text-xl">Latest Projects/Campaigns</span>
-                  </div>
+                          </div>
                   {projectsData?.pagination && projectsData.pagination.totalPages > 1 && (
                     <div className="flex items-center space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
+                            <Button
+                              size="sm"
+                              variant="outline"
                         className="border-gray-500 text-gray-300 hover:bg-gray-600 transition-all duration-200"
                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                         disabled={currentPage === 1}
                       >
                         <ChevronLeft className="w-4 h-4" />
-                      </Button>
+                            </Button>
                       <span className="text-sm text-gray-400 px-2">
                         {currentPage} / {projectsData.pagination.totalPages}
                       </span>
-                      <Button
-                        size="sm"
-                        variant="outline"
+                            <Button
+                              size="sm"
+                              variant="outline"
                         className="border-gray-500 text-gray-300 hover:bg-gray-600 transition-all duration-200"
                         onClick={() => setCurrentPage(prev => Math.min(projectsData.pagination.totalPages, prev + 1))}
                         disabled={currentPage === projectsData.pagination.totalPages}
-                      >
+                            >
                         <ChevronRight className="w-4 h-4" />
-                      </Button>
+                            </Button>
                     </div>
                   )}
                 </CardTitle>
@@ -209,11 +209,11 @@ export default function UserHome() {
                                 <div className="flex items-center space-x-1">
                                   <Calendar className="w-4 h-4" />
                                   <span>{new Date(project.expectedReleaseDate).toLocaleDateString()}</span>
-                                </div>
-                              </div>
-                            </div>
                           </div>
-                        
+                        </div>
+                      </div>
+                    </div>
+
                           <div className="grid grid-cols-2 gap-3 sm:gap-4">
                             <div className="text-center p-3 bg-slate-700/30 rounded-lg">
                               <p className="text-lg sm:text-xl font-bold text-white">${project.fundingGoal.toLocaleString()}</p>
@@ -222,30 +222,30 @@ export default function UserHome() {
                             <div className="text-center p-3 bg-slate-700/30 rounded-lg">
                               <p className="text-lg sm:text-xl font-bold text-cyan-400">{project.expectedROIPercentage}%</p>
                               <p className="text-xs text-gray-400">Expected ROI</p>
-                            </div>
+                        </div>
                             <div className="text-center p-3 bg-slate-700/30 rounded-lg">
                               <p className="text-lg sm:text-xl font-bold text-purple-400">{project.duration} days</p>
                               <p className="text-xs text-gray-400">Duration</p>
-                            </div>
+                        </div>
                             <div className="text-center p-3 bg-slate-700/30 rounded-lg">
                               <p className="text-lg sm:text-xl font-bold text-orange-400 capitalize">{project.releaseType}</p>
                               <p className="text-xs text-gray-400">Release Type</p>
-                            </div>
-                          </div>
+                        </div>
+                      </div>
 
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-slate-600/30">
                             <div className="text-sm text-gray-400 space-y-1">
                               <p>Deadline: {new Date(project.fundingDeadline).toLocaleDateString()}</p>
                               <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
-                            </div>
+                        </div>
                             <div className="flex space-x-2">
-                              <Button
-                                size="sm"
+                            <Button
+                              size="sm"
                                 className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-medium px-4 py-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                                 onClick={() => handleInvestClick(project._id)}
                               >
                                 Invest
-                              </Button>
+                            </Button>
                             </div>
                           </div>
                         </div>
@@ -253,8 +253,8 @@ export default function UserHome() {
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+                    </CardContent>
+                  </Card>
           </>
         ) : activeTab === "dashboard" ? (
           <>
@@ -262,11 +262,11 @@ export default function UserHome() {
             <div className="space-y-6">
               <div className="text-center sm:text-left">
                 <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
-                  Your Investment Dashboard
-                </h1>
+                Your Investment Dashboard
+              </h1>
                 <p className="text-gray-400 text-sm sm:text-base">
-                  Track your music investments and discoveries
-                </p>
+                Track your music investments and discoveries
+              </p>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
