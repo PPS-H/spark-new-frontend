@@ -83,7 +83,12 @@ export default function LabelHome() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-20">
       <div className="max-w-7xl mx-auto p-3 sm:p-4 space-y-6 sm:space-y-8">
         {/* Welcome Header */}
-        <div className="text-center space-y-4 pt-4 sm:pt-8">
+        <div 
+          className="text-center space-y-4 pt-4 sm:pt-8 rounded-2xl mx-4 sm:mx-0 p-6 sm:p-8"
+          style={{
+            background: 'radial-gradient(ellipse at 20% 30%, rgba(255, 107, 53, 0.4) 0%, rgba(255, 107, 53, 0.2) 30%, rgba(255, 107, 53, 0.1) 50%, rgba(0, 0, 0, 0.9) 70%, #000000 100%)'
+          }}
+        >
           <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-4">
             <Building className="text-purple-400 text-2xl sm:text-3xl animate-neon-pulse" />
             <Crown className="text-yellow-400 text-xl sm:text-2xl" />

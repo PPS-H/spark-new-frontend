@@ -99,7 +99,7 @@ export default function ArtistHome() {
         <div 
           className="text-center space-y-4 pt-4 sm:pt-8 rounded-2xl mx-4 sm:mx-0 p-6 sm:p-8"
           style={{
-            background: 'linear-gradient(135deg, #0B0B15 0%, #141428 70%, rgba(255,213,128,0.08) 100%)'
+            background: 'radial-gradient(ellipse at 20% 30%, rgba(255, 107, 53, 0.4) 0%, rgba(255, 107, 53, 0.2) 30%, rgba(255, 107, 53, 0.1) 50%, rgba(0, 0, 0, 0.9) 70%, #000000 100%)'
           }}
         >
           <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-4">

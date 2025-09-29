@@ -18,7 +18,7 @@ import { useArtists } from "@/hooks/use-artists";
 import type { Artist } from "@/types/artist";
 
 export default function InvestorHome() {
-  const { user, logout, isLogoutLoading } = useAuth();
+  const { user, logout, isLogoutLoading }:any = useAuth();
   const { data: artists = [] } = useArtists();
   // Plus de données temps réel - système désactivé
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
@@ -76,7 +76,12 @@ export default function InvestorHome() {
       <div className="max-w-7xl mx-auto p-4 space-y-8">
         {/* Plus de bannière temps réel */}
         {/* Welcome Header */}
-        <div className="text-center space-y-4 pt-8">
+        <div 
+          className="text-center space-y-4 pt-8 rounded-2xl mx-4 sm:mx-0 p-6 sm:p-8"
+          style={{
+            background: 'radial-gradient(ellipse at 20% 30%, rgba(255, 107, 53, 0.4) 0%, rgba(255, 107, 53, 0.2) 30%, rgba(255, 107, 53, 0.1) 50%, rgba(0, 0, 0, 0.9) 70%, #000000 100%)'
+          }}
+        >
           <div className="flex items-center justify-center space-x-3 mb-4">
             <TrendingUp className="text-cyan-400 text-3xl animate-neon-pulse" />
             <Crown className="text-yellow-400 text-2xl" />

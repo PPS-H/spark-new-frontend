@@ -49,7 +49,7 @@ export default function InvestmentModal({
   onClose,
   onInvest,
 }: InvestmentModalProps) {
-  const { user, isAuthenticated } = {
+  const { user, isAuthenticated }:any = {
     user: {
       role: "investor",
     },

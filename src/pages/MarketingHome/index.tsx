@@ -4,8 +4,31 @@ import Navbar from "@/components/Navbar";
 import Plans from "./components/plans";
 import StatisticsSection from "./components/stats";
 import Footer from "@/components/Footer";
+import { useEffect } from "react";
 
 const MarketingHome = () => {
+  useEffect(() => {
+    const scrollToPlans = () => {
+      const plansSection = document.getElementById('our-investment-plans-section');
+      if (plansSection) {
+        plansSection.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    };
+
+    const scrollToPlansBtn = document.getElementById('scrollToPlansBtn');
+    if (scrollToPlansBtn) {
+      scrollToPlansBtn.addEventListener('click', scrollToPlans);
+    }
+
+    return () => {
+      if (scrollToPlansBtn) {
+        scrollToPlansBtn.removeEventListener('click', scrollToPlans);
+      }
+    };
+  }, []);
   return (
     <div className="w-full">
       <div className="animated-bg"></div>

@@ -52,7 +52,12 @@ export default function UserHome() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800/50">
+      <div 
+        className="sticky top-0 z-50 backdrop-blur-md border-b border-gray-800/50"
+        style={{
+          background: 'radial-gradient(ellipse at 20% 30%, rgba(255, 107, 53, 0.4) 0%, rgba(255, 107, 53, 0.2) 30%, rgba(255, 107, 53, 0.1) 50%, rgba(0, 0, 0, 0.9) 70%, #000000 100%)'
+        }}
+      >
         <div className="flex items-center justify-between p-4 sm:p-6">
           <div className="flex items-center space-x-2 sm:space-x-3">
           <SLogo className="text-cyan-400" size={24} />
@@ -67,7 +72,7 @@ export default function UserHome() {
           <div className="flex items-center space-x-2 sm:space-x-3">
           <Button
             size="sm"
-              className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-medium px-3 sm:px-4 py-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
+            className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-medium px-3 sm:px-4 py-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
             onClick={() => logout()}
             disabled={isLogoutLoading}
           >

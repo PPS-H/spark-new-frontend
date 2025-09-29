@@ -61,6 +61,7 @@ export default function Home() {
     });
   };
 
+
   const handleInvestment = async (artistId: number, amount: number) => {
     if (!user) {
       setShowLoginModal(true);
@@ -121,7 +122,7 @@ export default function Home() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Alt + D for discover section
-      if (event.altKey && event.key === 'd') {0
+      if (event.altKey && event.key === 'd') {
         event.preventDefault();
         scrollToSection('discover');
       }
