@@ -16,6 +16,7 @@ import {
   useVerifyOtpMutation, 
   useForgotPasswordMutation 
 } from "@/store/features/api/authApi";
+import VerifyEmail from "./verify-email";
 
 interface LoginModalProps {
   open: boolean;
@@ -50,6 +51,13 @@ export default function LoginModal({
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userId, setUserId] = useState("");
+  
+  // Email verification state
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [verificationData, setVerificationData] = useState<{
+    email: string;
+    userId: string;
+  } | null>(null);
 
   // Note: Registration is now handled by dedicated forms on the homepage
 
@@ -91,6 +99,31 @@ export default function LoginModal({
     } catch (error: any) {
       console.error("Login error:", error);
       
+      // Check if error is due to unverified email
+      if (error?.data?.message?.includes("Email not verified")) {
+        // Get user ID from error response or find user by email
+        try {
+          const otpResult = await sendOtp({
+            email: loginEmail,
+            type: 3 // Email verification type
+          }).unwrap();
+          
+          setVerificationData({
+            email: loginEmail,
+            userId: otpResult.data._id,
+          });
+          setShowEmailVerification(true);
+          
+          toast({
+            title: "Account Not Verified",
+            description: "Your account is not verified. We sent you an OTP, please verify first.",
+          });
+          return;
+        } catch (otpError) {
+          console.error("Failed to send OTP:", otpError);
+        }
+      }
+      
       let errorMessage = "Login failed. Please try again.";
       if (error?.data?.message) {
         errorMessage = error.data.message;
@@ -98,12 +131,12 @@ export default function LoginModal({
         errorMessage = error.error;
       }
 
-        toast({
-          title: "Login Failed",
+      toast({
+        title: "Login Failed",
         description: errorMessage,
-          variant: "destructive",
-        });
-      }
+        variant: "destructive",
+      });
+    }
   };
 
   /** Handle register action - redirect to registration forms */
@@ -297,6 +330,32 @@ export default function LoginModal({
     setConfirmPassword("");
     setUserId("");
   };
+
+  // Show email verification screen if needed
+  if (showEmailVerification && verificationData) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="glass-effect-dark border border-cyan-500/30 max-w-md animate-fade-in">
+          <VerifyEmail
+            email={verificationData.email}
+            userId={verificationData.userId}
+            onVerificationSuccess={() => {
+              toast({
+                title: "Email Verified!",
+                description: "Your email has been verified. You can now log in.",
+              });
+              setShowEmailVerification(false);
+              setVerificationData(null);
+            }}
+            onBack={() => {
+              setShowEmailVerification(false);
+              setVerificationData(null);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

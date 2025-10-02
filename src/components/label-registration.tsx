@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRegisterMutation } from "@/store/features/api/authApi";
+import VerifyEmail from "./verify-email";
 
 interface LabelRegistrationProps {
   onClose?: () => void;
@@ -65,6 +66,13 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
     website: "",
     description: "",
   });
+
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationData, setVerificationData] = useState<{
+    email: string;
+    userId: string;
+  } | null>(null);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -139,15 +147,16 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
         companyDescription: formData.description,
       }).unwrap();
       toast({
-        title: "Registration Successful!",
-        description: "Welcome to SPARK! Your label account has been created.",
+        title: "Account Created!",
+        description: "Please verify your email to complete registration.",
       });
 
-      // Close the popup and redirect
-      if (onClose) {
-        onClose();
-      }
-      window.location.href = "/";
+      // Show verification screen
+      setVerificationData({
+        email: formData.email,
+        userId: result.data._id,
+      });
+      setShowVerification(true);
     } catch (error: any) {
       console.error("Label registration error:", error);
       
@@ -174,6 +183,27 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  // Show verification screen if needed
+  if (showVerification && verificationData) {
+    return (
+      <VerifyEmail
+        email={verificationData.email}
+        userId={verificationData.userId}
+        onVerificationSuccess={() => {
+          toast({
+            title: "Welcome to SPARK!",
+            description: "Your label account is now verified and ready to use!",
+          });
+          if (onClose) {
+            onClose();
+          }
+          window.location.href = "/";
+        }}
+        onBack={() => setShowVerification(false)}
+      />
+    );
+  }
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -402,11 +432,43 @@ export default function LabelRegistration({ onClose }: LabelRegistrationProps) {
               />
             </div>
 
+            {/* Terms and Conditions */}
+            <div className="space-y-2">
+              <div className="flex items-start space-x-2">
+                <input
+                  type="checkbox"
+                  id="acceptTerms"
+                  checked={acceptTerms}
+                  onChange={(e) => setAcceptTerms(e.target.checked)}
+                  className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <label htmlFor="acceptTerms" className="text-sm text-gray-700">
+                  I agree to the{" "}
+                  <a
+                    href="#"
+                    className="text-purple-600 hover:text-purple-800 underline"
+                    onClick={(e) => e.preventDefault()}
+                  >
+                    Terms and Conditions
+                  </a>{" "}
+                  and{" "}
+                  <a
+                    href="#"
+                    className="text-purple-600 hover:text-purple-800 underline"
+                    onClick={(e) => e.preventDefault()}
+                  >
+                    Privacy Policy
+                  </a>
+                  . By creating a label account, I understand that SPARK will use my information to provide music investment services, manage my label's portfolio, and I may receive promotional communications.
+                </label>
+              </div>
+            </div>
+
             <div className="space-y-3">
               <Button
                 type="submit"
-                disabled={isRegisterLoading}
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200"
+                disabled={isRegisterLoading || !acceptTerms}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isRegisterLoading ? (
                   <>

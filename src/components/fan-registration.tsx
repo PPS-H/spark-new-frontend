@@ -15,6 +15,7 @@ import { toast } from "@/hooks/use-toast";
 import { User, Globe, Heart } from "lucide-react";
 import SLogo from "@/components/s-logo";
 import { useRegisterMutation } from "@/store/features/api/authApi";
+import VerifyEmail from "./verify-email";
 
 interface FanRegistrationProps {
   onClose?: () => void;
@@ -31,6 +32,13 @@ export default function FanRegistration({ onClose }: FanRegistrationProps) {
     musicPlatforms: [] as string[],
     bio: "",
   });
+
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationData, setVerificationData] = useState<{
+    email: string;
+    userId: string;
+  } | null>(null);
 
   // RTK Query mutation hook
   const [register, { isLoading: isSubmitting }] = useRegisterMutation();
@@ -142,16 +150,16 @@ export default function FanRegistration({ onClose }: FanRegistrationProps) {
       console.log("Fan registration successful:", result);
 
       toast({
-        title: "Welcome to SPARK!",
-        description:
-          "Your fan account has been created successfully with free access",
+        title: "Account Created!",
+        description: "Please verify your email to complete registration.",
       });
 
-      // Close the popup and redirect
-      if (onClose) {
-        onClose();
-      }
-      window.location.href = "/";
+      // Show verification screen
+      setVerificationData({
+        email: formData.email,
+        userId: result.data._id,
+      });
+      setShowVerification(true);
     } catch (error: any) {
       console.error("Fan registration error:", error);
 
@@ -174,6 +182,27 @@ export default function FanRegistration({ onClose }: FanRegistrationProps) {
       });
     }
   };
+
+  // Show verification screen if needed
+  if (showVerification && verificationData) {
+    return (
+      <VerifyEmail
+        email={verificationData.email}
+        userId={verificationData.userId}
+        onVerificationSuccess={() => {
+          toast({
+            title: "Welcome to SPARK!",
+            description: "Your fan account is now verified and ready to use!",
+          });
+          if (onClose) {
+            onClose();
+          }
+          window.location.href = "/";
+        }}
+        onBack={() => setShowVerification(false)}
+      />
+    );
+  }
 
   return (
     <Card className="w-full max-w-2xl mx-auto z-50">
@@ -356,12 +385,44 @@ export default function FanRegistration({ onClose }: FanRegistrationProps) {
             />
           </div>
 
+          {/* Terms and Conditions */}
+          <div className="space-y-2">
+            <div className="flex items-start space-x-2">
+              <input
+                type="checkbox"
+                id="acceptTerms"
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label htmlFor="acceptTerms" className="text-sm text-gray-700">
+                I agree to the{" "}
+                <a
+                  href="#"
+                  className="text-blue-600 hover:text-blue-800 underline"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  Terms and Conditions
+                </a>{" "}
+                and{" "}
+                <a
+                  href="#"
+                  className="text-blue-600 hover:text-blue-800 underline"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  Privacy Policy
+                </a>
+                . By creating an account, I understand that SPARK will use my information to provide music investment services and I may receive promotional communications.
+              </label>
+            </div>
+          </div>
+
           {/* Submit Button */}
           <div className="flex gap-3">
             <Button
               type="submit"
-              disabled={isSubmitting}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+              disabled={isSubmitting || !acceptTerms}
+              className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
