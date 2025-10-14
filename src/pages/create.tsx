@@ -2,8 +2,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import ArtistProfilePage from "@/components/artist-profile-page";
 import { useGetUserProfileQuery } from "@/store/features/api/authApi";
 import { useAuth } from "@/hooks/useAuthRTK";
+import { useTranslation } from "react-i18next";
 
 export default function Create() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { userId } = useParams();
   const { user } = useAuth();
@@ -28,8 +30,8 @@ export default function Create() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
         <div className="text-center max-w-md mx-auto">
           <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-white text-base sm:text-lg font-medium">Loading profile...</p>
-          <p className="text-gray-400 text-sm mt-2">Please wait while we load your creative workspace</p>
+          <p className="text-white text-base sm:text-lg font-medium">{t('create.loadingProfile')}</p>
+          <p className="text-gray-400 text-sm mt-2">{t('create.loadingWorkspace')}</p>
         </div>
       </div>
     );
@@ -45,13 +47,13 @@ export default function Create() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">Error Loading Profile</h1>
-          <p className="text-gray-400 mb-6 text-sm sm:text-base">Failed to load your profile data. Please try again.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">{t('create.errorLoadingProfile')}</h1>
+          <p className="text-gray-400 mb-6 text-sm sm:text-base">{t('create.failedToLoadProfile')}</p>
           <button 
             onClick={() => navigate("/")}
             className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all text-sm sm:text-base font-medium w-full sm:w-auto"
           >
-            Return Home
+            {t('create.returnHome')}
           </button>
         </div>
       </div>
@@ -104,20 +106,20 @@ export default function Create() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">Access Restricted</h1>
-        <p className="text-gray-400 mb-6 text-sm sm:text-base">This page is only available for artist accounts. Upgrade to an artist account to access the creative workspace.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">{t('create.accessRestricted')}</h1>
+        <p className="text-gray-400 mb-6 text-sm sm:text-base">{t('create.artistAccountRequired')}</p>
         <div className="space-y-3">
           <button 
             onClick={() => navigate("/")}
             className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all text-sm sm:text-base font-medium w-full"
           >
-            Return Home
+            {t('create.returnHome')}
           </button>
           <button 
             onClick={() => navigate("/register")}
             className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-3 rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all text-sm sm:text-base font-medium w-full"
           >
-            Become an Artist
+            {t('create.becomeArtist')}
           </button>
         </div>
       </div>

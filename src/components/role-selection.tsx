@@ -9,6 +9,7 @@ import {
 import { Heart, Building, ChevronLeft, ChevronRight } from "lucide-react";
 import SLogo from "@/components/s-logo";
 import { useState, useRef, useEffect } from "react";
+import { useI18n } from "@/hooks/useI18n";
 
 interface RoleSelectionProps {
   open: boolean;
@@ -21,6 +22,7 @@ export default function RoleSelection({
   onOpenChange,
   onRoleSelect,
 }: RoleSelectionProps) {
+  const { t } = useI18n();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -28,8 +30,8 @@ export default function RoleSelection({
   const roles = [
     {
       id: "fan",
-      title: "Free",
-      description: "Connect with your favorite artists and discover new music",
+      title: t("freeForever"),
+      description: t("browseGlobalArtists") + " " + t("smartInvestmentTools"),
       price: "€0",
       period: "/forever",
       icon: Heart,
@@ -37,16 +39,16 @@ export default function RoleSelection({
       border: "border-blue-500/30",
       iconBg: "from-blue-500 to-cyan-500",
       features: [
-        "Browse global artists",
-        "Smart investment tools",
-        "Portfolio tracking",
-        "Early access to talent",
+        t("browseGlobalArtists"),
+        t("smartInvestmentTools"),
+        t("portfolioTracking"),
+        t("earlyAccessToTalent"),
       ],
     },
     {
       id: "artist",
-      title: "Artist",
-      description: "Build your career and connect with fans",
+      title: t("artist"),
+      description: t("professionalDashboard") + " " + t("fanAnalytics"),
       price: "€39.99",
       period: "/month",
       icon: SLogo,
@@ -54,16 +56,16 @@ export default function RoleSelection({
       border: "border-purple-500/30",
       iconBg: "from-purple-500 to-pink-500",
       features: [
-        "Professional dashboard",
-        "Funding campaigns",
-        "Fan analytics",
-        "Platform integration",
+        t("professionalDashboard"),
+        t("fundingCampaigns"),
+        t("fanAnalytics"),
+        t("platformIntegration"),
       ],
     },
     {
       id: "label",
-      title: "Label",
-      description: "Discover and sign talented artists",
+      title: t("label"),
+      description: t("advancedArtistDiscovery") + " " + t("exclusiveAccess"),
       price: "€279",
       period: "/month",
       icon: Building,
@@ -71,10 +73,10 @@ export default function RoleSelection({
       border: "border-yellow-500/30",
       iconBg: "from-yellow-500 to-orange-500",
       features: [
-        "Advanced artist discovery",
-        "Direct contact tools",
-        "Market intelligence",
-        "Exclusive access",
+        t("advancedArtistDiscovery"),
+        t("directContactTools"),
+        t("marketIntelligence"),
+        t("exclusiveAccess"),
       ],
     },
   ];

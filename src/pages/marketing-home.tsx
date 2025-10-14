@@ -16,12 +16,14 @@ import LoginModal from "@/components/login-modal";
 import RoleSelection from "@/components/role-selection";
 import FanRegistration from "@/components/fan-registration";
 import { useAuth } from "@/hooks/useAuthRTK";
+import { useI18n } from "@/hooks/useI18n";
 
 export default function MarketingHome() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [showFanRegistration, setShowFanRegistration] = useState(false);
   const { login } = useAuth();
+  const { t } = useI18n();
 
   const handleRoleSelect = (role: UserRole) => {
     setShowRoleSelection(false);
@@ -44,59 +46,47 @@ export default function MarketingHome() {
   const features = [
     {
       icon: TrendingUp,
-      title: "Smart Investments",
-      description:
-        "AI-powered recommendations to discover the next big artists before they break mainstream",
+      title: t("smartInvestments"),
+      description: t("aiPoweredRecommendations"),
     },
     {
       icon: Globe,
-      title: "Global Reach",
-      description:
-        "Access artists from every corner of the world across all genres and cultural scenes",
+      title: t("globalReach"),
+      description: t("accessArtists"),
     },
     {
       icon: Shield,
-      title: "Secure Platform",
-      description:
-        "Bank-grade security with transparent investment tracking and verified artist profiles",
+      title: t("securePlatform"),
+      description: t("bankGradeSecurity"),
     },
   ];
 
   const pricingTiers = [
     {
-      name: "Free Fan",
+      name: t("freeForever"),
       price: "€0",
       period: "/forever",
       features: [
-        "Discover artists",
-        "Follow favorites",
-        "Basic playlists",
-        "Community access",
+        t("browseGlobalArtists"),
+        t("smartInvestmentTools"),
+        t("portfolioTracking"),
+        t("earlyAccessToTalent"),
       ],
-      cta: "Join Free",
+      cta: t("joinAsFan"),
       popular: false,
       role: "fan",
     },
-    // {
-    //   name: "Premium Investor",
-    //   price: "€279",
-    //   period: "/month",
-    //   features: ["Advanced analytics", "Priority access", "Direct artist contact", "Portfolio management"],
-    //   cta: "Start Premium",
-    //   popular: true,
-    //   role: "investor"
-    // },
     {
       name: "Artist Pro",
       price: "€39.99",
       period: "/month",
       features: [
-        "Control hub",
-        "Campaign tools",
-        "Fan analytics",
-        "Platform integration",
+        t("professionalDashboard"),
+        t("fundingCampaigns"),
+        t("fanAnalytics"),
+        t("platformIntegration"),
       ],
-      cta: "Launch Career",
+      cta: t("joinAsArtist"),
       popular: false,
       role: "artist",
     },
@@ -105,12 +95,12 @@ export default function MarketingHome() {
       price: "€279",
       period: "/month",
       features: [
-        "Artist discovery",
-        "Market intelligence",
-        "Direct contact tools",
-        "Exclusive access",
+        t("advancedArtistDiscovery"),
+        t("marketIntelligence"),
+        t("directContactTools"),
+        t("exclusiveAccess"),
       ],
-      cta: "Join as Label",
+      cta: t("joinAsLabel"),
       popular: false,
       role: "label",
     },
@@ -126,11 +116,10 @@ export default function MarketingHome() {
             <SLogo className="text-cyan-400 animate-neon-pulse" size={96} />
           </div>
           <h1 className="text-6xl md:text-7xl font-bold gradient-text mb-6">
-            INVEST IN MUSIC
+            {t("investInMusic")}
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            Discover emerging artists, invest in their future, and share in
-            their success. The future of music investment is here.
+            {t("discoverEmergingArtists")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
@@ -138,7 +127,7 @@ export default function MarketingHome() {
               className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-lg px-8 py-4"
               onClick={() => setShowRoleSelection(true)}
             >
-              Start Investing
+              {t("startInvesting")}
               <ChevronRight className="ml-2 w-5 h-5" />
             </Button>
             <Button
@@ -146,7 +135,7 @@ export default function MarketingHome() {
               className="bg-black/50 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/10 text-lg px-8 py-4"
               onClick={() => setShowLoginModal(true)}
             >
-              Sign In
+              {t("signIn")}
             </Button>
           </div>
         </div>
@@ -155,7 +144,7 @@ export default function MarketingHome() {
       {/* Features Section */}
       <section className="py-24 max-w-7xl mx-auto px-4">
         <h2 className="text-4xl font-bold text-white text-center mb-16">
-          Why Choose <span className="gradient-text">SPARK</span>
+          {t("whyChooseSpark")} <span className="gradient-text">SPARK</span>
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
@@ -181,10 +170,10 @@ export default function MarketingHome() {
       <section className="py-24 bg-slate-900/50">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-4xl font-bold text-white text-center mb-4">
-            Choose Your <span className="gradient-text">Journey</span>
+            {t("chooseYourJourney")} <span className="gradient-text">Journey</span>
           </h2>
           <p className="text-xl text-gray-300 text-center mb-16">
-            Whether you're an investor or artist, we have the perfect plan
+            {t("perfectPlan")}
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {pricingTiers.map((tier, index) => (

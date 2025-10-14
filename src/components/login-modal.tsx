@@ -17,6 +17,7 @@ import {
   useForgotPasswordMutation 
 } from "@/store/features/api/authApi";
 import VerifyEmail from "./verify-email";
+import { useI18n } from "@/hooks/useI18n";
 
 interface LoginModalProps {
   open: boolean;
@@ -29,6 +30,7 @@ export default function LoginModal({
   onOpenChange,
 }: LoginModalProps) {
   const { toast } = useToast();
+  const { t } = useI18n();
   // RTK Query mutation hooks
   const [login, { isLoading }] = useLoginMutation();
   const [sendOtp, { isLoading: isSendingOtp }] = useSendOtpMutation();
@@ -65,8 +67,8 @@ export default function LoginModal({
   const handleLogin = async () => {
     if (!loginEmail || !loginPassword) {
       toast({
-        title: "Missing Information",
-        description: "Please enter both email and password.",
+        title: t("error"),
+        description: t("emailRequired") + " " + t("passwordRequired"),
         variant: "destructive",
       });
       return;
@@ -83,8 +85,8 @@ export default function LoginModal({
         localStorage.setItem('token', result.data.token);
         
         toast({
-          title: "Login Successful",
-          description: "Welcome back to SPARK!",
+          title: t("loginSuccessful"),
+          description: t("welcomeBack") + " SPARK!",
         });
         
         setLoginEmail("");

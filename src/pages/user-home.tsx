@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,7 @@ import { useGetAllProjectsQuery } from "@/store/features/api/labelApi";
 
 
 export default function UserHome() {
+  const { t } = useTranslation();
   const { user, logout, isLogoutLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("trending");
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,8 +65,8 @@ export default function UserHome() {
           <SLogo className="text-cyan-400" size={24} />
             <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
               <span className="text-lg sm:text-xl font-bold text-white">
-                Welcome {user?.username}
-          </span>
+                {t('welcomeUser')} {user?.username}
+              </span>
               <span className="text-2xl">🔥</span>
             </div>
         </div>
@@ -79,7 +81,7 @@ export default function UserHome() {
               {isLogoutLoading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
-                "Logout"
+                t('logout')
               )}
           </Button>
           </div>
@@ -93,7 +95,7 @@ export default function UserHome() {
             {/* Tab Header */}
             <div className="space-y-4">
               <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                Active Projects
+                {t('activeProjects')}
               </h1>
               <div className="flex flex-wrap gap-3">
                 <Button
@@ -101,7 +103,7 @@ export default function UserHome() {
                   className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-medium px-4 py-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
                   <TrendingUp className="w-4 h-4 mr-2" />
-                  Trending
+                  {t('trending')}
                 </Button>
               </div>
             </div>
@@ -112,7 +114,7 @@ export default function UserHome() {
                 <CardTitle className="text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex items-center">
                     <Target className="w-5 h-5 mr-2 text-cyan-400" />
-                    <span className="text-lg sm:text-xl">Latest Projects/Campaigns</span>
+                    <span className="text-lg sm:text-xl">{t('latestProjectsCampaigns')}</span>
                           </div>
                   {projectsData?.pagination && projectsData.pagination.totalPages > 1 && (
                     <div className="flex items-center space-x-2">
@@ -145,18 +147,18 @@ export default function UserHome() {
                 {isLoading ? (
                   <div className="text-center py-8">
                     <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-400">Loading projects...</p>
+                    <p className="text-gray-400">{t('loadingProjects')}</p>
                   </div>
                 ) : error ? (
                   <div className="text-center py-8">
-                    <p className="text-red-400 mb-2">Failed to load projects</p>
-                    <p className="text-gray-500 text-sm">Please try again later</p>
+                    <p className="text-red-400 mb-2">{t('failedToLoadProjects')}</p>
+                    <p className="text-gray-500 text-sm">{t('pleaseTryAgainLater')}</p>
                   </div>
                 ) : projectsData?.data?.projects?.length === 0 ? (
                   <div className="text-center py-8">
                     <Target className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                    <p className="text-gray-400 mb-2">No projects found</p>
-                    <p className="text-gray-500 text-sm">Check back later for new investment opportunities</p>
+                    <p className="text-gray-400 mb-2">{t('noProjectsFound')}</p>
+                    <p className="text-gray-500 text-sm">{t('checkBackLater')}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
@@ -222,26 +224,26 @@ export default function UserHome() {
                           <div className="grid grid-cols-2 gap-3 sm:gap-4">
                             <div className="text-center p-3 bg-slate-700/30 rounded-lg">
                               <p className="text-lg sm:text-xl font-bold text-white">${project.fundingGoal.toLocaleString()}</p>
-                              <p className="text-xs text-gray-400">Funding Goal</p>
+                              <p className="text-xs text-gray-400">{t('fundingGoal')}</p>
                             </div>
                             <div className="text-center p-3 bg-slate-700/30 rounded-lg">
                               <p className="text-lg sm:text-xl font-bold text-cyan-400">{project.expectedROIPercentage}%</p>
-                              <p className="text-xs text-gray-400">Expected ROI</p>
+                              <p className="text-xs text-gray-400">{t('expectedROI')}</p>
                         </div>
                             <div className="text-center p-3 bg-slate-700/30 rounded-lg">
-                              <p className="text-lg sm:text-xl font-bold text-purple-400">{project.duration} days</p>
-                              <p className="text-xs text-gray-400">Duration</p>
+                              <p className="text-lg sm:text-xl font-bold text-purple-400">{project.duration} {t('days')}</p>
+                              <p className="text-xs text-gray-400">{t('duration')}</p>
                         </div>
                             <div className="text-center p-3 bg-slate-700/30 rounded-lg">
                               <p className="text-lg sm:text-xl font-bold text-orange-400 capitalize">{project.releaseType}</p>
-                              <p className="text-xs text-gray-400">Release Type</p>
+                              <p className="text-xs text-gray-400">{t('releaseType')}</p>
                         </div>
                       </div>
 
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-slate-600/30">
                             <div className="text-sm text-gray-400 space-y-1">
-                              <p>Deadline: {new Date(project.fundingDeadline).toLocaleDateString()}</p>
-                              <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
+                              <p>{t('deadline')}: {new Date(project.fundingDeadline).toLocaleDateString()}</p>
+                              <p>{t('created')}: {new Date(project.createdAt).toLocaleDateString()}</p>
                         </div>
                             <div className="flex space-x-2">
                             <Button
@@ -249,7 +251,7 @@ export default function UserHome() {
                                 className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-medium px-4 py-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                                 onClick={() => handleInvestClick(project._id)}
                               >
-                                Invest
+                                {t('invest')}
                             </Button>
                             </div>
                           </div>
@@ -266,11 +268,11 @@ export default function UserHome() {
             {/* Investment Dashboard for Fans */}
             <div className="space-y-6">
               <div className="text-center sm:text-left">
-                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
-                Your Investment Dashboard
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
+                {t('investmentDashboard')}
               </h1>
                 <p className="text-gray-400 text-sm sm:text-base">
-                Track your music investments and discoveries
+                {t('trackInvestmentsDiscoveries')}
               </p>
               </div>
 
@@ -278,24 +280,24 @@ export default function UserHome() {
                 <div className="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-gray-700/50 rounded-xl p-4 sm:p-6 backdrop-blur-sm shadow-2xl">
                   <h3 className="text-lg sm:text-xl font-semibold text-white mb-4 flex items-center">
                     <BarChart3 className="w-5 h-5 mr-2 text-cyan-400" />
-                    Portfolio Overview
+                    {t('portfolioOverview')}
                   </h3>
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-slate-800/50 to-slate-700/30 rounded-lg border border-slate-600/30 hover:border-cyan-500/30 transition-all duration-200">
-                      <span className="text-gray-300 text-sm sm:text-base">Total Invested</span>
+                      <span className="text-gray-300 text-sm sm:text-base">{t('totalInvested')}</span>
                       <span className="text-white font-bold text-lg sm:text-xl">
                         ${portfolioData.totalInvested}
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-slate-800/50 to-slate-700/30 rounded-lg border border-slate-600/30 hover:border-cyan-500/30 transition-all duration-200">
-                      <span className="text-gray-300 text-sm sm:text-base">Current Value</span>
+                      <span className="text-gray-300 text-sm sm:text-base">{t('currentValue')}</span>
                       <span className="text-white font-bold text-lg sm:text-xl">
                         ${portfolioData.currentValue}
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-slate-800/50 to-slate-700/30 rounded-lg border border-slate-600/30 hover:border-green-500/30 transition-all duration-200">
-                      <span className="text-gray-300 text-sm sm:text-base">Total Return</span>
+                      <span className="text-gray-300 text-sm sm:text-base">{t('totalReturn')}</span>
                       <span className="text-green-400 font-bold text-lg sm:text-xl">
                         +{portfolioData.totalReturn}
                       </span>
@@ -306,13 +308,13 @@ export default function UserHome() {
                 <div className="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-gray-700/50 rounded-xl p-4 sm:p-6 backdrop-blur-sm shadow-2xl">
                   <h3 className="text-lg sm:text-xl font-semibold text-white mb-4 flex items-center">
                     <TrendingUp className="w-5 h-5 mr-2 text-purple-400" />
-                    Recent Investments
+                    {t('recentInvestments')}
                   </h3>
                   <div className="text-center py-8 sm:py-12">
                     <BarChart3 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                    <p className="text-gray-400 text-sm sm:text-base">No investments yet</p>
+                    <p className="text-gray-400 text-sm sm:text-base">{t('noInvestmentsYet')}</p>
                     <p className="text-gray-500 text-xs sm:text-sm mt-1">
-                      Start following artists to begin your journey
+                      {t('startFollowingArtists')}
                     </p>
                   </div>
                 </div>
@@ -327,7 +329,7 @@ export default function UserHome() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="What would you like to listen to?"
+                  placeholder={t('searchPlaceholderHome')}
                   className="w-full bg-white text-black rounded-xl px-4 sm:px-12 py-3 sm:py-4 text-sm sm:text-base font-medium shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all duration-200"
                 />
                 <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2">
@@ -338,12 +340,12 @@ export default function UserHome() {
               {/* Main Navigation Categories */}
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">
-                  Start Browsing
+                  {t('startBrowsing')}
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="bg-gradient-to-br from-pink-500 to-red-500 rounded-xl p-4 sm:p-6 relative overflow-hidden transform hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl cursor-pointer group">
                     <h3 className="text-white font-bold text-base sm:text-lg z-10 relative group-hover:text-pink-100 transition-colors">
-                      Music
+                      {t('music')}
                     </h3>
                     <div className="absolute -right-2 sm:-right-4 -bottom-2 sm:-bottom-4 w-16 h-16 sm:w-20 sm:h-20 opacity-80 group-hover:opacity-100 transition-opacity">
                       <img
@@ -356,7 +358,7 @@ export default function UserHome() {
 
                   <div className="bg-gradient-to-br from-teal-600 to-green-600 rounded-xl p-4 sm:p-6 relative overflow-hidden transform hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl cursor-pointer group">
                     <h3 className="text-white font-bold text-base sm:text-lg z-10 relative group-hover:text-teal-100 transition-colors">
-                      Podcasts
+                      {t('podcasts')}
                     </h3>
                     <div className="absolute -right-2 sm:-right-4 -bottom-2 sm:-bottom-4 w-16 h-16 sm:w-20 sm:h-20 opacity-80 group-hover:opacity-100 transition-opacity">
                       <img
@@ -369,7 +371,7 @@ export default function UserHome() {
 
                   <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-4 sm:p-6 relative overflow-hidden transform hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl cursor-pointer group">
                     <h3 className="text-white font-bold text-base sm:text-lg z-10 relative group-hover:text-blue-100 transition-colors">
-                      Audio Books
+                      {t('audioBooks')}
                     </h3>
                     <div className="absolute -right-2 sm:-right-4 -bottom-2 sm:-bottom-4 w-16 h-16 sm:w-20 sm:h-20 opacity-80 group-hover:opacity-100 transition-opacity">
                       <img
@@ -382,7 +384,7 @@ export default function UserHome() {
 
                   <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl p-4 sm:p-6 relative overflow-hidden transform hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl cursor-pointer group">
                     <h3 className="text-white font-bold text-base sm:text-lg z-10 relative group-hover:text-purple-100 transition-colors">
-                      Live Events
+                      {t('liveEvents')}
                     </h3>
                     <div className="absolute -right-2 sm:-right-4 -bottom-2 sm:-bottom-4 w-16 h-16 sm:w-20 sm:h-20 opacity-80 group-hover:opacity-100 transition-opacity">
                       <img

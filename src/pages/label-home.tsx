@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Building,
   TrendingUp,
@@ -25,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { useGetAllProjectsQuery } from "@/store/features/api/labelApi";
 
 export default function LabelHome() {
+  const { t } = useTranslation();
   const { user, logout, isLogoutLoading } = useAuth();
   const [showProfessionalInbox, setShowProfessionalInbox] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -94,14 +96,14 @@ export default function LabelHome() {
             <Crown className="text-yellow-400 text-xl sm:text-2xl" />
           </div>
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white px-4">
-            WELCOME {user?.username?.toUpperCase() || "LABEL"}
+            {t('welcome').toUpperCase()} {user?.username?.toUpperCase() || "LABEL"}
           </h1>
           <p className="text-lg sm:text-xl text-gray-400 px-4">
-            Your label management headquarters
+            {t('labelHQ')}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
             <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs sm:text-sm px-3 sm:px-4 py-2">
-              Label Executive
+              {t('labelExecutive')}
             </Badge>
             <Button
               variant="outline"
@@ -111,7 +113,7 @@ export default function LabelHome() {
               className="border-gray-500 text-gray-300 hover:bg-red-500/20 text-xs sm:text-sm px-3 sm:px-4"
             >
               <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-              {isLogoutLoading ? "Signing out..." : "Sign Out"}
+              {isLogoutLoading ? t('signingOut') : t('signOut')}
             </Button>
           </div>
         </div>
@@ -149,7 +151,7 @@ export default function LabelHome() {
             <CardTitle className="text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center text-lg sm:text-xl">
                 <Target className="w-5 h-5 mr-2 text-cyan-400" />
-                Latest Projects/Campaigns
+                {t('latestProjects')}
               </div>
               {projectsData?.pagination && projectsData.pagination.totalPages > 1 && (
                 <div className="flex items-center space-x-2">
@@ -182,18 +184,18 @@ export default function LabelHome() {
             {isProjectsLoading ? (
               <div className="text-center py-8">
                 <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-400">Loading projects...</p>
+                <p className="text-gray-400">{t('loadingProjects')}</p>
               </div>
             ) : projectsError ? (
               <div className="text-center py-8">
-                <p className="text-red-400 mb-2">Failed to load projects</p>
-                <p className="text-gray-500 text-sm">Please try again later</p>
+                <p className="text-red-400 mb-2">{t('failedToLoadProjects')}</p>
+                <p className="text-gray-500 text-sm">{t('pleaseTryAgainLater')}</p>
               </div>
             ) : projectsData?.data?.projects?.length === 0 ? (
               <div className="text-center py-8">
                 <Target className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-400 mb-2">No projects found</p>
-                <p className="text-gray-500 text-sm">Create your first project to get started</p>
+                <p className="text-gray-400 mb-2">{t('noProjectsFound')}</p>
+                <p className="text-gray-500 text-sm">{t('createYourFirstProject')}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -258,26 +260,26 @@ export default function LabelHome() {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
                       <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
                         <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white">${project.fundingGoal.toLocaleString()}</p>
-                        <p className="text-xs text-gray-400">Funding Goal</p>
+                        <p className="text-xs text-gray-400">{t('fundingGoal')}</p>
                       </div>
                       <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
                         <p className="text-lg sm:text-xl lg:text-2xl font-bold text-cyan-400">{project.expectedROIPercentage}%</p>
-                        <p className="text-xs text-gray-400">Expected ROI</p>
+                        <p className="text-xs text-gray-400">{t('expectedROI')}</p>
                       </div>
                       <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
-                        <p className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-400">{project.duration} days</p>
-                        <p className="text-xs text-gray-400">Duration</p>
+                        <p className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-400">{project.duration} {t('days')}</p>
+                        <p className="text-xs text-gray-400">{t('duration')}</p>
                       </div>
                       <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
                         <p className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-400 capitalize">{project.releaseType}</p>
-                        <p className="text-xs text-gray-400">Release Type</p>
+                        <p className="text-xs text-gray-400">{t('releaseType')}</p>
                       </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-slate-600/30">
                       <div className="text-xs sm:text-sm text-gray-400 space-y-1">
-                        <p>Deadline: {new Date(project.fundingDeadline).toLocaleDateString()}</p>
-                        <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
+                        <p>{t('deadline')}: {new Date(project.fundingDeadline).toLocaleDateString()}</p>
+                        <p>{t('created')}: {new Date(project.createdAt).toLocaleDateString()}</p>
                       </div>
                       <div className="flex space-x-2">
                         {(user as any)?.isProMember ? (
@@ -286,13 +288,13 @@ export default function LabelHome() {
                             className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
                             onClick={() => navigate(`/invest/${project._id}`)}
                           >
-                            Invest
+                            {t('invest')}
                           </Button>
                         ) : (
                           <div className="flex items-center space-x-2">
                             <div className="flex items-center space-x-1 px-2 py-1 bg-gray-800/50 border border-gray-600 rounded text-xs">
                               <Lock className="w-3 h-3 text-gray-400" />
-                              <span className="text-gray-400">Pro Required</span>
+                              <span className="text-gray-400">{t('proRequired')}</span>
                             </div>
                             <Button
                               size="sm"
@@ -300,7 +302,7 @@ export default function LabelHome() {
                               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                             >
                               <Crown className="w-3 h-3 mr-1" />
-                              Upgrade
+                              {t('upgradeToPro')}
                             </Button>
                           </div>
                         )}
@@ -369,9 +371,9 @@ export default function LabelHome() {
             <CardContent className="p-4 sm:p-6 text-center">
               <Search className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400 mx-auto mb-3 sm:mb-4 group-hover:animate-pulse group-hover:scale-110 transition-transform" />
               <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
-                Discover Talent
+                {t('discoverTalent')}
               </h3>
-              <p className="text-gray-300 text-sm sm:text-base">Find and scout new artists</p>
+              <p className="text-gray-300 text-sm sm:text-base">{t('findAndScoutArtists')}</p>
             </CardContent>
           </Card>
 
@@ -395,9 +397,9 @@ export default function LabelHome() {
             <CardContent className="p-4 sm:p-6 text-center">
               <Users className="w-10 h-10 sm:w-12 sm:h-12 text-cyan-400 mx-auto mb-3 sm:mb-4 group-hover:animate-pulse group-hover:scale-110 transition-transform" />
               <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
-                Manage Roster
+                {t('manageRoster')}
               </h3>
-              <p className="text-gray-300 text-sm sm:text-base">Oversee your signed artists</p>
+              <p className="text-gray-300 text-sm sm:text-base">{t('overseeSignedArtists')}</p>
             </CardContent>
           </Card>
 
@@ -407,8 +409,8 @@ export default function LabelHome() {
           >
             <CardContent className="p-4 sm:p-6 text-center">
               <BarChart3 className="w-10 h-10 sm:w-12 sm:h-12 text-green-400 mx-auto mb-3 sm:mb-4 group-hover:animate-pulse group-hover:scale-110 transition-transform" />
-              <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-green-300 transition-colors">Analytics</h3>
-              <p className="text-gray-300 text-sm sm:text-base">Track performance metrics</p>
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-green-300 transition-colors">{t('analyticsTitle')}</h3>
+              <p className="text-gray-300 text-sm sm:text-base">{t('trackPerformanceMetrics')}</p>
             </CardContent>
           </Card>
         </div>

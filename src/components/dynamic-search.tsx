@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -80,6 +81,7 @@ export default function DynamicSearch({
   hasSearched?: boolean;
   searchQuery?: string;
 }) {
+  const { t } = useTranslation();
   console.log("enter here");
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -265,7 +267,7 @@ export default function DynamicSearch({
     }
     // Focus back to input after setting the value
     setTimeout(() => {
-      const input = document.querySelector('input[placeholder="Search artists, songs, videos..."]') as HTMLInputElement;
+      const input = document.querySelector(`input[placeholder="${t('searchPage.searchPlaceholder')}"]`) as HTMLInputElement;
       if (input) {
         input.focus();
       }
@@ -527,7 +529,7 @@ export default function DynamicSearch({
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
           <Input
-            placeholder="Search artists, songs, videos..."
+            placeholder={t('searchPage.searchPlaceholder')}
             value={searchInputValue || searchQuery}
             onChange={handleSearchInputChange}
             onFocus={handleSearchFocus}
@@ -573,7 +575,7 @@ export default function DynamicSearch({
       {showSearchHistory && searchHistoryData?.data?.history && searchHistoryData.data.history.length > 0 && (
         <div className="absolute top-20 left-20 right-4 z-[9999] bg-slate-900/95 backdrop-blur-sm rounded-lg border border-cyan-500/20 shadow-2xl max-h-80 overflow-y-auto">
           <div className="p-2">
-            <div className="text-xs text-cyan-400 mb-2 px-2 font-medium">Recent searches</div>
+            <div className="text-xs text-cyan-400 mb-2 px-2 font-medium">{t('searchPage.recentSearches')}</div>
             {searchHistoryData.data.history.map((item) => (
               <button
                 key={item._id}
@@ -648,7 +650,7 @@ export default function DynamicSearch({
                     border: isActive ? `2px solid ${themeColors.primary}` : '2px solid transparent',
                 }}
               >
-                {tab}
+                {tab === 'Top' ? t('searchPage.tabTop') : tab === 'Songs' ? t('searchPage.tabSongs') : t('searchPage.tabArtists')}
               </TabsTrigger>
               );
             })}
@@ -692,12 +694,12 @@ export default function DynamicSearch({
         {isLoading ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading trending content...</p>
+            <p className="text-gray-400">{t('searchPage.loadingTrending')}</p>
           </div>
         ) : error ? (
           <div className="text-center py-12">
-            <p className="text-red-400 mb-4">Failed to load trending content</p>
-            <p className="text-gray-500 text-sm">Please try again later</p>
+            <p className="text-red-400 mb-4">{t('searchPage.failedToLoadTrending')}</p>
+            <p className="text-gray-500 text-sm">{t('pleaseTryAgainLater')}</p>
           </div>
         ) : activeTab === "songs" ? (
           // Songs tab - Show songs with music player UI
@@ -705,7 +707,7 @@ export default function DynamicSearch({
             <div className="flex items-center space-x-2">
               <Music className="w-5 h-5" style={{ color: themeColors.accent }} />
               <h3 className="text-lg font-bold" style={{ color: themeColors.text }}>
-                {hasSearched && parentSearchQuery ? `Search Results for "${parentSearchQuery}"` : 'Trending Songs'}
+                {hasSearched && parentSearchQuery ? t('searchPage.searchResultsFor', { query: parentSearchQuery }) : t('searchPage.trendingSongs')}
               </h3>
             </div>
             
@@ -801,7 +803,7 @@ export default function DynamicSearch({
             <div className="flex items-center space-x-2">
               <Users className="w-5 h-5" style={{ color: themeColors.accent }} />
               <h3 className="text-lg font-bold" style={{ color: themeColors.text }}>
-                {hasSearched && parentSearchQuery ? `Search Results for "${parentSearchQuery}"` : 'Trending Artists'}
+                {hasSearched && parentSearchQuery ? t('searchPage.searchResultsFor', { query: parentSearchQuery }) : t('searchPage.trendingArtists')}
               </h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -1014,7 +1016,7 @@ export default function DynamicSearch({
                   className="text-lg font-bold"
                   style={{ color: themeColors.text }}
                 >
-                  {activeTab === 'top' ? 'Trending Now' : activeTab === 'songs' ? 'Trending Songs' : 'Trending Artists'}
+                  {activeTab === 'top' ? t('searchPage.trendingNow') : activeTab === 'songs' ? t('searchPage.trendingSongs') : t('searchPage.trendingArtists')}
                 </h3>
                       </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">

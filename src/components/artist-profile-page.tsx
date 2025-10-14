@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Calendar, MapPin, TrendingUp, ArrowLeft, Video, Plus, Upload, Trash2, Image, ChevronLeft, ChevronRight, Music, Lock, Crown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,6 +32,7 @@ export default function ArtistProfilePage({
   isOwner = false,
   onProfileUpdate
 }: ArtistProfilePageProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -679,19 +681,19 @@ export default function ArtistProfilePage({
                   value="portfolio"
                   className="text-gray-400 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none bg-transparent"
                 >
-                  Portfolio
+                  {t('create.portfolio')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="projects"
                   className="text-gray-400 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none bg-transparent"
                 >
-                  Projects
+                  {t('create.projects')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="about"
                   className="text-gray-400 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none bg-transparent"
                 >
-                  About
+                  {t('create.about')}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -703,7 +705,7 @@ export default function ArtistProfilePage({
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsContent value="portfolio" className="mt-0 pb-16">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                <h2 className="text-xl font-semibold text-white">Artist Portfolio</h2>
+                <h2 className="text-xl font-semibold text-white">{t('create.artistPortfolio')}</h2>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   {isOwner && (
                     <Button
@@ -711,7 +713,7 @@ export default function ArtistProfilePage({
                       className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Add Content
+                      {t('create.addContent')}
                     </Button>
                   )}
                   <div className="flex gap-3">
@@ -722,7 +724,7 @@ export default function ArtistProfilePage({
                         : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50'
                         }`}
                     >
-                      All
+                      {t('create.all')}
                     </button>
                     <button
                       onClick={() => setContentFilter("audio")}
@@ -731,7 +733,7 @@ export default function ArtistProfilePage({
                         : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50'
                         }`}
                     >
-                      Audio
+                      {t('create.audio')}
                     </button>
                     <button
                       onClick={() => setContentFilter("video")}
@@ -740,7 +742,7 @@ export default function ArtistProfilePage({
                         : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50'
                         }`}
                     >
-                      Video
+                      {t('create.video')}
                     </button>
                     <button
                       onClick={() => setContentFilter("photo")}
@@ -749,7 +751,7 @@ export default function ArtistProfilePage({
                         : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50'
                         }`}
                     >
-                      Photos
+                      {t('create.photos')}
                     </button>
                   </div>
                 </div>
@@ -758,18 +760,18 @@ export default function ArtistProfilePage({
               {contentLoading ? (
                 <div className="text-center py-16">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
-                  <p className="text-gray-400 mt-4">Loading content...</p>
+                  <p className="text-gray-400 mt-4">{t('create.loadingContent')}</p>
                 </div>
               ) : filteredContent.length === 0 ? (
                 <div className="text-center py-16">
                   <Upload className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-white mb-2">
-                    {contentFilter === "all" ? "No Content Yet" : `No ${contentFilter === "photo" ? "photo" : contentFilter} content`}
+                    {contentFilter === "all" ? t('create.noContentYet') : t('create.noContentFilter', { type: contentFilter === "photo" ? t('create.photo') : contentFilter })}
                   </h3>
                   <p className="text-gray-400">
                     {isOwner
-                      ? "Upload your first content to showcase your work"
-                      : "This artist hasn't shared any content yet"}
+                      ? t('create.uploadFirstContent')
+                      : t('create.noContentShared')}
                   </p>
                   {isOwner && (
                     <Button
@@ -777,7 +779,7 @@ export default function ArtistProfilePage({
                       className="mt-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white"
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Upload Content
+                      {t('create.uploadContent')}
                     </Button>
                   )}
                 </div>
@@ -791,7 +793,7 @@ export default function ArtistProfilePage({
             <TabsContent value="projects" className="mt-0 pb-16">
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <h2 className="text-2xl font-bold text-white">Active Projects</h2>
+                  <h2 className="text-2xl font-bold text-white">{t('create.activeProjects')}</h2>
                   <div className="flex gap-2">
                     {/* <Button
                       onClick={() => refetchProjects()}
@@ -809,13 +811,13 @@ export default function ArtistProfilePage({
                           className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
                         >
                           <Plus className="w-4 h-4 mr-2" />
-                          Create New Project
+                          {t('create.createNewProject')}
                         </Button>
                       ) : (
                         <div className="flex items-center space-x-2">
                           <div className="flex items-center space-x-2 px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg">
                             <Lock className="w-4 h-4 text-gray-400" />
-                            <span className="text-gray-400 text-sm">Pro Required</span>
+                            <span className="text-gray-400 text-sm">{t('create.proRequired')}</span>
                           </div>
                           <Button
                             onClick={() => navigate('/settings')}
@@ -823,7 +825,7 @@ export default function ArtistProfilePage({
                             className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                           >
                             <Crown className="w-4 h-4 mr-2" />
-                            Upgrade
+                            {t('create.upgrade')}
                           </Button>
                         </div>
                       )
@@ -833,18 +835,18 @@ export default function ArtistProfilePage({
                 {campaignsLoading ? (
                   <div className="text-center py-8">
                     <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-400">Loading projects...</p>
+                    <p className="text-gray-400">{t('create.loadingProjects')}</p>
                   </div>
                 ) : campaignsError ? (
                   <div className="text-center py-8">
-                    <p className="text-red-400 mb-2">Failed to load projects</p>
-                    <p className="text-gray-500 text-sm">Please try again later</p>
+                    <p className="text-red-400 mb-2">{t('create.failedToLoadProjects')}</p>
+                    <p className="text-gray-500 text-sm">{t('create.pleaseTryAgainLater')}</p>
                   </div>
                 ) : campaigns.length === 0 ? (
                   <div className="text-center py-8">
                     <TrendingUp className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                    <p className="text-gray-400 mb-2">No projects found</p>
-                    <p className="text-gray-500 text-sm">Create your first project to get started</p>
+                    <p className="text-gray-400 mb-2">{t('create.noProjectsFound')}</p>
+                    <p className="text-gray-500 text-sm">{t('create.createFirstProject')}</p>
                   </div>
                 ) : (
                   <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
@@ -908,26 +910,26 @@ export default function ArtistProfilePage({
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                           <div className="text-center">
                             <p className="text-2xl font-bold text-white">${project.fundingGoal.toLocaleString()}</p>
-                            <p className="text-xs text-gray-400">Funding Goal</p>
+                            <p className="text-xs text-gray-400">{t('create.fundingGoal')}</p>
                           </div>
                           <div className="text-center">
                             <p className="text-2xl font-bold text-cyan-400">{project.expectedROIPercentage}%</p>
-                            <p className="text-xs text-gray-400">Expected ROI</p>
+                            <p className="text-xs text-gray-400">{t('create.expectedROI')}</p>
                           </div>
                           <div className="text-center">
                             <p className="text-2xl font-bold text-purple-400">{project.duration} days</p>
-                            <p className="text-xs text-gray-400">Duration</p>
+                            <p className="text-xs text-gray-400">{t('create.duration')}</p>
                           </div>
                           <div className="text-center">
                             <p className="text-2xl font-bold text-orange-400 capitalize">{project.releaseType}</p>
-                            <p className="text-xs text-gray-400">Release Type</p>
+                            <p className="text-xs text-gray-400">{t('create.releaseType')}</p>
                           </div>
                         </div>
 
                         <div className="flex items-center justify-between">
                           <div className="text-sm text-gray-400">
-                            <p>Deadline: {new Date(project.fundingDeadline).toLocaleDateString()}</p>
-                            <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
+                            <p>{t('create.deadline')}: {new Date(project.fundingDeadline).toLocaleDateString()}</p>
+                            <p>{t('create.created')}: {new Date(project.createdAt).toLocaleDateString()}</p>
                           </div>
                           <div className="flex space-x-2">
                             {isOwner && (
@@ -936,7 +938,7 @@ export default function ArtistProfilePage({
                                 className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
                                 onClick={() => handleEditProjectClick(project)}
                               >
-                                Edit Project
+{t('create.editProject')}
                               </Button>
                             )}
                             {!isOwner && shouldShowInvestButton && (
@@ -945,7 +947,7 @@ export default function ArtistProfilePage({
                                 className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
                                 onClick={() => handleInvestClick(project._id)}
                               >
-                                Invest
+{t('create.invest')}
                               </Button>
                             )}
                           </div>
@@ -987,43 +989,43 @@ export default function ArtistProfilePage({
             <TabsContent value="about" className="mt-0">
               <Card className="bg-slate-800/50 border border-gray-700/50">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-white mb-4">About {artist.name}</h3>
+                  <h3 className="text-xl font-semibold text-white mb-4">{t('create.aboutArtist', { name: artist.name })}</h3>
                   <p className="text-gray-300 leading-relaxed mb-6">
                     {artist.description || `${artist.name} is a talented ${artist.genre} artist from ${artist.country}. With ${artist.monthlyListeners.toLocaleString()} monthly listeners, they're making waves in the music industry with their unique sound and creative vision.`}
                   </p>
 
                   <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <h4 className="text-white font-semibold mb-2">Stats</h4>
+                      <h4 className="text-white font-semibold mb-2">{t('create.stats')}</h4>
                       <div className="space-y-2 text-sm">
                         {/* <div className="flex justify-between">
                           <span className="text-gray-400">Monthly Listeners</span>
                           <span className="text-white">{artist.monthlyListeners.toLocaleString()}</span>
                         </div> */}
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Funding Goal</span>
+                          <span className="text-gray-400">{t('create.fundingGoal')}</span>
                           <span className="text-white">${totalGoalFromCampaigns.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Total Raised</span>
+                          <span className="text-gray-400">{t('create.totalRaised')}</span>
                           <span className="text-green-400">${totalRaisedFromCampaigns.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Monthly ROI</span>
+                          <span className="text-gray-400">{t('create.monthlyROI')}</span>
                           <span className="text-purple-400">{monthlyROI.toFixed(1)}%</span>
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <h4 className="text-white font-semibold mb-2">Links</h4>
+                      <h4 className="text-white font-semibold mb-2">{t('create.links')}</h4>
                       <div className="space-y-2">
                         {artist.streamingLinks?.spotify && (
                           <a
                             href={artist.streamingLinks.spotify}
                             className="block text-green-400 hover:text-green-300 text-sm"
                           >
-                            Spotify Profile
+{t('create.spotifyProfile')}
                           </a>
                         )}
                         {artist.streamingLinks?.youtube && (
@@ -1031,7 +1033,7 @@ export default function ArtistProfilePage({
                             href={artist.streamingLinks.youtube}
                             className="block text-red-400 hover:text-red-300 text-sm"
                           >
-                            YouTube Channel
+{t('create.youtubeChannel')}
                           </a>
                         )}
                       </div>
@@ -1047,10 +1049,10 @@ export default function ArtistProfilePage({
         {showEditProfile && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-slate-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-              <h3 className="text-xl font-bold text-white mb-4">Edit Profile</h3>
+              <h3 className="text-xl font-bold text-white mb-4">{t('create.editProfile')}</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Profile Photo</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">{t('create.profilePhoto')}</label>
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -1060,7 +1062,7 @@ export default function ArtistProfilePage({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Artist Name</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">{t('create.artistName')}</label>
                   <input
                     type="text"
                     value={profileData.name}
@@ -1069,7 +1071,7 @@ export default function ArtistProfilePage({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Genre</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">{t('create.genre')}</label>
                   <input
                     type="text"
                     value={profileData.genre}
@@ -1078,7 +1080,7 @@ export default function ArtistProfilePage({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Bio</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">{t('create.bio')}</label>
                   <textarea
                     value={profileData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
@@ -1093,13 +1095,13 @@ export default function ArtistProfilePage({
                   onClick={() => setShowEditProfile(false)}
                   className="flex-1"
                 >
-                  Cancel
+                  {t('create.cancel')}
                 </Button>
                 <Button
                   onClick={handleSaveProfile}
                   className="flex-1 bg-purple-500 hover:bg-purple-600"
                 >
-                  Save Changes
+                  {t('create.saveChanges')}
                 </Button>
               </div>
             </div>

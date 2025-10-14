@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuthRTK";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useI18n } from "@/hooks/useI18n";
+import { i18n } from "@/lib/i18n";
 import { useUpdateUserMutation, useChangePasswordMutation } from "@/store/features/api/authApi";
 import { useConnectSpotifyMutation } from "@/store/features/api/socialMediaApi";
 import { useConnectStripeMutation } from "@/store/features/api/labelApi";
@@ -33,7 +34,7 @@ import {
 
 export default function SettingsPage() {
   const { user, isAuthenticated, logout } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
+  const { t, changeLanguage, language } = useI18n();
   const { toast } = useToast();
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
@@ -85,6 +86,11 @@ export default function SettingsPage() {
         autoPreview: user.autoPreview ?? true,
         darkMode: user.darkMode ?? true,
       });
+      
+      // Initialize language from user data
+      if (user.language && typeof user.language === 'string') {
+        i18n.initializeFromUser(user.language);
+      }
     }
   }, [user]);
 
@@ -111,8 +117,8 @@ export default function SettingsPage() {
       // Validate file type
       if (!file.type.startsWith('image/')) {
         toast({
-          title: "Invalid File Type",
-          description: "Please select an image file.",
+          title: t("invalidFileType"),
+          description: t("pleaseSelectImageFile"),
           variant: "destructive",
         });
         return;
@@ -121,8 +127,8 @@ export default function SettingsPage() {
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast({
-          title: "File Too Large",
-          description: "Please select an image smaller than 5MB.",
+          title: t("fileTooLarge"),
+          description: t("pleaseSelectImageSmallerThan5MB"),
           variant: "destructive",
         });
         return;
@@ -149,8 +155,8 @@ export default function SettingsPage() {
   const handleUpdateProfile = async () => {
     if (!displayName.trim()) {
       toast({
-        title: "Invalid Name",
-        description: "Please enter a valid display name.",
+        title: t("invalidName"),
+        description: t("pleaseEnterValidDisplayName"),
         variant: "destructive",
       });
       return;
@@ -173,14 +179,14 @@ export default function SettingsPage() {
       setIsEditingProfile(false);
       
       toast({
-        title: "Profile Updated",
-        description: "Your profile has been updated successfully.",
+        title: t("profileUpdated"),
+        description: t("profileUpdatedSuccessfully"),
       });
     } catch (error: any) {
       console.error("Profile update error:", error);
       toast({
-        title: "Update Failed",
-        description: error?.data?.message || "Failed to update profile. Please try again.",
+        title: t("updateFailed"),
+        description: error?.data?.message || t("failedToUpdateProfile"),
         variant: "destructive",
       });
     }
@@ -192,14 +198,14 @@ export default function SettingsPage() {
       await updateUser({ [setting]: value }).unwrap();
       setSettings(prev => ({ ...prev, [setting]: value }));
       toast({
-        title: "Setting Updated",
-        description: "Your preference has been updated successfully.",
+        title: t("settingUpdated"),
+        description: t("preferenceUpdatedSuccessfully"),
       });
     } catch (error: any) {
       console.error("Setting update error:", error);
       toast({
-        title: "Update Failed",
-        description: error?.data?.message || "Failed to update setting. Please try again.",
+        title: t("updateFailed"),
+        description: error?.data?.message || t("failedToUpdateSetting"),
         variant: "destructive",
       });
     }
@@ -208,17 +214,17 @@ export default function SettingsPage() {
   // Handle language change
   const handleLanguageChange = async (newLanguage: string) => {
     try {
-      await updateUser({ language: newLanguage === 'en' }).unwrap();
-      setLanguage(newLanguage as any);
+      await updateUser({ language: newLanguage as any }).unwrap();
+      changeLanguage(newLanguage as any);
       toast({
-        title: "Language Updated",
-        description: "Your language preference has been updated successfully.",
+        title: t("languageUpdated"),
+        description: t("languagePreferenceUpdatedSuccessfully"),
       });
     } catch (error: any) {
       console.error("Language update error:", error);
       toast({
-        title: "Update Failed",
-        description: error?.data?.message || "Failed to update language. Please try again.",
+        title: t("updateFailed"),
+        description: error?.data?.message || t("failedToUpdateLanguage"),
         variant: "destructive",
       });
     }
@@ -228,8 +234,8 @@ export default function SettingsPage() {
   const handleChangePassword = async () => {
     if (!currentPassword.trim()) {
       toast({
-        title: "Missing Current Password",
-        description: "Please enter your current password.",
+        title: t("missingCurrentPassword"),
+        description: t("pleaseEnterCurrentPassword"),
         variant: "destructive",
       });
       return;
@@ -237,8 +243,8 @@ export default function SettingsPage() {
 
     if (!newPassword.trim()) {
       toast({
-        title: "Missing New Password",
-        description: "Please enter a new password.",
+        title: t("missingNewPassword"),
+        description: t("pleaseEnterNewPassword"),
         variant: "destructive",
       });
       return;
@@ -246,8 +252,8 @@ export default function SettingsPage() {
 
     if (newPassword !== confirmPassword) {
       toast({
-        title: "Password Mismatch",
-        description: "New password and confirm password do not match.",
+        title: t("passwordMismatch"),
+        description: t("newPasswordAndConfirmPasswordDoNotMatch"),
         variant: "destructive",
       });
       return;
@@ -255,8 +261,8 @@ export default function SettingsPage() {
 
     if (newPassword.length < 6) {
       toast({
-        title: "Weak Password",
-        description: "Password must be at least 6 characters long.",
+        title: t("weakPassword"),
+        description: t("passwordMustBeAtLeast6Characters"),
         variant: "destructive",
       });
       return;
@@ -269,8 +275,8 @@ export default function SettingsPage() {
       }).unwrap();
       
       toast({
-        title: "Password Changed",
-        description: "Your password has been updated successfully.",
+        title: t("passwordChanged"),
+        description: t("passwordUpdatedSuccessfully"),
       });
       
       // Reset form and close modal
@@ -281,8 +287,8 @@ export default function SettingsPage() {
     } catch (error: any) {
       console.error("Password change error:", error);
       toast({
-        title: "Password Change Failed",
-        description: error?.data?.message || "Failed to change password. Please try again.",
+        title: t("passwordChangeFailed"),
+        description: error?.data?.message || t("failedToChangePassword"),
         variant: "destructive",
       });
     }
@@ -412,8 +418,8 @@ export default function SettingsPage() {
       <div className="max-w-4xl mx-auto p-4 space-y-8">
         {/* Header */}
         <div className="text-center space-y-4 pt-8">
-          <h1 className="text-3xl font-bold text-white">Settings</h1>
-          <p className="text-gray-400">Manage your account and preferences</p>
+          <h1 className="text-3xl font-bold text-white">{t("settings")}</h1>
+          <p className="text-gray-400">{t("manageAccountPreferences")}</p>
         </div>
 
         {/* Account Info */}
@@ -421,7 +427,7 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <User className="w-5 h-5 mr-2 text-cyan-400" />
-              Account Information
+              {t("accountInformation")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -472,14 +478,14 @@ export default function SettingsPage() {
                 className="border-cyan-500/30 text-cyan-300 text-xs sm:text-sm px-3 sm:px-4 py-2 w-full sm:w-auto flex-shrink-0"
                 onClick={() => setIsEditingProfile(!isEditingProfile)}
               >
-                {isEditingProfile ? "Cancel" : "Edit Profile"}
+                {isEditingProfile ? t("cancel") : t("editProfile")}
               </Button>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="text-white text-sm font-medium mb-2 block">
-                  Display Name
+                  {t("displayName")}
                 </label>
                 <Input
                   value={displayName}
@@ -490,7 +496,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="text-white text-sm font-medium mb-2 block">
-                  Email
+                  {t("email")}
                 </label>
                 <Input
                   value={user?.email || ""}
@@ -498,7 +504,7 @@ export default function SettingsPage() {
                   disabled={true}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Email cannot be changed
+                  {t("emailCannotBeChanged")}
                 </p>
               </div>
             </div>
@@ -507,7 +513,7 @@ export default function SettingsPage() {
             {isEditingProfile && (
               <div className="mt-4">
                 <label className="text-white text-sm font-medium mb-2 block">
-                  Profile Picture
+                  {t("profilePicture")}
                 </label>
                 <div className="flex items-center space-x-4">
                   {/* Current/Preview Image */}
@@ -539,7 +545,7 @@ export default function SettingsPage() {
                       className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-500 file:text-white hover:file:bg-cyan-600 file:cursor-pointer cursor-pointer bg-slate-800/50 border border-slate-600 rounded-lg p-2"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Select an image file (max 5MB)
+                      {t("selectImageFile")}
                     </p>
                   </div>
                 </div>
@@ -555,7 +561,7 @@ export default function SettingsPage() {
                   className="bg-cyan-500 hover:bg-cyan-600 text-white"
                   size="sm"
                 >
-                  {isUpdating ? "Updating..." : "Update Profile"}
+                  {isUpdating ? t("updating") : t("updateProfile")}
                 </Button>
               </div>
             )}
@@ -567,7 +573,7 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Bell className="w-5 h-5 mr-2 text-cyan-400" />
-              Notifications
+              {t("notifications")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -576,10 +582,10 @@ export default function SettingsPage() {
                 <Mail className="w-5 h-5 text-gray-400" />
                 <div>
                   <h4 className="text-white font-medium">
-                    Email Notifications
+                    {t("emailNotifications")}
                   </h4>
                   <p className="text-gray-400 text-sm">
-                    Investment updates and news
+                    {t("investmentUpdatesAndNews")}
                   </p>
                 </div>
               </div>
@@ -596,9 +602,9 @@ export default function SettingsPage() {
               <div className="flex items-center space-x-3">
                 <Smartphone className="w-5 h-5 text-gray-400" />
                 <div>
-                  <h4 className="text-white font-medium">Push Notifications</h4>
+                  <h4 className="text-white font-medium">{t("pushNotifications")}</h4>
                   <p className="text-gray-400 text-sm">
-                    Real-time alerts on your device
+                    {t("realTimeAlertsOnDevice")}
                   </p>
                 </div>
               </div>
@@ -615,9 +621,9 @@ export default function SettingsPage() {
               <div className="flex items-center space-x-3">
                 <Zap className="w-5 h-5 text-gray-400" />
                 <div>
-                  <h4 className="text-white font-medium">Funding Alerts</h4>
+                  <h4 className="text-white font-medium">{t("fundingAlerts")}</h4>
                   <p className="text-gray-400 text-sm">
-                    When campaigns reach milestones
+                    {t("whenCampaignsReachMilestones")}
                   </p>
                 </div>
               </div>
@@ -637,7 +643,7 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Shield className="w-5 h-5 mr-2 text-cyan-400" />
-              {t("settings.privacy")}
+              {t("privacy")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -645,9 +651,9 @@ export default function SettingsPage() {
               <div className="flex items-center space-x-3">
                 <Eye className="w-5 h-5 text-gray-400" />
                 <div>
-                  <h4 className="text-white font-medium">Public Profile</h4>
+                  <h4 className="text-white font-medium">{t("publicProfile")}</h4>
                   <p className="text-gray-400 text-sm">
-                    Allow others to discover your profile
+                    {t("allowOthersToDiscoverProfile")}
                   </p>
                 </div>
               </div>
@@ -665,10 +671,10 @@ export default function SettingsPage() {
                 <CreditCard className="w-5 h-5 text-gray-400" />
                 <div>
                   <h4 className="text-white font-medium">
-                    Investment Activity
+                    {t("investmentActivity")}
                   </h4>
                   <p className="text-gray-400 text-sm">
-                    Show your investments publicly
+                    {t("showInvestmentsPublicly")}
                   </p>
                 </div>
               </div>
@@ -685,9 +691,9 @@ export default function SettingsPage() {
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-gray-400" />
                 <div>
-                  <h4 className="text-white font-medium">Direct Messages</h4>
+                  <h4 className="text-white font-medium">{t("directMessages")}</h4>
                   <p className="text-gray-400 text-sm">
-                    Allow artists and labels to contact you
+                    {t("allowArtistsAndLabelsToContact")}
                   </p>
                 </div>
               </div>
@@ -707,7 +713,7 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Settings className="w-5 h-5 mr-2 text-cyan-400" />
-              {t("settings.app_preferences")}
+              {t("appPreferences")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -716,10 +722,10 @@ export default function SettingsPage() {
                 <Moon className="w-5 h-5 text-gray-400" />
                 <div>
                   <h4 className="text-white font-medium">
-                    {t("settings.dark_mode")}
+                    {t("darkMode")}
                   </h4>
                   <p className="text-gray-400 text-sm">
-                    {t("settings.dark_mode_desc")}
+                    {t("darkModeDescription")}
                   </p>
                 </div>
               </div>
@@ -737,10 +743,10 @@ export default function SettingsPage() {
                 <Volume2 className="w-5 h-5 text-gray-400" />
                 <div>
                   <h4 className="text-white font-medium">
-                    {t("settings.audio_preview")}
+                    {t("audioPreview")}
                   </h4>
                   <p className="text-gray-400 text-sm">
-                    {t("settings.audio_preview_desc")}
+                    {t("audioPreviewDescription")}
                   </p>
                 </div>
               </div>
@@ -758,10 +764,10 @@ export default function SettingsPage() {
                 <Globe className="w-5 h-5 text-gray-400" />
                 <div>
                   <h4 className="text-white font-medium">
-                    {t("settings.language")}
+                    {t("language")}
                   </h4>
                   <p className="text-gray-400 text-sm">
-                    {t("settings.language_desc")}
+                    {t("languageDescription")}
                   </p>
                 </div>
               </div>
@@ -774,7 +780,11 @@ export default function SettingsPage() {
                 <option value="en">English</option>
                 <option value="fr">Français</option>
                 <option value="es">Español</option>
-                <option value="de">Deutsch</option>
+                <option value="pt">Português</option>
+                <option value="it">Italiano</option>
+                <option value="ja">日本語</option>
+                <option value="zh">中文</option>
+                <option value="ko">한국어</option>
               </select>
             </div>
           </CardContent>
@@ -786,7 +796,7 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle className="text-white flex items-center">
                 <Globe className="w-5 h-5 mr-2 text-cyan-400" />
-                Connect Your Accounts
+                {t("connectYourAccounts")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -802,7 +812,7 @@ export default function SettingsPage() {
                     </svg>
                   </div>
                   <span className="text-white text-sm font-medium">
-                    {isConnectingSpotify ? "Connecting..." : "Spotify"}
+                    {isConnectingSpotify ? t("connecting") : t("spotify")}
                   </span>
                 </div>
 
@@ -813,7 +823,7 @@ export default function SettingsPage() {
                       <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                     </svg>
                   </div>
-                  <span className="text-white text-sm font-medium">YouTube</span>
+                  <span className="text-white text-sm font-medium">{t("youtube")}</span>
                 </div>
 
                 {/* Deezer Icon */}
@@ -823,7 +833,7 @@ export default function SettingsPage() {
                       <path d="M17.68 5.47H22V8h-4.32V5.47zM15.15 8H19.5v2.53h-4.35V8zM12.6 10.53H17v2.53h-4.4v-2.53zM10.05 13.07h4.47v2.53h-4.47v-2.53zM7.5 15.6h4.47v2.53H7.5V15.6zM4.95 18.13h4.47V20.7H4.95v-2.57zM2.4 20.7h4.47v2.53H2.4V20.7zM17.68 8H22v2.53h-4.32V8zM15.15 10.53H19.5V13h-4.35v-2.47zM12.6 13H17v2.53h-4.4V13zM10.05 15.53h4.47v2.53h-4.47v-2.53zM7.5 18.07h4.47v2.53H7.5v-2.53zM4.95 20.6h4.47v2.53H4.95V20.6zM2.4 23.13h4.47v2.53H2.4v-2.53z"/>
                     </svg>
                   </div>
-                  <span className="text-white text-sm font-medium">Deezer</span>
+                  <span className="text-white text-sm font-medium">{t("deezer")}</span>
                 </div>
 
                 {/* Stripe Connect Icon - Only show for Pro users */}
@@ -836,7 +846,7 @@ export default function SettingsPage() {
                       <CreditCard className="w-8 h-8 text-white" />
                     </div>
                     <span className="text-white text-sm font-medium">
-                      {isConnectingStripe ? "Connecting..." : user?.isStripeAccountConnected ? "Stripe Connected" : "Connect Stripe"}
+                      {isConnectingStripe ? t("connecting") : user?.isStripeAccountConnected ? t("stripeConnected") : t("connectStripe")}
                     </span>
                   </div>
                 ) : (
@@ -845,10 +855,10 @@ export default function SettingsPage() {
                       <Lock className="w-8 h-8 text-white" />
                     </div>
                     <span className="text-gray-400 text-sm font-medium">
-                      Pro Required
+                      {t("proRequired")}
                     </span>
                     <span className="text-xs text-gray-500 text-center">
-                      Upgrade to Pro to connect Stripe
+                      {t("upgradeToProToConnectStripe")}
                     </span>
                   </div>
                 )}
@@ -863,7 +873,7 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle className="text-white flex items-center">
                 <CreditCard className="w-5 h-5 mr-2 text-cyan-400" />
-                Connect Stripe Account
+                {t("connectStripeAccount")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -878,10 +888,10 @@ export default function SettingsPage() {
                       <CreditCard className="w-10 h-10 text-white" />
                     </div>
                     <span className="text-white text-lg font-medium">
-                      {isConnectingStripe ? "Connecting..." : user?.isStripeAccountConnected ? "Stripe Connected" : "Connect Stripe"}
+                      {isConnectingStripe ? t("connecting") : user?.isStripeAccountConnected ? t("stripeConnected") : t("connectStripe")}
                     </span>
                     <span className="text-gray-400 text-sm text-center max-w-xs">
-                      Connect your Stripe account to receive payments from investments
+                      {t("connectStripeAccountToReceivePayments")}
                     </span>
                   </div>
                 ) : (
@@ -890,10 +900,10 @@ export default function SettingsPage() {
                       <Lock className="w-10 h-10 text-white" />
                     </div>
                     <span className="text-gray-400 text-lg font-medium">
-                      Pro Required
+                      {t("proRequired")}
                     </span>
                     <span className="text-xs text-gray-500 text-center max-w-xs">
-                      Upgrade to Pro to connect Stripe and receive payments
+                      {t("upgradeToProToReceivePayments")}
                     </span>
                   </div>
                 )}
@@ -908,7 +918,7 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle className="text-white flex items-center">
                 <Crown className="w-5 h-5 mr-2 text-cyan-400" />
-                Subscription & Pro Features
+                {t("subscriptionAndProFeatures")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -919,12 +929,12 @@ export default function SettingsPage() {
                     <div className="flex items-center space-x-3">
                       <CheckCircle className="w-5 h-5 text-green-400" />
                       <div>
-                        <h4 className="text-white font-medium">Pro Member</h4>
+                        <h4 className="text-white font-medium">{t("proMember")}</h4>
                         <p className="text-green-400 text-sm">
-                          {subscriptionData.data.planType === 'artist' ? 'Artist Pro' : 'Label Pro'} - ${(subscriptionData.data.amount / 100).toFixed(0)}/{subscriptionData.data.interval}
+                          {subscriptionData.data.planType === 'artist' ? t("artistPro") : t("labelPro")} - ${(subscriptionData.data.amount / 100).toFixed(0)}/{subscriptionData.data.interval}
                         </p>
                         <p className="text-gray-400 text-xs">
-                          Next billing: {new Date(subscriptionData.data.currentPeriodEnd).toLocaleDateString()}
+                          {t("nextBilling")}: {new Date(subscriptionData.data.currentPeriodEnd).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -939,14 +949,14 @@ export default function SettingsPage() {
                     <div className="flex items-center space-x-3">
                       <XCircle className="w-5 h-5 text-yellow-400" />
                       <div>
-                        <h4 className="text-white font-medium">Free Plan</h4>
+                        <h4 className="text-white font-medium">{t("freePlan")}</h4>
                         <p className="text-yellow-400 text-sm">
-                          Upgrade to Pro for premium features
+                          {t("upgradeToProForPremiumFeatures")}
                         </p>
                       </div>
                     </div>
                     <Badge className="bg-yellow-500/20 text-yellow-300">
-                      Free
+                      {t("free")}
                     </Badge>
                   </div>
                 </div>
@@ -955,7 +965,7 @@ export default function SettingsPage() {
               {/* Available Plans */}
               {!subscriptionData?.data && stripeProducts?.data && (
                 <div className="space-y-3">
-                  <h4 className="text-white font-medium">Available Plans</h4>
+                  <h4 className="text-white font-medium">{t("availablePlans")}</h4>
                   {stripeProducts.data.map((product) => (
                     <div key={product.id} className="bg-slate-800/50 border border-slate-600 rounded-lg p-4">
                       <div className="flex items-center justify-between">
@@ -973,12 +983,12 @@ export default function SettingsPage() {
                           disabled={!product.price || isCreatingCheckout}
                           className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                         >
-                          {isCreatingCheckout ? "Processing..." : "Upgrade to Pro"}
+                          {isCreatingCheckout ? t("processing") : t("upgradeToPro")}
                         </Button>
                       </div>
                       {product.features.length > 0 && (
                         <div className="mt-3">
-                          <h6 className="text-white text-sm font-medium mb-2">Features:</h6>
+                          <h6 className="text-white text-sm font-medium mb-2">{t("features")}:</h6>
                           <ul className="text-gray-400 text-sm space-y-1">
                             {product.features.map((feature, index) => (
                               <li key={index} className="flex items-center">
@@ -998,7 +1008,7 @@ export default function SettingsPage() {
               {(isLoadingProducts || isLoadingSubscription) && (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-400"></div>
-                  <span className="ml-3 text-gray-400">Loading subscription details...</span>
+                  <span className="ml-3 text-gray-400">{t("loadingSubscriptionDetails")}</span>
                 </div>
               )}
             </CardContent>
@@ -1010,7 +1020,7 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Shield className="w-5 h-5 mr-2 text-cyan-400" />
-              {t("Account Actions")}
+              {t("accountActions")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -1019,7 +1029,7 @@ export default function SettingsPage() {
               className="w-full border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/10"
               onClick={() => setIsChangePasswordOpen(true)}
             >
-              {t("Change Password")}
+              {t("changePassword")}
             </Button>
 
             {/* <Button
@@ -1035,7 +1045,7 @@ export default function SettingsPage() {
               onClick={logout}
             >
               <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
+              {t("signOut")}
             </Button>
 
             <div className="pt-4 border-t border-slate-700">
@@ -1043,11 +1053,10 @@ export default function SettingsPage() {
                 variant="outline"
                 className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10"
               >
-                Delete Account
+                {t("deleteAccount")}
               </Button>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                This action cannot be undone and will permanently delete your
-                account.
+                {t("deleteAccountWarning")}
               </p>
             </div>
           </CardContent>
@@ -1059,7 +1068,7 @@ export default function SettingsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 w-full max-w-md mx-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-white">Change Password</h3>
+              <h3 className="text-xl font-semibold text-white">{t("changePassword")}</h3>
               <Button
                 variant="ghost"
                 size="sm"
@@ -1073,13 +1082,13 @@ export default function SettingsPage() {
             <div className="space-y-4">
               <div>
                 <label className="text-white text-sm font-medium mb-2 block">
-                  Current Password
+                  {t("currentPassword")}
                 </label>
                 <Input
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Enter your current password"
+                  placeholder={t("enterCurrentPassword")}
                   className="bg-slate-700 border-slate-600 text-white"
                   onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
                 />
@@ -1087,13 +1096,13 @@ export default function SettingsPage() {
               
               <div>
                 <label className="text-white text-sm font-medium mb-2 block">
-                  New Password
+                  {t("newPassword")}
                 </label>
                 <Input
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter new password"
+                  placeholder={t("enterNewPassword")}
                   className="bg-slate-700 border-slate-600 text-white"
                   onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
                 />
@@ -1101,13 +1110,13 @@ export default function SettingsPage() {
               
               <div>
                 <label className="text-white text-sm font-medium mb-2 block">
-                  Confirm New Password
+                  {t("confirmNewPassword")}
                 </label>
                 <Input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm new password"
+                  placeholder={t("confirmNewPasswordPlaceholder")}
                   className="bg-slate-700 border-slate-600 text-white"
                   onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
                 />
@@ -1119,14 +1128,14 @@ export default function SettingsPage() {
                   onClick={() => setIsChangePasswordOpen(false)}
                   className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button
                   onClick={handleChangePassword}
                   disabled={isChangingPassword}
                   className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white"
                 >
-                  {isChangingPassword ? "Changing..." : "Change Password"}
+                  {isChangingPassword ? t("changing") : t("changePasswordButton")}
                 </Button>
               </div>
             </div>

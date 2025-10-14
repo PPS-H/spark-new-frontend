@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus, TrendingUp, Users, DollarSign, Play, Settings, Crown, LogOut, Lock } from "lucide-react";
 import SLogo from "@/components/s-logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import CreateNewCampaign from "@/components/create-new-campaign";
 import { useNavigate } from "react-router-dom";
 
 export default function ArtistHome() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, logout, isLogoutLoading } = useAuth();
   const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
@@ -107,9 +109,9 @@ export default function ArtistHome() {
             <Crown className="text-[#FFD580] text-xl sm:text-2xl" />
           </div>
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white px-4">
-            WELCOME {user?.username?.toUpperCase() || 'ARTIST'}
+            {t('welcome').toUpperCase()} {user?.username?.toUpperCase() || 'ARTIST'}
           </h1>
-          <p className="text-lg sm:text-xl text-gray-400 px-4">Your creative and business cockpit</p>
+          <p className="text-lg sm:text-xl text-gray-400 px-4">{t('creativeCockpit')}</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
             <Badge 
               className="px-3 sm:px-4 py-2 text-xs sm:text-sm"
@@ -120,7 +122,7 @@ export default function ArtistHome() {
               }}
             >
               <Crown className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-              Artist Pro - €39.99/month
+              {t('artistProPlan')}
             </Badge>
             <Button
               variant="outline"
@@ -129,7 +131,7 @@ export default function ArtistHome() {
               className="border-red-500/50 text-red-400 hover:bg-red-500/20 text-xs sm:text-sm px-3 sm:px-4"
             >
               <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-              {isLogoutLoading ? "Signing out..." : "Sign Out"}
+              {isLogoutLoading ? t('signingOut') : t('signOut')}
             </Button>
           </div>
         </div>
@@ -173,7 +175,7 @@ export default function ArtistHome() {
           <CardHeader className="pb-3">
             <CardTitle className="text-white flex items-center text-lg sm:text-xl">
               <Plus className="w-5 h-5 mr-2 text-cyan-400" />
-              Quick Actions
+              {t('quickActions')}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
@@ -183,11 +185,11 @@ export default function ArtistHome() {
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 h-16 sm:h-20 flex-col text-xs sm:text-sm font-medium"
               >
                 <Plus className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
-                New Campaign
+                {t('newCampaign')}
               </Button>
               <Button variant="outline" className="border-blue-500/30 text-blue-300 h-16 sm:h-20 flex-col hover:bg-blue-500/10 text-xs sm:text-sm font-medium" onClick={() => navigate('/analytics')}>
                 <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
-                View Analytics
+                {t('viewAnalytics')}
               </Button>
               <Button 
                 onClick={() => navigate('/settings')}
@@ -195,7 +197,7 @@ export default function ArtistHome() {
                 className="border-gray-500/30 text-gray-300 h-16 sm:h-20 flex-col hover:bg-gray-500/10 text-xs sm:text-sm font-medium sm:col-span-2 lg:col-span-1"
               >
                 <Settings className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
-                Manage Profile
+                {t('manageProfile')}
               </Button>
             </div>
           </CardContent>
@@ -203,29 +205,29 @@ export default function ArtistHome() {
 
         {/* Active Projects */}
         <Card className="bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-slate-600/50 shadow-lg">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-white text-lg sm:text-xl">Active Projects</CardTitle>
+            <CardHeader className="pb-3">
+            <CardTitle className="text-white text-lg sm:text-xl">{t('activeProjects')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {campaignsLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400 mx-auto mb-4"></div>
-                <p className="text-gray-400">Loading your projects...</p>
+                <p className="text-gray-400">{t('loadingYourProjects')}</p>
               </div>
             ) : campaignsError ? (
               <div className="text-center py-8">
-                <p className="text-red-400 mb-2">Failed to load projects</p>
-                <p className="text-gray-500 text-sm">Please try again later</p>
+                <p className="text-red-400 mb-2">{t('failedToLoadProjects')}</p>
+                <p className="text-gray-500 text-sm">{t('pleaseTryAgainLater')}</p>
               </div>
             ) : projects.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-400 mb-4">No active campaigns yet</p>
+                <p className="text-gray-400 mb-4">{t('noActiveCampaignsYet')}</p>
                 <Button 
                   onClick={() => setShowNewCampaignModal(true)}
                   className="bg-gradient-to-r from-purple-500 to-pink-500"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Your First Campaign
+                  {t('createYourFirstCampaign')}
                 </Button>
               </div>
             ) : (
@@ -291,26 +293,26 @@ export default function ArtistHome() {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
                       <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
                         <p className="text-lg sm:text-2xl font-bold text-white">${project.goal.toLocaleString()}</p>
-                        <p className="text-xs text-gray-400">Funding Goal</p>
+                        <p className="text-xs text-gray-400">{t('fundingGoal')}</p>
                       </div>
                       <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
                         <p className="text-lg sm:text-2xl font-bold text-cyan-400">{project.expectedROIPercentage}%</p>
-                        <p className="text-xs text-gray-400">Expected ROI</p>
+                        <p className="text-xs text-gray-400">{t('expectedROI')}</p>
                       </div>
                       <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
-                        <p className="text-lg sm:text-2xl font-bold text-purple-400">{project.duration} days</p>
-                        <p className="text-xs text-gray-400">Duration</p>
+                        <p className="text-lg sm:text-2xl font-bold text-purple-400">{project.duration} {t('days')}</p>
+                        <p className="text-xs text-gray-400">{t('duration')}</p>
                       </div>
                       <div className="text-center p-2 sm:p-3 bg-slate-800/50 rounded-lg">
                         <p className="text-lg sm:text-2xl font-bold text-orange-400 capitalize">{project.releaseType}</p>
-                        <p className="text-xs text-gray-400">Release Type</p>
+                        <p className="text-xs text-gray-400">{t('releaseType')}</p>
                       </div>
                     </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-slate-600/30">
                       <div className="text-xs sm:text-sm text-gray-400 space-y-1">
-                        <p>Deadline: {project.deadline}</p>
-                        <p>Created: {new Date(project.createdAt).toLocaleDateString()}</p>
+                        <p>{t('deadline')}: {project.deadline}</p>
+                        <p>{t('created')}: {new Date(project.createdAt).toLocaleDateString()}</p>
                       </div>
                       {/* <div className="flex space-x-2">
                     <Button 
@@ -334,16 +336,16 @@ export default function ArtistHome() {
                   className="w-full border-dashed border-purple-500/50 text-purple-300 hover:bg-purple-500/10"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Create New Project
+                  {t('createNewProject')}
                 </Button>
               ) : (
                 <div className="w-full p-4 bg-gray-800/50 border border-gray-600 rounded-lg text-center">
                   <div className="flex items-center justify-center mb-2">
                     <Lock className="w-5 h-5 text-gray-400 mr-2" />
-                    <span className="text-gray-400 font-medium">Pro Required</span>
+                    <span className="text-gray-400 font-medium">{t('proRequired')}</span>
                   </div>
                   <p className="text-gray-500 text-sm mb-3">
-                    Upgrade to Pro to create projects and start campaigns
+                    {t('upgradeToProToCreate')}
                   </p>
                   <Button 
                     onClick={() => navigate('/settings')}
@@ -351,7 +353,7 @@ export default function ArtistHome() {
                     className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                   >
                     <Crown className="w-4 h-4 mr-2" />
-                    Upgrade to Pro
+                    {t('upgradeToPro')}
                   </Button>
                 </div>
               )

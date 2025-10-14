@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import DynamicSearch from "@/components/dynamic-search";
 import ConnectionStatus from "@/components/ConnectionStatus";
 import { useGetTrendingContentQuery } from "@/store/features/api/searchApi";
 
 export default function Search() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'top' | 'songs' | 'artists'>('top');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInputValue, setSearchInputValue] = useState('');
@@ -67,7 +69,7 @@ export default function Search() {
       <div className="p-4">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-white">
-            Découvrir les Artistes
+            {t('searchPage.discoverArtists')}
           </h1>
           {/* <ConnectionStatus className="flex items-center space-x-2" /> */}
         </div>

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuthRTK";
 import { useGetAnalyticsQuery } from "@/store/features/api/analyticsApi";
+import { useTranslation } from "react-i18next";
 
 interface AnalyticsData {
   // Main metrics
@@ -73,6 +74,7 @@ interface AnalyticsData {
 }
 
 export function AnalyticsDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
     totalRevenue: 0,
@@ -134,16 +136,16 @@ export function AnalyticsDashboard() {
 
   const getRoleTitle = () => {
     switch (user?.role) {
-      case 'artist': return 'Artist Analytics';
-      case 'label': return 'Label Analytics';
-      default: return 'Analytics Dashboard';
+      case 'artist': return t('analytics.artistAnalytics');
+      case 'label': return t('analytics.labelAnalytics');
+      default: return t('analytics.analyticsDashboard');
     }
   };
 
   const getContentTypeData = () => {
     return [
       { 
-        type: 'Audio', 
+        type: t('analytics.audio'), 
         percentage: analyticsData.contentBreakdown.audio.percentage, 
         count: analyticsData.contentBreakdown.audio.count,
         color: 'bg-pink-500',
@@ -151,7 +153,7 @@ export function AnalyticsDashboard() {
         icon: Music
       },
       { 
-        type: 'Video', 
+        type: t('analytics.video'), 
         percentage: analyticsData.contentBreakdown.video.percentage, 
         count: analyticsData.contentBreakdown.video.count,
         color: 'bg-purple-500',
@@ -159,7 +161,7 @@ export function AnalyticsDashboard() {
         icon: Play
       },
       { 
-        type: 'Images', 
+        type: t('analytics.images'), 
         percentage: analyticsData.contentBreakdown.image.percentage, 
         count: analyticsData.contentBreakdown.image.count,
         color: 'bg-blue-500',
@@ -193,7 +195,7 @@ export function AnalyticsDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 text-cyan-500 animate-spin mx-auto mb-4" />
-          <p className="text-white text-lg">Loading analytics...</p>
+          <p className="text-white text-lg">{t('analytics.loadingAnalytics')}</p>
         </div>
       </div>
     );
@@ -209,8 +211,8 @@ export function AnalyticsDashboard() {
               <h1 className="text-4xl font-bold text-white mb-2">{getRoleTitle()}</h1>
               <p className="text-slate-400 text-lg">
                 {user?.role === 'artist' 
-                  ? 'Track your music content performance and fan engagement' 
-                  : 'Monitor your investment portfolio and content reach'
+                  ? t('analytics.artistDescription') 
+                  : t('analytics.labelDescription')
                 }
               </p>
             </div>
@@ -239,7 +241,7 @@ export function AnalyticsDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm font-medium">Total Content</p>
+                  <p className="text-slate-400 text-sm font-medium">{t('analytics.totalContent')}</p>
                   <p className="text-2xl font-bold text-white">
                     {formatNumber(
                       analyticsData.contentBreakdown.audio.count +
@@ -257,7 +259,7 @@ export function AnalyticsDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm font-medium">Avg. Engagement</p>
+                  <p className="text-slate-400 text-sm font-medium">{t('analytics.avgEngagement')}</p>
                   <p className="text-2xl font-bold text-white">{analyticsData.totalEngagement.toFixed(1)}%</p>
                 </div>
                 <Activity className="h-8 w-8 text-green-400" />
@@ -269,7 +271,7 @@ export function AnalyticsDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm font-medium">Growth Rate</p>
+                  <p className="text-slate-400 text-sm font-medium">{t('analytics.growthRate')}</p>
                   <p className="text-2xl font-bold text-white">+12.5%</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-purple-400" />
@@ -281,7 +283,7 @@ export function AnalyticsDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm font-medium">Active {user?.role === 'artist' ? 'Projects' : 'Investments'}</p>
+                  <p className="text-slate-400 text-sm font-medium">{t('analytics.activeProjectsOrInvestments')}</p>
                   <p className="text-2xl font-bold text-white">
                     {user?.role === 'artist' ? analyticsData.totalProjects : analyticsData.activeInvestments}
                   </p>
@@ -306,7 +308,7 @@ export function AnalyticsDashboard() {
                   <h2 className="text-5xl font-bold text-white mb-2">
                     {formatCurrency(analyticsData.totalRevenue)}
                   </h2>
-                  <p className="text-slate-400 text-lg">Total Revenue</p>
+                  <p className="text-slate-400 text-lg">{t('analytics.totalRevenue')}</p>
                 </div>
                 
                 {/* Revenue Breakdown Pie Chart */}
@@ -362,14 +364,14 @@ export function AnalyticsDashboard() {
                   <h3 className="text-2xl font-bold text-white">
                     {analyticsData.totalEngagement.toFixed(1)}%
                   </h3>
-                  <p className="text-slate-400">Engagement Rate</p>
+                  <p className="text-slate-400">{t('analytics.engagementRate')}</p>
                 </div>
                 <div className="text-right">
                   <div className="text-green-400 text-sm font-semibold flex items-center">
                     <ArrowUpRight className="h-4 w-4 mr-1" />
                     +12.5%
                   </div>
-                  <p className="text-slate-400 text-sm">vs last period</p>
+                  <p className="text-slate-400 text-sm">{t('analytics.vsLastPeriod')}</p>
                 </div>
               </div>
             </CardContent>
@@ -380,7 +382,7 @@ export function AnalyticsDashboard() {
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-cyan-400" />
-                Key Metrics
+                {t('analytics.keyMetrics')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -390,39 +392,39 @@ export function AnalyticsDashboard() {
                     <div className="flex items-center gap-3">
                       <Target className="h-8 w-8 text-cyan-400" />
                       <div>
-                        <p className="text-white font-medium">Projects</p>
-                        <p className="text-slate-400 text-sm">Active campaigns</p>
+                        <p className="text-white font-medium">{t('analytics.projects')}</p>
+                        <p className="text-slate-400 text-sm">{t('analytics.activeCampaigns')}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-white">{analyticsData.totalProjects}</p>
-                      <p className="text-green-400 text-sm">+2 this month</p>
+                      <p className="text-green-400 text-sm">{t('analytics.plus2ThisMonth')}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <DollarSign className="h-8 w-8 text-green-400" />
                       <div>
-                        <p className="text-white font-medium">Funds Raised</p>
-                        <p className="text-slate-400 text-sm">Total funding</p>
+                        <p className="text-white font-medium">{t('analytics.fundsRaised')}</p>
+                        <p className="text-slate-400 text-sm">{t('analytics.totalFunding')}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-white">{formatCurrency(analyticsData.totalFundsRaised)}</p>
-                      <p className="text-green-400 text-sm">+15.3%</p>
+                      <p className="text-green-400 text-sm">{t('analytics.plus15_3Percent')}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <TrendingUp className="h-8 w-8 text-purple-400" />
                       <div>
-                        <p className="text-white font-medium">Monthly ROI</p>
-                        <p className="text-slate-400 text-sm">Expected return</p>
+                        <p className="text-white font-medium">{t('analytics.monthlyROI')}</p>
+                        <p className="text-slate-400 text-sm">{t('analytics.expectedReturn')}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-white">{analyticsData.monthlyROI.toFixed(1)}%</p>
-                      <p className="text-green-400 text-sm">+1.2%</p>
+                      <p className="text-green-400 text-sm">{t('analytics.plus1_2Percent')}</p>
                     </div>
                   </div>
                 </>
@@ -432,39 +434,39 @@ export function AnalyticsDashboard() {
                     <div className="flex items-center gap-3">
                       <Briefcase className="h-8 w-8 text-cyan-400" />
                       <div>
-                        <p className="text-white font-medium">Investments</p>
-                        <p className="text-slate-400 text-sm">Portfolio size</p>
+                        <p className="text-white font-medium">{t('analytics.investments')}</p>
+                        <p className="text-slate-400 text-sm">{t('analytics.portfolioSize')}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-white">{analyticsData.totalInvestments}</p>
-                      <p className="text-green-400 text-sm">+3 this month</p>
+                      <p className="text-green-400 text-sm">{t('analytics.plus3ThisMonth')}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <DollarSign className="h-8 w-8 text-green-400" />
                       <div>
-                        <p className="text-white font-medium">Total Invested</p>
-                        <p className="text-slate-400 text-sm">Portfolio value</p>
+                        <p className="text-white font-medium">{t('analytics.totalInvested')}</p>
+                        <p className="text-slate-400 text-sm">{t('analytics.portfolioValue')}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-white">{formatCurrency(analyticsData.totalInvestedAmount)}</p>
-                      <p className="text-green-400 text-sm">+8.7%</p>
+                      <p className="text-green-400 text-sm">{t('analytics.plus8_7Percent')}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <TrendingUp className="h-8 w-8 text-purple-400" />
                       <div>
-                        <p className="text-white font-medium">Avg Return</p>
-                        <p className="text-slate-400 text-sm">Portfolio performance</p>
+                        <p className="text-white font-medium">{t('analytics.avgReturn')}</p>
+                        <p className="text-slate-400 text-sm">{t('analytics.portfolioPerformance')}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-white">{analyticsData.averageReturn.toFixed(1)}%</p>
-                      <p className="text-green-400 text-sm">+0.8%</p>
+                      <p className="text-green-400 text-sm">{t('analytics.plus0_8Percent')}</p>
                     </div>
                   </div>
                 </>
@@ -476,9 +478,9 @@ export function AnalyticsDashboard() {
         {/* Content Type Analysis */}
         <Card className="bg-slate-800/50 border-slate-700 mb-6">
           <CardHeader>
-            <CardTitle className="text-white text-xl">Content Performance</CardTitle>
+            <CardTitle className="text-white text-xl">{t('analytics.contentPerformance')}</CardTitle>
             <CardDescription className="text-slate-400">
-              Breakdown by content type
+              {t('analytics.breakdownByContentType')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -510,7 +512,7 @@ export function AnalyticsDashboard() {
                       </div>
                     </div>
                     <div className="text-sm text-slate-400">
-                      {formatNumber(content.count)} items
+                      {formatNumber(content.count)} {t('analytics.items')}
                     </div>
                   </div>
                 );
@@ -525,10 +527,10 @@ export function AnalyticsDashboard() {
             <CardHeader>
               <CardTitle className="text-white text-xl flex items-center gap-2">
                 <Target className="h-5 w-5 text-cyan-400" />
-                Project Status Breakdown
+                {t('analytics.projectStatusBreakdown')}
               </CardTitle>
               <CardDescription className="text-slate-400">
-                Distribution of your projects by status
+                {t('analytics.distributionOfProjectsByStatus')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -558,7 +560,7 @@ export function AnalyticsDashboard() {
                       <div className="text-3xl font-bold text-white">
                         {analyticsData.projectStatusBreakdown.active.percentage}%
                       </div>
-                      <div className="text-sm text-slate-400">Active</div>
+                      <div className="text-sm text-slate-400">{t('analytics.active')}</div>
                     </div>
                   </div>
                 </div>
@@ -567,15 +569,15 @@ export function AnalyticsDashboard() {
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 rounded-full bg-green-500"></div>
                     <div>
-                      <div className="text-white font-medium">Active Projects</div>
-                      <div className="text-slate-400 text-sm">{analyticsData.projectStatusBreakdown.active.count} projects</div>
+                      <div className="text-white font-medium">{t('analytics.activeProjects')}</div>
+                      <div className="text-slate-400 text-sm">{analyticsData.projectStatusBreakdown.active.count} {t('analytics.projects')}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 rounded-full bg-orange-500"></div>
                     <div>
-                      <div className="text-white font-medium">Draft Projects</div>
-                      <div className="text-slate-400 text-sm">{analyticsData.projectStatusBreakdown.draft.count} projects</div>
+                      <div className="text-white font-medium">{t('analytics.draftProjects')}</div>
+                      <div className="text-slate-400 text-sm">{analyticsData.projectStatusBreakdown.draft.count} {t('analytics.projects')}</div>
                     </div>
                   </div>
                 </div>
@@ -587,10 +589,10 @@ export function AnalyticsDashboard() {
             <CardHeader>
               <CardTitle className="text-white text-xl flex items-center gap-2">
                 <Briefcase className="h-5 w-5 text-cyan-400" />
-                Investment Status Breakdown
+                {t('analytics.investmentStatusBreakdown')}
               </CardTitle>
               <CardDescription className="text-slate-400">
-                Distribution of your investments by status
+                {t('analytics.distributionOfInvestmentsByStatus')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -629,7 +631,7 @@ export function AnalyticsDashboard() {
                       <div className="text-3xl font-bold text-white">
                         {analyticsData.investmentStatusBreakdown.active.percentage}%
                       </div>
-                      <div className="text-sm text-slate-400">Active</div>
+                      <div className="text-sm text-slate-400">{t('analytics.active')}</div>
                     </div>
                   </div>
                 </div>
@@ -638,22 +640,22 @@ export function AnalyticsDashboard() {
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 rounded-full bg-green-500"></div>
                     <div>
-                      <div className="text-white font-medium">Active Investments</div>
-                      <div className="text-slate-400 text-sm">{analyticsData.investmentStatusBreakdown.active.count} investments</div>
+                      <div className="text-white font-medium">{t('analytics.activeInvestments')}</div>
+                      <div className="text-slate-400 text-sm">{analyticsData.investmentStatusBreakdown.active.count} {t('analytics.investments')}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 rounded-full bg-blue-500"></div>
                     <div>
-                      <div className="text-white font-medium">Completed</div>
-                      <div className="text-slate-400 text-sm">{analyticsData.investmentStatusBreakdown.completed.count} investments</div>
+                      <div className="text-white font-medium">{t('analytics.completed')}</div>
+                      <div className="text-slate-400 text-sm">{analyticsData.investmentStatusBreakdown.completed.count} {t('analytics.investments')}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 rounded-full bg-red-500"></div>
                     <div>
-                      <div className="text-white font-medium">Cancelled</div>
-                      <div className="text-slate-400 text-sm">{analyticsData.investmentStatusBreakdown.cancelled.count} investments</div>
+                      <div className="text-white font-medium">{t('analytics.cancelled')}</div>
+                      <div className="text-slate-400 text-sm">{analyticsData.investmentStatusBreakdown.cancelled.count} {t('analytics.investments')}</div>
                     </div>
                   </div>
                 </div>
@@ -669,10 +671,10 @@ export function AnalyticsDashboard() {
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
                 <PieChart className="h-5 w-5 text-cyan-400" />
-                Revenue Breakdown
+                {t('analytics.revenueBreakdown')}
               </CardTitle>
               <CardDescription className="text-slate-400">
-                Revenue sources distribution
+                {t('analytics.revenueSourcesDistribution')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -720,10 +722,10 @@ export function AnalyticsDashboard() {
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
                 <Activity className="h-5 w-5 text-cyan-400" />
-                Engagement Metrics
+                {t('analytics.engagementMetrics')}
               </CardTitle>
               <CardDescription className="text-slate-400">
-                Fan interaction and reach
+                {t('analytics.fanInteractionAndReach')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -731,22 +733,22 @@ export function AnalyticsDashboard() {
                 <div className="text-center p-4 rounded-lg bg-slate-700/50">
                   <Heart className="h-8 w-8 text-red-400 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-white">{formatNumber(analyticsData.likes)}</p>
-                  <p className="text-slate-400 text-sm">Total Likes</p>
+                  <p className="text-slate-400 text-sm">{t('analytics.totalLikes')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-slate-700/50">
                   <Users className="h-8 w-8 text-green-400 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-white">{formatNumber(analyticsData.followers)}</p>
-                  <p className="text-slate-400 text-sm">Followers</p>
+                  <p className="text-slate-400 text-sm">{t('analytics.followers')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-slate-700/50">
                   <TrendingUp className="h-8 w-8 text-purple-400 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-white">{analyticsData.totalEngagement.toFixed(1)}%</p>
-                  <p className="text-slate-400 text-sm">Engagement Rate</p>
+                  <p className="text-slate-400 text-sm">{t('analytics.engagementRate')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-slate-700/50">
                   <DollarSign className="h-8 w-8 text-yellow-400 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-white">{formatCurrency(analyticsData.totalRevenue)}</p>
-                  <p className="text-slate-400 text-sm">Total Revenue</p>
+                  <p className="text-slate-400 text-sm">{t('analytics.totalRevenue')}</p>
                 </div>
               </div>
             </CardContent>

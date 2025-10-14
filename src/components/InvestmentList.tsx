@@ -6,8 +6,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Calendar, DollarSign, TrendingUp, User, Music, Target, Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function InvestmentList() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
@@ -49,7 +51,7 @@ export default function InvestmentList() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-white text-lg">Loading your investments...</div>
+        <div className="text-white text-lg">{t('labelPortfolio.loadingInvestments')}</div>
       </div>
     );
   }
@@ -57,7 +59,7 @@ export default function InvestmentList() {
   if (error) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-red-400 text-lg">Failed to load investments. Please try again.</div>
+        <div className="text-red-400 text-lg">{t('labelPortfolio.failedToLoadInvestments')}</div>
       </div>
     );
   }
@@ -67,16 +69,16 @@ export default function InvestmentList() {
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <div className="mb-6">
           <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">No Investments Yet</h3>
+          <h3 className="text-xl font-semibold text-white mb-2">{t('labelPortfolio.noInvestmentsYet')}</h3>
           <p className="text-gray-400 mb-6 max-w-md">
-            You haven't made any investments yet. Start investing now to see your projects here.
+            {t('labelPortfolio.noInvestmentsDescription')}
           </p>
         </div>
         <Button 
           onClick={() => navigate('/')}
           className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-2"
         >
-          Start Investing
+{t('labelPortfolio.startInvesting')}
         </Button>
       </div>
     );
@@ -165,28 +167,28 @@ export default function InvestmentList() {
                 <div className="bg-slate-700/30 rounded-lg p-3">
                   <div className="flex items-center mb-1">
                     <DollarSign className="w-4 h-4 text-green-400 mr-1" />
-                    <span className="text-xs text-slate-400">Funding Goal</span>
+                    <span className="text-xs text-slate-400">{t('labelPortfolio.fundingGoal')}</span>
                   </div>
                   <p className="text-white font-semibold">${project.fundingGoal.toLocaleString()}</p>
                 </div>
                 <div className="bg-slate-700/30 rounded-lg p-3">
                   <div className="flex items-center mb-1">
                     <TrendingUp className="w-4 h-4 text-blue-400 mr-1" />
-                    <span className="text-xs text-slate-400">Expected ROI</span>
+                    <span className="text-xs text-slate-400">{t('labelPortfolio.expectedROI')}</span>
                   </div>
                   <p className="text-white font-semibold">{project.expectedROIPercentage}%</p>
                 </div>
                 <div className="bg-slate-700/30 rounded-lg p-3">
                   <div className="flex items-center mb-1">
                     <Target className="w-4 h-4 text-purple-400 mr-1" />
-                    <span className="text-xs text-slate-400">Release Type</span>
+                    <span className="text-xs text-slate-400">{t('labelPortfolio.releaseType')}</span>
                   </div>
                   <p className="text-white font-semibold capitalize">{project.releaseType}</p>
                 </div>
                 <div className="bg-slate-700/30 rounded-lg p-3">
                   <div className="flex items-center mb-1">
                     <Calendar className="w-4 h-4 text-orange-400 mr-1" />
-                    <span className="text-xs text-slate-400">Deadline</span>
+                    <span className="text-xs text-slate-400">{t('labelPortfolio.deadline')}</span>
                   </div>
                   <p className="text-white font-semibold text-xs">{formatDate(project.fundingDeadline)}</p>
                 </div>
@@ -197,10 +199,10 @@ export default function InvestmentList() {
                 <div className="flex items-center justify-between pt-4 border-t border-slate-700/50">
                   <div className="flex items-center text-green-400 text-sm">
                     <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                    Verified Project
+{t('labelPortfolio.verifiedProject')}
                   </div>
                   <div className="text-slate-500 text-xs">
-                    Verified on {formatDate(project.verifiedAt)}
+{t('labelPortfolio.verifiedOn')} {formatDate(project.verifiedAt)}
                   </div>
                 </div>
               )}
@@ -211,7 +213,7 @@ export default function InvestmentList() {
                   onClick={() => navigate(`/invest/${project._id}`)}
                   className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
                 >
-                  View Details
+{t('labelPortfolio.viewDetails')}
                 </Button>
               </div>
             </CardContent>
@@ -228,11 +230,11 @@ export default function InvestmentList() {
             variant="outline"
             className="border-slate-600 text-slate-300 hover:bg-slate-700"
           >
-            Previous
+{t('labelPortfolio.previous')}
           </Button>
           <div className="flex items-center space-x-2">
             <span className="text-slate-400 text-sm">
-              Page {currentPage} of {pagination.totalPages}
+{t('labelPortfolio.pageOf', { current: currentPage, total: pagination.totalPages })}
             </span>
           </div>
           <Button
@@ -241,7 +243,7 @@ export default function InvestmentList() {
             variant="outline"
             className="border-slate-600 text-slate-300 hover:bg-slate-700"
           >
-            Next
+{t('labelPortfolio.next')}
           </Button>
         </div>
       )}

@@ -4,6 +4,7 @@ import "./index.css";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { ReduxProvider } from "./components/redux-provider";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 // Importation pour le thème sombre/clair avec Tailwind
 import { useState, useEffect } from "react";
@@ -116,11 +117,13 @@ const renderApp = () => {
   const renderSpark = () => {
     root.render(
       <ThemeManager>
-        <ReduxProvider>
-          <Elements stripe={stripePromise}>
-            <App />
-          </Elements>
-        </ReduxProvider>
+        <LanguageProvider>
+          <ReduxProvider>
+            <Elements stripe={stripePromise}>
+              <App />
+            </Elements>
+          </ReduxProvider>
+        </LanguageProvider>
       </ThemeManager>,
     );
   };
