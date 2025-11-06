@@ -192,24 +192,67 @@ export function AnalyticsDashboard() {
 
   if (analyticsLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="w-8 h-8 text-cyan-500 animate-spin mx-auto mb-4" />
-          <p className="text-white text-lg">{t('analytics.loadingAnalytics')}</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden flex items-center justify-center">
+        {/* Solid base layer to avoid white flash on initial paint/scroll */}
+        <div className="fixed inset-0 bg-[#0B0B15] z-0" />
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(122,90,248,0.1)_0%,transparent_50%)] pointer-events-none transform-gpu [will-change:transform]" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full blur-3xl pointer-events-none transform-gpu [will-change:transform]" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl pointer-events-none transform-gpu [will-change:transform]" />
+        
+        <div className="text-center relative z-10">
+          <div className="relative">
+            <div className="w-16 h-16 mx-auto mb-6 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full animate-spin"></div>
+              <div className="absolute inset-1 bg-slate-900 rounded-full flex items-center justify-center">
+                <RefreshCw className="w-8 h-8 text-purple-400 animate-spin" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+              {t('analytics.loadingAnalytics')}
+            </h3>
+            <p className="text-gray-400 text-lg">Preparing your analytics dashboard...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="p-6 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-          <div>
-              <h1 className="text-4xl font-bold text-white mb-2">{getRoleTitle()}</h1>
-              <p className="text-slate-400 text-lg">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Solid base layer to avoid white flash on initial paint/scroll */}
+      <div className="fixed inset-0 bg-[#0B0B15] z-0" />
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(122,90,248,0.1)_0%,transparent_50%)] pointer-events-none transform-gpu [will-change:transform]" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full blur-3xl pointer-events-none transform-gpu [will-change:transform]" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl pointer-events-none transform-gpu [will-change:transform]" />
+      
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto relative z-10">
+        {/* Premium Header */}
+        <div 
+          className="mb-8 rounded-3xl mx-4 sm:mx-0 p-8 sm:p-12 relative overflow-hidden md:backdrop-blur-sm"
+          style={{
+            background: 'linear-gradient(135deg, #0B0B15 0%, #141428 70%, rgba(122,90,248,0.08) 100%)',
+            border: '1px solid rgba(122, 90, 248, 0.2)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+          }}
+        >
+          {/* Animated background elements */}
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-500/5 via-transparent to-pink-500/5 animate-pulse transform-gpu [will-change:transform,opacity]" />
+          <div className="absolute top-4 right-4 w-2 h-2 bg-[#7A5AF8] rounded-full animate-ping" />
+          <div className="absolute bottom-4 left-4 w-1 h-1 bg-[#FFD580] rounded-full animate-pulse" />
+          
+          <div className="flex items-center justify-between mb-6 relative z-10">
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="p-3 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl backdrop-blur-sm border border-purple-500/30">
+                  <BarChart3 className="text-purple-400 text-2xl sm:text-3xl" />
+                </div>
+                <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white bg-gradient-to-r from-white via-purple-100 to-pink-100 bg-clip-text text-transparent">
+                  {getRoleTitle()}
+                </h1>
+              </div>
+              <p className="text-lg sm:text-xl text-gray-300 font-medium">
                 {user?.role === 'artist' 
                   ? t('analytics.artistDescription') 
                   : t('analytics.labelDescription')
@@ -237,12 +280,21 @@ export function AnalyticsDashboard() {
 
         {/* Additional Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+          <Card 
+            className="group relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-700/30 border border-slate-600/30 shadow-2xl backdrop-blur-sm hover:scale-105 hover:-translate-y-1 transition-all duration-300"
+            style={{
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
+            <CardContent className="p-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm font-medium">{t('analytics.totalContent')}</p>
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-gray-300 text-sm font-semibold mb-2">{t('analytics.totalContent')}</p>
+                  <p className="text-3xl font-bold text-white bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent">
                     {formatNumber(
                       analyticsData.contentBreakdown.audio.count +
                       analyticsData.contentBreakdown.video.count +
@@ -250,49 +302,88 @@ export function AnalyticsDashboard() {
                     )}
                   </p>
                 </div>
-                <FileText className="h-8 w-8 text-cyan-400" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-slate-400 text-sm font-medium">{t('analytics.avgEngagement')}</p>
-                  <p className="text-2xl font-bold text-white">{analyticsData.totalEngagement.toFixed(1)}%</p>
+                <div className="p-3 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl">
+                  <FileText className="h-8 w-8 text-cyan-400" />
                 </div>
-                <Activity className="h-8 w-8 text-green-400" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+          <Card 
+            className="group relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-700/30 border border-slate-600/30 shadow-2xl backdrop-blur-sm hover:scale-105 hover:-translate-y-1 transition-all duration-300"
+            style={{
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
+            <CardContent className="p-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm font-medium">{t('analytics.growthRate')}</p>
-                  <p className="text-2xl font-bold text-white">+12.5%</p>
+                  <p className="text-gray-300 text-sm font-semibold mb-2">{t('analytics.avgEngagement')}</p>
+                  <p className="text-3xl font-bold text-white bg-gradient-to-r from-white to-green-200 bg-clip-text text-transparent">
+                    {analyticsData.totalEngagement.toFixed(1)}%
+                  </p>
                 </div>
-                <TrendingUp className="h-8 w-8 text-purple-400" />
+                <div className="p-3 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl">
+                  <Activity className="h-8 w-8 text-green-400" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="p-6">
+          <Card 
+            className="group relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-700/30 border border-slate-600/30 shadow-2xl backdrop-blur-sm hover:scale-105 hover:-translate-y-1 transition-all duration-300"
+            style={{
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
+            <CardContent className="p-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm font-medium">{t('analytics.activeProjectsOrInvestments')}</p>
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-gray-300 text-sm font-semibold mb-2">{t('analytics.growthRate')}</p>
+                  <p className="text-3xl font-bold text-white bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+                    +12.5%
+                  </p>
+                </div>
+                <div className="p-3 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl">
+                  <TrendingUp className="h-8 w-8 text-purple-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="group relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-700/30 border border-slate-600/30 shadow-2xl backdrop-blur-sm hover:scale-105 hover:-translate-y-1 transition-all duration-300"
+            style={{
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
+            <CardContent className="p-6 relative z-10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-300 text-sm font-semibold mb-2">{t('analytics.activeProjectsOrInvestments')}</p>
+                  <p className="text-3xl font-bold text-white bg-gradient-to-r from-white to-orange-200 bg-clip-text text-transparent">
                     {user?.role === 'artist' ? analyticsData.totalProjects : analyticsData.activeInvestments}
                   </p>
                 </div>
-                {user?.role === 'artist' ? (
-                  <Target className="h-8 w-8 text-orange-400" />
-                ) : (
-                  <Briefcase className="h-8 w-8 text-orange-400" />
-                )}
+                <div className="p-3 bg-gradient-to-br from-orange-500/20 to-yellow-500/20 rounded-xl">
+                  {user?.role === 'artist' ? (
+                    <Target className="h-8 w-8 text-orange-400" />
+                  ) : (
+                    <Briefcase className="h-8 w-8 text-orange-400" />
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -301,14 +392,23 @@ export function AnalyticsDashboard() {
         {/* Main Analytics Overview */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Revenue Overview Card */}
-          <Card className="bg-slate-800/50 border-slate-700 lg:col-span-2">
-            <CardContent className="p-8">
+          <Card 
+            className="group relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-700/30 border border-slate-600/30 shadow-2xl backdrop-blur-sm lg:col-span-2"
+            style={{
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-emerald-500/5 opacity-50" />
+            
+            <CardContent className="p-8 relative z-10">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-5xl font-bold text-white mb-2">
+                  <h2 className="text-5xl font-bold text-white mb-2 bg-gradient-to-r from-white to-green-200 bg-clip-text text-transparent">
                     {formatCurrency(analyticsData.totalRevenue)}
                   </h2>
-                  <p className="text-slate-400 text-lg">{t('analytics.totalRevenue')}</p>
+                  <p className="text-gray-300 text-lg font-semibold">{t('analytics.totalRevenue')}</p>
                 </div>
                 
                 {/* Revenue Breakdown Pie Chart */}
@@ -476,42 +576,58 @@ export function AnalyticsDashboard() {
         </div>
 
         {/* Content Type Analysis */}
-        <Card className="bg-slate-800/50 border-slate-700 mb-6">
-          <CardHeader>
-            <CardTitle className="text-white text-xl">{t('analytics.contentPerformance')}</CardTitle>
-            <CardDescription className="text-slate-400">
+        <Card 
+          className="group relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-700/30 border border-slate-600/30 shadow-2xl backdrop-blur-sm mb-6"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+          }}
+        >
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5 opacity-50" />
+          
+          <CardHeader className="relative z-10">
+            <CardTitle className="text-white text-2xl font-bold flex items-center">
+              <div className="p-2 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl mr-3">
+                <PieChart className="w-6 h-6 text-purple-400" />
+              </div>
+              {t('analytics.contentPerformance')}
+            </CardTitle>
+            <CardDescription className="text-gray-300 text-lg font-medium">
               {t('analytics.breakdownByContentType')}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             {/* Content Type Breakdown */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               {getContentTypeData().map((content, index) => {
                 const IconComponent = content.icon;
                 return (
-                  <div key={index} className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${content.color}`}>
-                          <IconComponent className="h-4 w-4 text-white" />
+                  <div key={index} className="p-4 rounded-2xl bg-gradient-to-r from-slate-800/30 to-slate-700/20 border border-slate-600/20 hover:border-purple-500/30 transition-all duration-300">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className={`p-3 rounded-xl ${content.color} shadow-lg`}>
+                          <IconComponent className="h-6 w-6 text-white" />
                         </div>
-                        <span className="text-white font-medium">{content.type}</span>
+                        <span className="text-white font-semibold text-lg">{content.type}</span>
                       </div>
-                      <span className="text-white font-semibold">{content.percentage.toFixed(1)}%</span>
+                      <span className="text-white font-bold text-xl bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+                        {content.percentage.toFixed(1)}%
+                      </span>
                     </div>
-                    <div className="relative">
+                    <div className="relative mb-3">
                       <Progress 
                         value={content.percentage} 
-                        className="h-3 bg-slate-700"
+                        className="h-4 bg-slate-700/50 rounded-full"
                       />
                       <div className="absolute inset-0 flex items-center">
                         <div 
-                          className={`h-full ${content.color} rounded-full`}
+                          className={`h-full ${content.color} rounded-full shadow-lg`}
                           style={{ width: `${content.percentage}%` }}
                         ></div>
                       </div>
                     </div>
-                    <div className="text-sm text-slate-400">
+                    <div className="text-sm text-gray-300 font-medium">
                       {formatNumber(content.count)} {t('analytics.items')}
                     </div>
                   </div>

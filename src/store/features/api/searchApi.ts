@@ -51,7 +51,7 @@ export interface Artist {
 export interface GetTrendingContentRequest {
   page?: number;
   limit?: number;
-  type: 'top' | 'songs' | 'artists';
+  type: 'top' | 'images' | 'songs' | 'artists';
   search?: string;
 }
 

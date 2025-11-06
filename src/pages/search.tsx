@@ -6,7 +6,7 @@ import { useGetTrendingContentQuery } from "@/store/features/api/searchApi";
 
 export default function Search() {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'top' | 'songs' | 'artists'>('top');
+  const [activeTab, setActiveTab] = useState<'top' | 'images' | 'songs' | 'artists'>('top');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInputValue, setSearchInputValue] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
@@ -45,7 +45,7 @@ export default function Search() {
   };
 
   // Handle tab change with search query
-  const handleTabChange = (tab: 'top' | 'songs' | 'artists') => {
+  const handleTabChange = (tab: 'top' | 'images' | 'songs' | 'artists') => {
     setActiveTab(tab);
     // If there's a search query, it will automatically be used in the API call
   };

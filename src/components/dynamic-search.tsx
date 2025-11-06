@@ -73,8 +73,8 @@ export default function DynamicSearch({
   trendingData?: GetTrendingContentResponse;
   isLoading?: boolean;
   error?: any;
-  activeTab: 'top' | 'songs' | 'artists';
-  onTabChange: (tab: 'top' | 'songs' | 'artists') => void;
+  activeTab: 'top' | 'images' | 'songs' | 'artists';
+  onTabChange: (tab: 'top' | 'images' | 'songs' | 'artists') => void;
   onSearch?: (query: string) => void;
   onSearchInputChange?: (query: string) => void;
   searchInputValue?: string;
@@ -311,6 +311,7 @@ export default function DynamicSearch({
   // Handle tab change
   const handleTabChange = (tab: string) => {
     if (tab === "Top") onTabChange("top");
+    else if (tab === "Images") onTabChange("images");
     else if (tab === "Songs") onTabChange("songs");
     else if (tab === "Artists") onTabChange("artists");
   };
@@ -502,7 +503,7 @@ export default function DynamicSearch({
 
   // Tabs basés sur le rôle utilisateur
   const getRoleTabs = () => {
-    return ["Top", "Songs", "Artists"];
+    return ["Top", "Images", "Songs", "Artists"];
   };
 
   return (
@@ -624,13 +625,14 @@ export default function DynamicSearch({
         {/* Navigation tabs - Centered */}
         <div className="relative z-0 px-4 mb-8 flex justify-center">
           <div className="bg-gray-900/30 backdrop-blur-sm rounded-2xl p-2 border border-gray-700/50">
-          <Tabs value={activeTab === 'top' ? 'Top' : activeTab === 'songs' ? 'Songs' : 'Artists'} onValueChange={handleTabChange} className="w-auto">
+          <Tabs value={activeTab === 'top' ? 'Top' : activeTab === 'images' ? 'Images' : activeTab === 'songs' ? 'Songs' : 'Artists'} onValueChange={handleTabChange} className="w-auto">
           <TabsList
-              className="grid h-12 p-1 rounded-full grid-cols-3 w-auto min-w-[320px] relative overflow-hidden"
+              className="grid h-12 p-1 rounded-full grid-cols-4 w-auto min-w-[520px] relative overflow-hidden"
             style={{ backgroundColor: themeColors.backgroundSecondary }}
           >
             {getRoleTabs().map((tab) => {
               const isActive = (activeTab === 'top' && tab === 'Top') || 
+                              (activeTab === 'images' && tab === 'Images') ||
                               (activeTab === 'songs' && tab === 'Songs') || 
                               (activeTab === 'artists' && tab === 'Artists');
               
@@ -638,7 +640,7 @@ export default function DynamicSearch({
               <TabsTrigger
                 key={tab}
                 value={tab}
-                  className={`rounded-full text-sm font-semibold transition-all duration-300 px-6 py-2 ${
+                  className={`rounded-full text-sm font-semibold transition-all duration-300 px-4 py-2 ${
                     isActive 
                       ? 'text-white shadow-lg transform scale-105' 
                       : 'text-gray-400 hover:text-gray-300 hover:bg-white/5'
@@ -650,7 +652,7 @@ export default function DynamicSearch({
                     border: isActive ? `2px solid ${themeColors.primary}` : '2px solid transparent',
                 }}
               >
-                {tab === 'Top' ? t('searchPage.tabTop') : tab === 'Songs' ? t('searchPage.tabSongs') : t('searchPage.tabArtists')}
+                {tab === 'Top' ? t('searchPage.tabTop') : tab === 'Images' ? t('searchPage.tabImages') : tab === 'Songs' ? t('searchPage.tabSongs') : t('searchPage.tabArtists')}
               </TabsTrigger>
               );
             })}
@@ -797,6 +799,120 @@ export default function DynamicSearch({
               })()}
             </div>
           </div>
+        ) : activeTab === "images" ? (
+          // Images tab - Show images only
+          <div className="space-y-6">
+            <div className="flex items-center space-x-2">
+              <Search className="w-5 h-5" style={{ color: themeColors.accent }} />
+              <h3 className="text-lg font-bold" style={{ color: themeColors.text }}>
+                {hasSearched && parentSearchQuery ? t('searchPage.searchResultsFor', { query: parentSearchQuery }) : 'Trending Images'}
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {trendingData?.data && Array.isArray(trendingData.data) && trendingData.data.length > 0 ? 
+                trendingData.data.filter((item: ContentItem) => item.type === 'image').map((item: ContentItem) => (
+                  <div
+                    key={item._id}
+                    className="rounded-lg shadow-lg overflow-hidden w-full bg-gray-900/50 backdrop-blur-sm border border-gray-700/30"
+                  >
+                    {/* User header */}
+                    <div className="flex items-center p-3 border-b" style={{ borderColor: themeColors.primary + '20' }}>
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="w-8 h-8">
+                          <img 
+                            src={getDummyProfileImage(item.user.username)} 
+                            alt={item.user.username}
+                            className="w-full h-full object-cover"
+                          />
+                          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-sm font-semibold">
+                            {item.user.username.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-semibold text-sm" style={{ color: themeColors.text }}>{item.user.username}</p>
+                          <p className="text-xs" style={{ color: themeColors.textSecondary }}>{item.user.favoriteGenre} • {item.user.country || 'Unknown City'}</p>
+                        </div>
+                      </div>
+                    </div>
+                        
+                    {/* Image Content */}
+                    <div className="relative aspect-video overflow-hidden bg-slate-900">
+                      <div className="w-full h-full flex items-center justify-center">
+                        <img
+                          src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${item.file}`}
+                          alt={item.title}
+                          className="w-full h-full object-contain cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleImageClick(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/${item.file}`, item.title);
+                          }}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    </div>
+                        
+                    {/* Actions */}
+                    <div className="p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={`p-1 ${
+                              item.isLiked ? 'text-red-500' : ''
+                            }`}
+                            style={{ color: item.isLiked ? '#ef4444' : themeColors.textSecondary }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleLikeContent(item._id);
+                            }}
+                            disabled={isLikeDislikeContentLoading}
+                          >
+                            <Heart className={`w-6 h-6 ${item.isLiked ? 'fill-current' : ''}`} />
+                          </Button>
+                        </div>
+                        <div className="text-sm" style={{ color: themeColors.textSecondary }}>
+                          {item.likeCount || 0} likes
+                        </div>
+                      </div>
+                          
+                      {/* Content details */}
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold" style={{ color: themeColors.text }}>{item.title}</p>
+                        <p className="text-sm" style={{ color: themeColors.textSecondary }}>{item.description}</p>
+                        {item.genre && (
+                          <Badge
+                            className="text-xs rounded-full mt-2"
+                            style={{
+                              backgroundColor: `${themeColors.accent}40`,
+                              color: "white",
+                              border: `1px solid ${themeColors.accent}60`,
+                            }}
+                          >
+                            #{item.genre}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="col-span-full text-center py-20">
+                    <h3
+                      className="text-xl font-semibold mb-2"
+                      style={{ color: themeColors.text }}
+                    >
+                      No images found
+                    </h3>
+                    <p style={{ color: themeColors.textSecondary }}>
+                      Try searching for different keywords
+                    </p>
+                  </div>
+                )
+              }
+            </div>
+          </div>
         ) : activeTab === "artists" ? (
           // Artists tab - Show artists from API
           <div className="space-y-6">
@@ -885,6 +1001,47 @@ export default function DynamicSearch({
                   </div>
                 )
               }
+            </div>
+          </div>
+        ) : (activeTab === 'top' && hasSearched) ? (
+          // Top tab searched results - YouTube Shorts style vertical video grid
+          <div className="space-y-6 w-full">
+            <div className="flex items-center space-x-2">
+              <Search className="w-5 h-5" style={{ color: themeColors.accent }} />
+              <h3 className="text-lg font-bold" style={{ color: themeColors.text }}>
+                {t('searchPage.searchResultsFor', { query: parentSearchQuery })}
+              </h3>
+            </div>
+            <div className="w-full max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-items-center">
+                {trendingData?.data && Array.isArray(trendingData.data) && trendingData.data.length > 0 ?
+                  trendingData.data
+                    .filter((item: ContentItem) => item.type === 'video')
+                    .map((item: ContentItem) => (
+                      <div key={item._id} className="w-full max-w-[200px]">
+                        <div className="rounded-lg overflow-hidden bg-gray-900/50 backdrop-blur-sm border border-gray-700/30 cursor-pointer hover:border-cyan-500/50 transition-all">
+                          <div className="relative w-full overflow-hidden" style={{ aspectRatio: '9 / 16' }}>
+                            {renderContent(item)}
+                          </div>
+                          {/* Video info overlay */}
+                          <div className="p-2 bg-gradient-to-t from-black/60 to-transparent">
+                            <p className="text-xs font-semibold text-white truncate">{item.title}</p>
+                            <p className="text-xs text-gray-400 truncate">{item.user.username}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="col-span-full text-center py-20">
+                        <h3 className="text-xl font-semibold mb-2" style={{ color: themeColors.text }}>
+                          {t('noResultsFound')}
+                        </h3>
+                        <p style={{ color: themeColors.textSecondary }}>
+                          {t('pleaseTryAgainLater')}
+                        </p>
+                      </div>
+                    )
+                }
+              </div>
             </div>
           </div>
         ) : hasSearched && parentSearchQuery ? (
@@ -1019,65 +1176,72 @@ export default function DynamicSearch({
                   {activeTab === 'top' ? t('searchPage.trendingNow') : activeTab === 'songs' ? t('searchPage.trendingSongs') : t('searchPage.trendingArtists')}
                 </h3>
                       </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
-                {trendingData?.data && Array.isArray(trendingData.data) ? 
-                  trendingData.data.map((item: ContentItem) => (
-                    <div
-                      key={item._id}
-                      className="rounded-lg shadow-lg overflow-hidden w-full bg-gray-900/50 backdrop-blur-sm border border-gray-700/30"
-                    >
-                      {/* Instagram-style layout for all content types */}
-                      <>
-                        {/* User header */}
-                        <div className="flex items-center p-3 border-b" style={{ borderColor: themeColors.primary + '20' }}>
-                          <div className="flex items-center space-x-3">
-                            <Avatar className="w-8 h-8">
-                              <img 
-                                src={getDummyProfileImage(item.user.username)} 
-                                alt={item.user.username}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-sm font-semibold">
-                                {item.user.username.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-semibold text-sm" style={{ color: themeColors.text }}>{item.user.username}</p>
-                              <p className="text-xs" style={{ color: themeColors.textSecondary }}>{item.user.favoriteGenre} • {item.user.country || 'Unknown City'}</p>
-                    </div>
-                  </div>
-              </div>
-                        
-                        {/* Content */}
-                        <div className="relative aspect-video overflow-hidden">
-                          {renderContent(item)}
-                        </div>
-                        
-                        {/* Actions */}
-                        <div className="p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className={`p-1 ${
-                                  item.isLiked ? 'text-red-500' : ''
-                                }`}
-                                style={{ color: item.isLiked ? '#ef4444' : themeColors.textSecondary }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleLikeContent(item._id);
-                                }}
-                                disabled={isLikeDislikeContentLoading}
-                              >
-                                <Heart className={`w-6 h-6 ${item.isLiked ? 'fill-current' : ''}`} />
-                              </Button>
+              {activeTab === 'top' ? (
+                // Top tab - YouTube Shorts style vertical video grid
+                <div className="w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-items-center">
+                  {trendingData?.data && Array.isArray(trendingData.data) ? 
+                    trendingData.data
+                      .filter((item: ContentItem) => item.type === 'video')
+                      .map((item: ContentItem) => (
+                        <div
+                          key={item._id}
+                          className="w-full max-w-[200px]"
+                        >
+                          <div className="rounded-lg overflow-hidden bg-gray-900/50 backdrop-blur-sm border border-gray-700/30 cursor-pointer hover:border-cyan-500/50 transition-all">
+                            {/* Content */}
+                            <div className="relative w-full overflow-hidden" style={{ aspectRatio: '9 / 16' }}>
+                              {renderContent(item)}
                             </div>
-                            <div className="text-sm" style={{ color: themeColors.textSecondary }}>
-                              {item.likeCount || 0} likes
+                            {/* Video info overlay */}
+                            <div className="p-2 bg-gradient-to-t from-black/60 to-transparent">
+                              <p className="text-xs font-semibold text-white truncate">{item.title}</p>
+                              <p className="text-xs text-gray-400 truncate">{item.user.username}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )) : null
+                  }
+                </div>
+              ) : (
+                // Other tabs - Keep original layout
+                <div className="w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
+                  {trendingData?.data && Array.isArray(trendingData.data) ? 
+                    trendingData.data
+                      .filter((item: ContentItem) => activeTab !== 'top' || item.type === 'video')
+                      .map((item: ContentItem) => (
+                      <div
+                        key={item._id}
+                        className="rounded-lg shadow-lg overflow-hidden w-full bg-gray-900/50 backdrop-blur-sm border border-gray-700/30"
+                      >
+                        {/* Instagram-style layout for all content types */}
+                        <>
+                          {/* Content */}
+                          <div className="relative w-full overflow-hidden" style={{ aspectRatio: '16 / 9' }}>
+                            {renderContent(item)}
+                          </div>
+                          
+                          {/* Actions */}
+                          <div className="p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={`p-1 ${
+                                    item.isLiked ? 'text-red-500' : ''
+                                  }`}
+                                  style={{ color: item.isLiked ? '#ef4444' : themeColors.textSecondary }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleLikeContent(item._id);
+                                  }}
+                                  disabled={isLikeDislikeContentLoading}
+                                >
+                                  <Heart className={`w-6 h-6 ${item.isLiked ? 'fill-current' : ''}`} />
+                                </Button>
+                              </div>
+                              <div className="text-sm" style={{ color: themeColors.textSecondary }}>
+                                {item.likeCount || 0} likes
                       </div>
                     </div>
                           
@@ -1093,6 +1257,7 @@ export default function DynamicSearch({
                   )) : null
                 }
               </div>
+              )}
             </div>
           </div>
         ) : filteredResults.length === 0 ? (

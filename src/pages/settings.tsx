@@ -414,96 +414,169 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-20">
-      <div className="max-w-4xl mx-auto p-4 space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4 pt-8">
-          <h1 className="text-3xl font-bold text-white">{t("settings")}</h1>
-          <p className="text-gray-400">{t("manageAccountPreferences")}</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Solid base layer to avoid white flash on initial paint/scroll */}
+      <div className="fixed inset-0 bg-[#0B0B15] z-0" />
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(122,90,248,0.1)_0%,transparent_50%)] pointer-events-none transform-gpu [will-change:transform]" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full blur-3xl pointer-events-none transform-gpu [will-change:transform]" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl pointer-events-none transform-gpu [will-change:transform]" />
+      
+      <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-8 relative z-10">
+        {/* Premium Header */}
+        <div 
+          className="text-center space-y-6 pt-6 sm:pt-10 rounded-3xl mx-4 sm:mx-0 p-8 sm:p-12 relative overflow-hidden md:backdrop-blur-sm"
+          style={{
+            background: 'linear-gradient(135deg, #0B0B15 0%, #141428 70%, rgba(122,90,248,0.08) 100%)',
+            border: '1px solid rgba(122, 90, 248, 0.2)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+          }}
+        >
+          {/* Animated background elements */}
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-500/5 via-transparent to-pink-500/5 animate-pulse transform-gpu [will-change:transform,opacity]" />
+          <div className="absolute top-4 right-4 w-2 h-2 bg-[#7A5AF8] rounded-full animate-ping" />
+          <div className="absolute bottom-4 left-4 w-1 h-1 bg-[#FFD580] rounded-full animate-pulse" />
+          
+          <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-6">
+            <div className="p-3 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl backdrop-blur-sm border border-purple-500/30">
+              <Settings className="text-purple-400 text-2xl sm:text-3xl animate-pulse" />
+            </div>
+          </div>
+          
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white px-4 mb-4 bg-gradient-to-r from-white via-purple-100 to-pink-100 bg-clip-text text-transparent">
+            {t("settings")}
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-300 px-4 font-medium">
+            {t("manageAccountPreferences")}
+          </p>
         </div>
 
         {/* Account Info */}
-        <Card className="artist-metric-card">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <User className="w-5 h-5 mr-2 text-cyan-400" />
+        <Card 
+          className="relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-700/30 border border-slate-600/30 shadow-2xl backdrop-blur-sm"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+          }}
+        >
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5 opacity-50 z-0" />
+          
+          <CardHeader className="relative z-10">
+            <CardTitle className="text-white flex items-center text-xl sm:text-2xl font-bold">
+              <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl mr-3">
+                <User className="w-6 h-6 text-cyan-400" />
+              </div>
               {t("accountInformation")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <CardContent className="space-y-6 relative z-10">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-6">
               <div className="flex items-center space-x-4 flex-1">
-                <div
-                  className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${
-                    roleInfo.color === "purple"
-                      ? "from-purple-500 to-pink-500"
-                      : roleInfo.color === "blue"
-                      ? "from-blue-500 to-cyan-500"
-                      : roleInfo.color === "green"
-                      ? "from-green-500 to-emerald-500"
-                      : roleInfo.color === "red"
-                      ? "from-red-500 to-orange-500"
-                      : "from-gray-500 to-gray-600"
-                  } rounded-full flex items-center justify-center flex-shrink-0`}
-                >
-                  <roleInfo.icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                <div className="relative">
+                  <div
+                    className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${
+                      roleInfo.color === "purple"
+                        ? "from-purple-500 to-pink-500"
+                        : roleInfo.color === "blue"
+                        ? "from-blue-500 to-cyan-500"
+                        : roleInfo.color === "green"
+                        ? "from-green-500 to-emerald-500"
+                        : roleInfo.color === "red"
+                        ? "from-red-500 to-orange-500"
+                        : "from-gray-500 to-gray-600"
+                    } rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg`}
+                    style={{
+                      boxShadow: roleInfo.color === "purple"
+                        ? '0 8px 32px rgba(147, 51, 234, 0.3)'
+                        : roleInfo.color === "blue"
+                        ? '0 8px 32px rgba(59, 130, 246, 0.3)'
+                        : roleInfo.color === "green"
+                        ? '0 8px 32px rgba(34, 197, 94, 0.3)'
+                        : roleInfo.color === "red"
+                        ? '0 8px 32px rgba(239, 68, 68, 0.3)'
+                        : '0 8px 32px rgba(107, 114, 128, 0.3)'
+                    }}
+                  >
+                    <roleInfo.icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-slate-800"></div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-white font-semibold text-sm sm:text-base truncate">
+                  <h3 className="text-white font-bold text-lg sm:text-xl truncate bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
                     {user?.username || "User"}
                   </h3>
-                  <p className="text-gray-400 text-xs sm:text-sm truncate">
+                  <p className="text-gray-300 text-sm sm:text-base truncate font-medium">
                     {user?.email || "email@example.com"}
                   </p>
                   <Badge
                     className={`${
                       roleInfo.color === "purple"
-                        ? "bg-purple-500/20 text-purple-300"
+                        ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
                         : roleInfo.color === "blue"
-                        ? "bg-blue-500/20 text-blue-300"
+                        ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
                         : roleInfo.color === "green"
-                        ? "bg-green-500/20 text-green-300"
+                        ? "bg-green-500/20 text-green-300 border border-green-500/30"
                         : roleInfo.color === "red"
-                        ? "bg-red-500/20 text-red-300"
-                        : "bg-gray-500/20 text-gray-300"
-                    } mt-1 text-xs`}
+                        ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                        : "bg-gray-500/20 text-gray-300 border border-gray-500/30"
+                    } mt-2 text-sm px-3 py-1 rounded-full font-semibold shadow-lg`}
+                    style={{
+                      boxShadow: roleInfo.color === "purple"
+                        ? '0 4px 16px rgba(147, 51, 234, 0.2)'
+                        : roleInfo.color === "blue"
+                        ? '0 4px 16px rgba(59, 130, 246, 0.2)'
+                        : roleInfo.color === "green"
+                        ? '0 4px 16px rgba(34, 197, 94, 0.2)'
+                        : roleInfo.color === "red"
+                        ? '0 4px 16px rgba(239, 68, 68, 0.2)'
+                        : '0 4px 16px rgba(107, 114, 128, 0.2)'
+                    }}
                   >
-                    <roleInfo.icon className="w-3 h-3 mr-1" />
+                    <roleInfo.icon className="w-4 h-4 mr-2" />
                     {roleInfo.name}
                   </Badge>
                 </div>
               </div>
               <Button
                 variant="outline"
-                className="border-cyan-500/30 text-cyan-300 text-xs sm:text-sm px-3 sm:px-4 py-2 w-full sm:w-auto flex-shrink-0"
+                className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400/50 text-sm px-6 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 w-full sm:w-auto flex-shrink-0"
                 onClick={() => setIsEditingProfile(!isEditingProfile)}
               >
                 {isEditingProfile ? t("cancel") : t("editProfile")}
               </Button>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">
+                <label className="text-white text-sm font-semibold mb-3 block">
                   {t("displayName")}
                 </label>
                 <Input
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="bg-slate-800/50 border-slate-600 text-white"
+                  className="bg-slate-800/40 border-slate-600/30 text-white rounded-xl px-4 py-3 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
                   disabled={!isEditingProfile}
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(51, 65, 85, 0.4) 100%)',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+                  }}
                 />
               </div>
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">
+                <label className="text-white text-sm font-semibold mb-3 block">
                   {t("email")}
                 </label>
                 <Input
                   value={user?.email || ""}
-                  className="bg-slate-800/50 border-slate-600 text-white"
+                  className="bg-slate-800/40 border-slate-600/30 text-gray-400 rounded-xl px-4 py-3 cursor-not-allowed"
                   disabled={true}
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(51, 65, 85, 0.3) 100%)',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+                  }}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-400 mt-2 font-medium">
                   {t("emailCannotBeChanged")}
                 </p>
               </div>
@@ -511,11 +584,11 @@ export default function SettingsPage() {
 
             {/* Profile Picture Field - Only show when editing */}
             {isEditingProfile && (
-              <div className="mt-4">
-                <label className="text-white text-sm font-medium mb-2 block">
+              <div className="mt-6">
+                <label className="text-white text-sm font-semibold mb-3 block">
                   {t("profilePicture")}
                 </label>
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-6">
                   {/* Current/Preview Image */}
                   <div className="relative">
                       <img
@@ -524,12 +597,15 @@ export default function SettingsPage() {
                           (user?.profilePicture ? `${import.meta.env.VITE_API_BASE_URL}/${user.profilePicture}` : "https://cdn-icons-png.flaticon.com/512/0/93.png")
                         }
                         alt="Profile Preview"
-                        className="w-16 h-16 rounded-full object-cover border-2 border-slate-600"
+                        className="w-20 h-20 rounded-2xl object-cover border-2 border-purple-500/30 shadow-lg"
+                        style={{
+                          boxShadow: '0 8px 32px rgba(147, 51, 234, 0.2)'
+                        }}
                       />
                     {profilePicturePreview && (
                       <button
                         onClick={clearProfilePicture}
-                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-all duration-200 hover:scale-110"
                       >
                         ×
                       </button>
@@ -542,9 +618,14 @@ export default function SettingsPage() {
                       type="file"
                       accept="image/*"
                       onChange={handleProfilePictureChange}
-                      className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-500 file:text-white hover:file:bg-cyan-600 file:cursor-pointer cursor-pointer bg-slate-800/50 border border-slate-600 rounded-lg p-2"
+                      className="block w-full text-sm text-gray-300 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-purple-500 file:to-pink-500 file:text-white hover:file:from-purple-600 hover:file:to-pink-600 file:cursor-pointer cursor-pointer rounded-xl p-3 transition-all duration-300"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(51, 65, 85, 0.4) 100%)',
+                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
+                        border: '1px solid rgba(148, 163, 184, 0.2)'
+                      }}
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-400 mt-2 font-medium">
                       {t("selectImageFile")}
                     </p>
                   </div>
@@ -554,11 +635,11 @@ export default function SettingsPage() {
 
             {/* Update Button - Only show when editing */}
             {isEditingProfile && (
-              <div className="mt-4">
+              <div className="mt-6">
                 <Button
                   onClick={handleUpdateProfile}
                   disabled={isUpdating}
-                  className="bg-cyan-500 hover:bg-cyan-600 text-white"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-purple-500/25 transition-all duration-300 hover:scale-105"
                   size="sm"
                 >
                   {isUpdating ? t("updating") : t("updateProfile")}
@@ -569,22 +650,35 @@ export default function SettingsPage() {
         </Card>
 
         {/* Notifications */}
-        <Card className="artist-metric-card">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <Bell className="w-5 h-5 mr-2 text-cyan-400" />
+        <Card 
+          className="relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-700/30 border border-slate-600/30 shadow-2xl backdrop-blur-sm"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+          }}
+        >
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5 opacity-50 z-0" />
+          
+          <CardHeader className="relative z-10">
+            <CardTitle className="text-white flex items-center text-xl sm:text-2xl font-bold">
+              <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl mr-3">
+                <Bell className="w-6 h-6 text-cyan-400" />
+              </div>
               {t("notifications")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Mail className="w-5 h-5 text-gray-400" />
+          <CardContent className="space-y-6 relative z-20">
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-slate-800/30 to-slate-700/20 border border-slate-600/20 hover:border-purple-500/30 transition-all duration-300 relative z-20">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl">
+                  <Mail className="w-5 h-5 text-purple-400" />
+                </div>
                 <div>
-                  <h4 className="text-white font-medium">
+                  <h4 className="text-white font-semibold text-lg">
                     {t("emailNotifications")}
                   </h4>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-gray-300 text-sm font-medium">
                     {t("investmentUpdatesAndNews")}
                   </p>
                 </div>
@@ -595,15 +689,18 @@ export default function SettingsPage() {
                   handleSettingChange('emailNotifications', checked)
                 }
                 disabled={isUpdating}
+                className="data-[state=checked]:bg-purple-500 relative z-30"
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Smartphone className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-slate-800/30 to-slate-700/20 border border-slate-600/20 hover:border-cyan-500/30 transition-all duration-300 relative z-20">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl">
+                  <Smartphone className="w-5 h-5 text-cyan-400" />
+                </div>
                 <div>
-                  <h4 className="text-white font-medium">{t("pushNotifications")}</h4>
-                  <p className="text-gray-400 text-sm">
+                  <h4 className="text-white font-semibold text-lg">{t("pushNotifications")}</h4>
+                  <p className="text-gray-300 text-sm font-medium">
                     {t("realTimeAlertsOnDevice")}
                   </p>
                 </div>
@@ -614,15 +711,18 @@ export default function SettingsPage() {
                   handleSettingChange('pushNotifications', checked)
                 }
                 disabled={isUpdating}
+                className="data-[state=checked]:bg-cyan-500 relative z-30"
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Zap className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-slate-800/30 to-slate-700/20 border border-slate-600/20 hover:border-green-500/30 transition-all duration-300 relative z-20">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl">
+                  <Zap className="w-5 h-5 text-green-400" />
+                </div>
                 <div>
-                  <h4 className="text-white font-medium">{t("fundingAlerts")}</h4>
-                  <p className="text-gray-400 text-sm">
+                  <h4 className="text-white font-semibold text-lg">{t("fundingAlerts")}</h4>
+                  <p className="text-gray-300 text-sm font-medium">
                     {t("whenCampaignsReachMilestones")}
                   </p>
                 </div>
@@ -633,21 +733,33 @@ export default function SettingsPage() {
                   handleSettingChange('fundingAlerts', checked)
                 }
                 disabled={isUpdating}
+                className="data-[state=checked]:bg-green-500 relative z-30"
               />
             </div>
           </CardContent>
         </Card>
 
         {/* Privacy */}
-        <Card className="artist-metric-card">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <Shield className="w-5 h-5 mr-2 text-cyan-400" />
+        <Card 
+          className="relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-700/30 border border-slate-600/30 shadow-2xl backdrop-blur-sm"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+          }}
+        >
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5 opacity-50 z-0" />
+          
+          <CardHeader className="relative z-10">
+            <CardTitle className="text-white flex items-center text-xl sm:text-2xl font-bold">
+              <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl mr-3">
+                <Shield className="w-6 h-6 text-cyan-400" />
+              </div>
               {t("privacy")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
+          <CardContent className="space-y-4 relative z-20">
+            <div className="flex items-center justify-between relative z-20">
               <div className="flex items-center space-x-3">
                 <Eye className="w-5 h-5 text-gray-400" />
                 <div>
@@ -663,10 +775,11 @@ export default function SettingsPage() {
                   handleSettingChange('publicProfile', checked)
                 }
                 disabled={isUpdating}
+                className="relative z-30"
               />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between relative z-20">
               <div className="flex items-center space-x-3">
                 <CreditCard className="w-5 h-5 text-gray-400" />
                 <div>
@@ -684,10 +797,11 @@ export default function SettingsPage() {
                   handleSettingChange('investmentActivity', checked)
                 }
                 disabled={isUpdating}
+                className="relative z-30"
               />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between relative z-20">
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-gray-400" />
                 <div>
@@ -703,21 +817,33 @@ export default function SettingsPage() {
                   handleSettingChange('directMessages', checked)
                 }
                 disabled={isUpdating}
+                className="relative z-30"
               />
             </div>
           </CardContent>
         </Card>
 
         {/* App Preferences */}
-        <Card className="artist-metric-card">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <Settings className="w-5 h-5 mr-2 text-cyan-400" />
+        <Card 
+          className="relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-700/30 border border-slate-600/30 shadow-2xl backdrop-blur-sm"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+          }}
+        >
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5 opacity-50 z-0" />
+          
+          <CardHeader className="relative z-10">
+            <CardTitle className="text-white flex items-center text-xl sm:text-2xl font-bold">
+              <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl mr-3">
+                <Settings className="w-6 h-6 text-cyan-400" />
+              </div>
               {t("appPreferences")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
+          <CardContent className="space-y-4 relative z-20">
+            <div className="flex items-center justify-between relative z-20">
               <div className="flex items-center space-x-3">
                 <Moon className="w-5 h-5 text-gray-400" />
                 <div>
@@ -735,10 +861,11 @@ export default function SettingsPage() {
                   handleSettingChange('darkMode', checked)
                 }
                 disabled={isUpdating}
+                className="relative z-30"
               />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between relative z-20">
               <div className="flex items-center space-x-3">
                 <Volume2 className="w-5 h-5 text-gray-400" />
                 <div>
@@ -756,10 +883,11 @@ export default function SettingsPage() {
                   handleSettingChange('autoPreview', checked)
                 }
                 disabled={isUpdating}
+                className="relative z-30"
               />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between relative z-20">
               <div className="flex items-center space-x-3">
                 <Globe className="w-5 h-5 text-gray-400" />
                 <div>
@@ -774,8 +902,12 @@ export default function SettingsPage() {
               <select
                 value={language}
                 onChange={(e) => handleLanguageChange(e.target.value)}
-                className="bg-slate-800/50 border border-slate-600 rounded-md px-3 py-2 text-white"
+                className="bg-slate-800/40 border border-slate-600/30 rounded-xl px-4 py-3 text-white focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 relative z-30"
                 disabled={isUpdating}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(51, 65, 85, 0.4) 100%)',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+                }}
               >
                 <option value="en">English</option>
                 <option value="fr">Français</option>
@@ -1016,46 +1148,50 @@ export default function SettingsPage() {
         )}
 
         {/* Account Actions */}
-        <Card className="artist-metric-card">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <Shield className="w-5 h-5 mr-2 text-cyan-400" />
+        <Card 
+          className="relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-700/30 border border-slate-600/30 shadow-2xl backdrop-blur-sm"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+          }}
+        >
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5 opacity-50 z-0" />
+          
+          <CardHeader className="relative z-10">
+            <CardTitle className="text-white flex items-center text-xl sm:text-2xl font-bold">
+              <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl mr-3">
+                <Shield className="w-6 h-6 text-cyan-400" />
+              </div>
               {t("accountActions")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6 relative z-10">
             <Button
               variant="outline"
-              className="w-full border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/10"
+              className="w-full border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-400/50 px-6 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105"
               onClick={() => setIsChangePasswordOpen(true)}
             >
               {t("changePassword")}
             </Button>
 
-            {/* <Button
-              variant="outline"
-              className="w-full border-blue-500/30 text-blue-300 hover:bg-blue-500/10"
-            >
-              {t("downloadMyData")}
-            </Button> */}
-
             <Button
               variant="outline"
-              className="w-full border-red-500/30 text-red-300 hover:bg-red-500/10"
+              className="w-full border-red-500/30 text-red-300 hover:bg-red-500/20 hover:border-red-400/50 px-6 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105"
               onClick={logout}
             >
               <LogOut className="w-4 h-4 mr-2" />
               {t("signOut")}
             </Button>
 
-            <div className="pt-4 border-t border-slate-700">
+            <div className="pt-6 border-t border-slate-600/20">
               <Button
                 variant="outline"
-                className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10"
+                className="w-full border-red-500/50 text-red-400 hover:bg-red-500/20 hover:border-red-400/60 px-6 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105"
               >
                 {t("deleteAccount")}
               </Button>
-              <p className="text-xs text-gray-500 mt-2 text-center">
+              <p className="text-xs text-gray-400 mt-3 text-center font-medium">
                 {t("deleteAccountWarning")}
               </p>
             </div>
@@ -1065,23 +1201,34 @@ export default function SettingsPage() {
 
       {/* Change Password Modal */}
       {isChangePasswordOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 w-full max-w-md mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-white">{t("changePassword")}</h3>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div 
+            className="relative overflow-hidden border border-slate-600/30 rounded-3xl p-8 w-full max-w-md mx-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5 opacity-50" />
+            
+            <div className="flex items-center justify-between mb-6 relative z-10">
+              <h3 className="text-2xl font-bold text-white bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+                {t("changePassword")}
+              </h3>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsChangePasswordOpen(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-400 hover:text-white hover:bg-slate-700/50 rounded-full p-2 transition-all duration-200"
               >
                 ✕
               </Button>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-6 relative z-10">
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">
+                <label className="text-white text-sm font-semibold mb-3 block">
                   {t("currentPassword")}
                 </label>
                 <Input
@@ -1089,13 +1236,17 @@ export default function SettingsPage() {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder={t("enterCurrentPassword")}
-                  className="bg-slate-700 border-slate-600 text-white"
+                  className="bg-slate-800/40 border-slate-600/30 text-white rounded-xl px-4 py-3 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
                   onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(51, 65, 85, 0.4) 100%)',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+                  }}
                 />
               </div>
               
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">
+                <label className="text-white text-sm font-semibold mb-3 block">
                   {t("newPassword")}
                 </label>
                 <Input
@@ -1103,13 +1254,17 @@ export default function SettingsPage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder={t("enterNewPassword")}
-                  className="bg-slate-700 border-slate-600 text-white"
+                  className="bg-slate-800/40 border-slate-600/30 text-white rounded-xl px-4 py-3 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
                   onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(51, 65, 85, 0.4) 100%)',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+                  }}
                 />
               </div>
               
               <div>
-                <label className="text-white text-sm font-medium mb-2 block">
+                <label className="text-white text-sm font-semibold mb-3 block">
                   {t("confirmNewPassword")}
                 </label>
                 <Input
@@ -1117,23 +1272,27 @@ export default function SettingsPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder={t("confirmNewPasswordPlaceholder")}
-                  className="bg-slate-700 border-slate-600 text-white"
+                  className="bg-slate-800/40 border-slate-600/30 text-white rounded-xl px-4 py-3 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
                   onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(51, 65, 85, 0.4) 100%)',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+                  }}
                 />
               </div>
               
-              <div className="flex space-x-3 pt-2">
+              <div className="flex space-x-4 pt-4">
                 <Button
                   variant="outline"
                   onClick={() => setIsChangePasswordOpen(false)}
-                  className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
+                  className="flex-1 border-slate-600/30 text-slate-300 hover:bg-slate-700/50 hover:border-slate-500/50 px-6 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105"
                 >
                   {t("cancel")}
                 </Button>
                 <Button
                   onClick={handleChangePassword}
                   disabled={isChangingPassword}
-                  className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white"
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-purple-500/25 transition-all duration-300 hover:scale-105"
                 >
                   {isChangingPassword ? t("changing") : t("changePasswordButton")}
                 </Button>
